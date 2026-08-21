@@ -1,9 +1,8 @@
 package com.senac.freelancehub.repository;
-import com.senac.freelancehub.entities.Usuario;
+import com.senac.freelancehub.entities.Projeto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
-
+public interface ProjetoRepository extends JpaRepository<Projeto, Long> {
 }
