@@ -1,9 +1,11 @@
 package com.senac.freelancehub.controllers;
 import com.senac.freelancehub.entities.Usuario;
+import com.senac.freelancehub.repository.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,13 +14,20 @@ import java.util.List;
 @RequestMapping("/usuarios")
 public class UsuarioController {
 
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
     @GetMapping
     public ResponseEntity<?> ListarTodos() {
 
-        List<Usuario> usuarios =
-                List.of (new Usuario(1L, "Thiago", "092.958.392-95", "123456", "thiago@gmail.com"));
+        return ResponseEntity.ok(usuarioRepository.findAll());
+    }
 
-        return ResponseEntity.ok(usuarios);
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Usuario> criar(@RequestBody Usuario usuario) {
+        var usuarioBanco = usuarioRepository.save(usuario);
+        return ResponseEntity.ok(usuarioBanco);
     }
 
 }
