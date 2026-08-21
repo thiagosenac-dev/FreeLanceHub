@@ -15,7 +15,7 @@ public class AuthController {
     public ResponseEntity<?> Login(@RequestBody LoginRequest loginRequest){
 
         if (loginRequest.email().equals("String") && loginRequest.email().equals("String")){
-            // gerra um token
+            // gerar um token
             return ResponseEntity.ok("");
         }
 
