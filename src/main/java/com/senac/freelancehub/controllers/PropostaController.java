@@ -2,6 +2,7 @@ package com.senac.freelancehub.controllers;
 
 import com.senac.freelancehub.entities.Proposta;
 import com.senac.freelancehub.repository.PropostaRepository;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/propostas")
+@Tag(name = "Propostas", description = "grupo de API responsável por controlar a estrutura de criação e consulta de usuários do sistema")
 public class PropostaController {
 
     @Autowired
