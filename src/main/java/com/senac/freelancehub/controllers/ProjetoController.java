@@ -2,6 +2,7 @@ package com.senac.freelancehub.controllers;
 
 import com.senac.freelancehub.entities.Projeto;
 import com.senac.freelancehub.repository.ProjetoRepository;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ public class ProjetoController {
     private ProjetoRepository projetoRepository;
 
     @GetMapping
+    @Operation(summary = "Método de consulta de lista de usuários!", description = "Método responsável pela colsulta de todas os usuários sem filtro")
     public ResponseEntity<?> ListarTodos() {
 
         return ResponseEntity.ok(projetoRepository.findAll());
@@ -24,6 +26,7 @@ public class ProjetoController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Método de consulta de lista de usuários!", description = "Método responsável pela colsulta de todas os usuários sem filtro")
     public ResponseEntity<Projeto> criar(@RequestBody Projeto projeto) {
         var projetoBanco = projetoRepository.save(projeto);
         return ResponseEntity.ok(projetoBanco);
