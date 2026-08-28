@@ -37,6 +37,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
+
         if (authHeader != null && authHeader.startsWith("Bearer ")){
             String token = authHeader.replace("Bearer ", "");
 
