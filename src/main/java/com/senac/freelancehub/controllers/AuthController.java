@@ -17,7 +17,7 @@ import java.net.HttpURLConnection;
 
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "Authenticador Controler", description = "grupo de API responsável por controlar a estrutura de criação e consulta de usuários do sistema")
+@Tag(name = "Authenticador Controler 'Login'", description = "grupo de API responsável por controlar a estrutura de criação e consulta de usuários do sistema")
 public class AuthController {
 
     @Autowired
@@ -28,13 +28,13 @@ public class AuthController {
     @Operation(summary = "autenticação de usuario", description = "descrição")
     public ResponseEntity<?> Login(@RequestBody LoginRequest loginRequest){
 
-        if (loginRequest.email().equals("String") && loginRequest.email().equals("String")){
+        if (loginRequest.email().equals("string") && loginRequest.email().equals("string")){
 
             // gerar um token
 
             var token = tokenService.gerarToken(loginRequest.email());
 
-            return ResponseEntity.ok("");
+            return ResponseEntity.ok(token);
         }
 
         return ResponseEntity.status(HttpURLConnection.HTTP_UNAUTHORIZED).build();
