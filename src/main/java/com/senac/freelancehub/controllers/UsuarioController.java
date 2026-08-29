@@ -31,6 +31,16 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioRepository.findAll());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Usuario> BuscarPorId(@PathVariable Long id){
+
+        Usuario usuarioBanco = usuarioRepository.findById(id).orElse(null);
+        if (usuarioBanco != null){
+            return ResponseEntity.ok(usuarioBanco);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Método de criar novos usuários!", description = "Método responsável pela criação de. usuários")
@@ -87,24 +97,4 @@ public class UsuarioController {
     }
 }
 
-/*
-    @PutMapping("/senha")
-    @Operation(summary = "alterar senha (esqueci minha senha)", description = "metodo responsável por permitir a alteração da senha do usuário quando esquecida")
-    public ResponseEntity<?> AlterarSenha(@RequestBody AlterarSenhaRequest alterarSenhaRequest) {
-
-        var usuarioOptional = usuarioRepository.findByEmail(alterarSenhaRequest.email());
-
-        if (usuarioOptional.isEmpty()){
-            return ResponseEntity.status(HttpURLConnection.HTTP_NOT_FOUND).build();
-        }
-
-        var usuario = usuarioOptional.get();
-        usuario.setSenha(alterarSenhaRequest.novaSenha());
-        usuarioRepository.save(usuario);
-
-        return ResponseEntity.ok().build();
-    }
-
-}
-*/
 
