@@ -1,5 +1,7 @@
 package com.senac.freelancehub.entities;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,6 +21,7 @@ public class Proposta {
     public String descricao;
     public Double valor;
     public String prazo;
-    public String status;
+    @Enumerated(EnumType.STRING)
+    public EnumStatusProposta status;
 
 }

@@ -1,5 +1,7 @@
 package com.senac.freelancehub.entities;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -20,5 +22,7 @@ public class Cliente {
     public String cpf;
     public String email;
     public String telefone;
+    @Enumerated(EnumType.STRING)
+    public EnumStatusCliente status;
 
 }

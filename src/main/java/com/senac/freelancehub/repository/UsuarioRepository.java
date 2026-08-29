@@ -14,4 +14,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     Optional<List<Usuario>> findByStatus(EnumStatusUsuario status);
 
+    Optional<Usuario> findByEmail(String email);
+
 }

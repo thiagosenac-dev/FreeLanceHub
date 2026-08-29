@@ -1,5 +1,4 @@
 package com.senac.freelancehub.controllers;
-import com.senac.freelancehub.DTOs.AlterarSenhaRequest;
 import com.senac.freelancehub.DTOs.AtualizarStatusRequest;
 import com.senac.freelancehub.entities.EnumStatusUsuario;
 import com.senac.freelancehub.entities.Usuario;
@@ -7,14 +6,9 @@ import com.senac.freelancehub.repository.UsuarioRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -32,6 +26,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Método de consulta de lista de usuários POR ID", description = "Método responsável pela colsulta de usuários por ID")
     public ResponseEntity<Usuario> BuscarPorId(@PathVariable Long id){
 
         Usuario usuarioBanco = usuarioRepository.findById(id).orElse(null);
@@ -50,6 +45,7 @@ public class UsuarioController {
     }
 
     @PatchMapping("/{id}/status")
+    @Operation(summary = "Método de aletrar Status", description = "Método responsável aletração dos status dos usuários")
     public ResponseEntity<Void> atualizarStatus(@PathVariable Long id, @RequestBody AtualizarStatusRequest statusRequest){
 
         Usuario usuarioBanco = usuarioRepository.findById(id).orElse(null);
@@ -62,6 +58,7 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Método de alterar iformações do usuário", description = "Método responsável pela alteração de usuários")
     public ResponseEntity<Usuario> atualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuario){
 
         try {
@@ -85,6 +82,7 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{id}/excluir")
+    @Operation(summary = "Método de inativação de cadastro", description = "Método responsável inativação do cadastro do usuários")
     public ResponseEntity<Void> excluir(@PathVariable Long id){
 
         Usuario usuarioBanco = usuarioRepository.findById(id).orElse(null);
