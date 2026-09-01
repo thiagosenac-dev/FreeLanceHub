@@ -23,6 +23,6 @@ public class Cliente {
     public String email;
     public String telefone;
     @Enumerated(EnumType.STRING)
-    public EnumStatusCliente status;
+    public EnumStatus status;
 
 }

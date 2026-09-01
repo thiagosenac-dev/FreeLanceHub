@@ -1,6 +1,6 @@
 package com.senac.freelancehub.controllers;
-import com.senac.freelancehub.DTOs.AtualizarStatusRequest;
-import com.senac.freelancehub.entities.EnumStatusUsuario;
+import com.senac.freelancehub.DTOs.AtualizarStatusUsuarioRequest;
+import com.senac.freelancehub.entities.EnumStatus;
 import com.senac.freelancehub.entities.Usuario;
 import com.senac.freelancehub.repository.UsuarioRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,7 +46,7 @@ public class UsuarioController {
 
     @PatchMapping("/{id}/status")
     @Operation(summary = "Método de aletrar Status", description = "Método responsável aletração dos status dos usuários")
-    public ResponseEntity<Void> atualizarStatus(@PathVariable Long id, @RequestBody AtualizarStatusRequest statusRequest){
+    public ResponseEntity<Void> atualizarStatus(@PathVariable Long id, @RequestBody AtualizarStatusUsuarioRequest statusRequest){
 
         Usuario usuarioBanco = usuarioRepository.findById(id).orElse(null);
         if (usuarioBanco != null){
@@ -87,7 +87,7 @@ public class UsuarioController {
 
         Usuario usuarioBanco = usuarioRepository.findById(id).orElse(null);
         if (usuarioBanco != null){
-            usuarioBanco.setStatus(EnumStatusUsuario.EXCLUIDO);
+            usuarioBanco.setStatus(EnumStatus.EXCLUIDO);
             usuarioRepository.save(usuarioBanco);
             return ResponseEntity.ok().build();
         }

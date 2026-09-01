@@ -1,6 +1,6 @@
 package com.senac.freelancehub.entities;
 
-public enum EnumStatusUsuario {
+public enum EnumStatus {
     ATIVO,
     BLOQUEADO,
     EXCLUIDO,

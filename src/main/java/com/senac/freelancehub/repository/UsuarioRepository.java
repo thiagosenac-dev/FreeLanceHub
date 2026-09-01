@@ -1,5 +1,5 @@
 package com.senac.freelancehub.repository;
-import com.senac.freelancehub.entities.EnumStatusUsuario;
+import com.senac.freelancehub.entities.EnumStatus;
 import com.senac.freelancehub.entities.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -12,7 +12,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     boolean existsUsuarioByEmailAndSenha(String email, String senha);
 
-    Optional<List<Usuario>> findByStatus(EnumStatusUsuario status);
+    Optional<List<Usuario>> findByStatus(EnumStatus status);
 
     Optional<Usuario> findByEmail(String email);
 

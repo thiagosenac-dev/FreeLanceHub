@@ -2,7 +2,7 @@ package com.senac.freelancehub.controllers;
 
 import com.senac.freelancehub.DTOs.AtualizarStatusClienteRequest;
 import com.senac.freelancehub.entities.Cliente;
-import com.senac.freelancehub.entities.EnumStatusCliente;
+import com.senac.freelancehub.entities.EnumStatus;
 import com.senac.freelancehub.repository.ClienteRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -88,7 +88,7 @@ public class ClienteController {
 
         Cliente clienteBanco = clienteRepository.findById(id).orElse(null);
         if (clienteBanco != null){
-            clienteBanco.setStatus(EnumStatusCliente.EXCLUIDO);
+            clienteBanco.setStatus(EnumStatus.EXCLUIDO);
             clienteRepository.save(clienteBanco);
             return ResponseEntity.ok().build();
         }

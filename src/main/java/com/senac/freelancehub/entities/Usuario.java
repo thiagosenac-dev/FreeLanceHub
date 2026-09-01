@@ -20,6 +20,6 @@ public class Usuario {
     private String cpf;
     private String senha;
     private String email;
-    private EnumStatusUsuario status;
+    private EnumStatus status;
 
 }
