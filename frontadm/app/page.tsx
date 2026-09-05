@@ -1,3 +1,4 @@
+import Link from "@/node_modules/next/link";
 import Image from "next/image";
 
 export default function Home() {
@@ -58,7 +59,8 @@ export default function Home() {
               <a href="#inicio" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Início</a>
               <a href="#historia" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Nossa História</a>
               
-              <button className="relative inline-flex items-center justify-center px-6 py-2.5 overflow-hidden font-medium text-white bg-[#3b82f6] rounded-full group hover:bg-[#06b6d4] transition-all duration-300 shadow-[0_0_15px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_rgba(6,182,212,0.6)]">
+              <Link href = "/login"
+              className="relative inline-flex items-center justify-center px-6 py-2.5 overflow-hidden font-medium text-white bg-[#3b82f6] rounded-full group hover:bg-[#06b6d4] transition-all duration-300 shadow-[0_0_15px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_rgba(6,182,212,0.6)]">
                 <span className="absolute w-0 h-0 transition-all duration-500 ease-out bg-white rounded-full group-hover:w-56 group-hover:h-56 opacity-10"></span>
                 <span className="relative flex items-center gap-2 font-heading text-sm">
                   Entrar
@@ -66,7 +68,9 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                   </svg>
                 </span>
-              </button>
+              </Link>
+              
+              
             </nav>
 
             {/* Mobile Menu Button */}
@@ -97,7 +101,7 @@ export default function Home() {
               </h1>
               
               <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto lg:mx-0 font-light leading-relaxed">
-                Ajudamos pessoas a encontrar oportunidades incríveis no tempo livre e conectamos empresas ao talento certo, exatamente quando precisam.
+                Conectando talentos às oportunidades que fazem a diferença.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">

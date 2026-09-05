@@ -1,6 +1,10 @@
-export default function SistemaLayout ({children}){
-    return (
-    <>
+export default function 
+SistemaLayout ({children}){
+    return (<>
+        <div className="Flex">
     {children}
+    </div>
+
+   
     </>)
 }

@@ -1,8 +1,36 @@
+import Link from "@/node_modules/next/link";
 import { Children } from "react";
 
 export default function Usuarios(){
-    return<>
-    {Children}
-    </>
+    return(
+        <>
+        <div>
+            <div>
+                <h1>Titulo</h1>
+                <Link href="/usuarios/novo"></Link>
+            </div>
+           
+            <div>
+                <div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th> Nome</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    Samuel
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        </>
+    )
+ 
     
 }
