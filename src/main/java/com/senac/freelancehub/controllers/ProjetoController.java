@@ -13,21 +13,21 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/projetos")
-@Tag(name = "Projetos", description = "grupo de API responsável por controlar a estrutura de criação e consulta de usuários do sistema")
+@Tag(name = "Projetos", description = "grupo de API responsável por controlar a estrutura dos projetos do sistema")
 public class ProjetoController {
 
     @Autowired
     private ProjetoRepository projetoRepository;
 
     @GetMapping
-    @Operation(summary = "Método de consulta de lista de usuários!", description = "Método responsável pela colsulta de todas os usuários sem filtro")
+    @Operation(summary = "Método de consulta de lista de usuários!", description = "Método responsável pela colsulta de todos os projetos sem filtro")
     public ResponseEntity<?> ListarTodos() {
 
         return ResponseEntity.ok(projetoRepository.findAll());
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Método de consulta de lista de usuários POR ID", description = "Método responsável pela colsulta de usuários por ID")
+    @Operation(summary = "Método de consulta de lista de usuários POR ID", description = "Método responsável pela colsulta dos projetos por ID")
     public ResponseEntity<Projeto> BuscarPorId(@PathVariable Long id){
 
         Projeto projetoBanco = projetoRepository.findById(id).orElse(null);
@@ -39,7 +39,7 @@ public class ProjetoController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Método de consulta de lista de usuários!", description = "Método responsável pela colsulta de todas os usuários sem filtro")
+    @Operation(summary = "Método de consulta de lista de usuários!", description = "Método responsável pela colsulta de todos os projetos sem filtro")
     public ResponseEntity<Projeto> criar(@RequestBody Projeto projeto) {
         var projetoBanco = projetoRepository.save(projeto);
         return ResponseEntity.ok(projetoBanco);
