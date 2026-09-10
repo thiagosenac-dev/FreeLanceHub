@@ -1,5 +1,4 @@
 import Link from "@/node_modules/next/link";
-import { Children } from "react";
 
 export default function Usuarios(){
     return(
@@ -9,7 +8,7 @@ export default function Usuarios(){
             <div className="absolute w-[400px] h-[400px] bg-gradient-to-r from-blue-500/15 to-cyan-500/15 rounded-full blur-[80px] z-0 pointer-events-none bottom-[20%] right-[-10%]"></div>
 
             {/* Main Container */}
-            <div className="w-full max-w-5xl mx-auto relative z-10 space-y-6">
+            <div className="w-full max-w-6xl mx-auto relative z-10 space-y-6">
                 
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-2xl shadow-blue-950/20">
@@ -17,7 +16,7 @@ export default function Usuarios(){
                         <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
                             Usuários
                         </h1>
-                        <p className="text-sm text-slate-400 mt-1">Gerencie os usuários cadastrados na plataforma</p>
+                        <p className="text-sm text-slate-400 mt-1">Gerencie os acessos, permissões e contas cadastradas na plataforma</p>
                     </div>
                     
                     <Link 
@@ -27,6 +26,22 @@ export default function Usuarios(){
                         + Novo Usuário
                     </Link>
                 </div>
+
+                {/* Quick Stats Bar */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-xl p-4 shadow-xl">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Total de Usuários</span>
+                        <p className="text-2xl font-bold text-slate-100 mt-1">01</p>
+                    </div>
+                    <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-xl p-4 shadow-xl">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Ativos</span>
+                        <p className="text-2xl font-bold text-emerald-400 mt-1">01</p>
+                    </div>
+                    <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-xl p-4 shadow-xl">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Pendentes</span>
+                        <p className="text-2xl font-bold text-amber-400 mt-1">00</p>
+                    </div>
+                </div>
                 
                 {/* Content / Table Section */}
                 <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl shadow-2xl shadow-blue-950/20 overflow-hidden">
@@ -35,12 +50,29 @@ export default function Usuarios(){
                             <thead>
                                 <tr className="border-b border-slate-800 bg-slate-900/40 text-xs font-semibold uppercase tracking-wider text-slate-300">
                                     <th className="py-4 px-6">Nome</th>
+                                    <th className="py-4 px-6">E-mail</th>
+                                    <th className="py-4 px-6">Status</th>
+                                    <th className="py-4 px-6 text-right">Ações</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-800/60 text-sm">
                                 <tr className="hover:bg-slate-900/30 transition-colors">
-                                    <td className="py-4 px-6 text-slate-200 font-medium">
+                                    <td className="py-4 px-6 text-slate-200 font-medium flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold text-xs">
+                                            S
+                                        </div>
                                         Samuel
+                                    </td>
+                                    <td className="py-4 px-6 text-slate-400">samuel@email.com</td>
+                                    <td className="py-4 px-6">
+                                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                            Ativo
+                                        </span>
+                                    </td>
+                                    <td className="py-4 px-6 text-right">
+                                        <Link href="/usuarios/editar" className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors">
+                                            Editar
+                                        </Link>
                                     </td>
                                 </tr>
                             </tbody>
