@@ -55,27 +55,7 @@ export default function Propostas(){
                                     <th className="py-4 px-6 text-right">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-800/60 text-sm">
-                                <tr className="hover:bg-slate-900/30 transition-colors">
-                                    <td className="py-4 px-6 text-slate-200 font-medium flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-cyan-600/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold text-xs">
-                                            A
-                                        </div>
-                                        Artur
-                                    </td>
-                                    <td className="py-4 px-6 text-slate-400">Cliente Exemplo S.A.</td>
-                                    <td className="py-4 px-6">
-                                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                                            Em Análise
-                                        </span>
-                                    </td>
-                                    <td className="py-4 px-6 text-right">
-                                        <Link href="/propostas/editar" className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors">
-                                            Editar
-                                        </Link>
-                                    </td>
-                                </tr>
-                            </tbody>
+                        
                         </table>
                     </div>
                 </div>
