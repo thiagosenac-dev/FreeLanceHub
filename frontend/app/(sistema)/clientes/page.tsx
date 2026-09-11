@@ -1,15 +1,58 @@
-import Link from "@/node_modules/next/link";
+'use client'
  
-export default function Clientes(){
-    return(
+import Link from "@/node_modules/next/link";
+import axios from "@/node_modules/axios/index";
+import { Cliente } from "@/node_modules/app/types/clientes";
+import { useEffect, useState } from "react";
+ 
+export default function Clientes() {
+    const [clientes, setClientes] = useState<Cliente[]>([])
+ 
+    useEffect(() => {
+        carregarDados();
+    }, []);
+ 
+    const carregarDados = async () => {
+        try {
+            const dados = await axios.get<Cliente[]>("http://localhost:8080/clientes")
+            setClientes(dados.data);
+        } catch (error) {
+            alert("Erro ao carregar dados")
+        }
+    }
+ 
+    const excluirCliente = async (id: number | string) => {
+        if (confirm("Deseja realmente excluir este cliente?")) {
+            try {
+                await axios.delete(`http://localhost:8080/clientes/${id}`);
+                setClientes(clientes.filter(c => c.id !== id));
+            } catch (error) {
+                alert("Erro ao excluir cliente");
+            }
+        }
+    }
+ 
+    const statusLabels: Record<string, string> = {
+        ATIVO: "Ativo",
+        BLOQUEADO: "Bloqueado",
+        INATIVO: "Inativo",
+    };
+ 
+    const statusStyles: Record<string, string> = {
+        ATIVO: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+        BLOQUEADO: "bg-rose-500/10 text-rose-400 border border-rose-500/20",
+        INATIVO: "bg-slate-500/10 text-slate-400 border border-slate-500/20",
+    };
+ 
+    return (
         <div className="relative min-h-screen bg-black flex flex-col text-slate-100 overflow-hidden p-6 md:p-10">
-           
+ 
             <div className="absolute w-[400px] h-[400px] bg-gradient-to-r from-blue-500/15 to-cyan-500/15 rounded-full blur-[80px] z-0 pointer-events-none top-[-10%] left-[-10%]"></div>
             <div className="absolute w-[400px] h-[400px] bg-gradient-to-r from-blue-500/15 to-cyan-500/15 rounded-full blur-[80px] z-0 pointer-events-none bottom-[20%] right-[-10%]"></div>
-
-            
+ 
+ 
             <div className="w-full max-w-6xl mx-auto relative z-10 space-y-6">
-                
+ 
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-2xl shadow-blue-950/20">
                     <div>
@@ -18,31 +61,35 @@ export default function Clientes(){
                         </h1>
                         <p className="text-sm text-slate-400 mt-1">Acompanhe e gerencie a carteira de clientes cadastrados</p>
                     </div>
-                    
-                    <Link 
+ 
+                    <Link
                         href="/clientes/novo"
                         className="inline-flex items-center justify-center py-3 px-5 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200 transform active:scale-[0.99] cursor-pointer text-sm tracking-wide w-full sm:w-auto text-center"
                     >
                         + Novo Cliente
                     </Link>
                 </div>
-
+ 
                 {/* Barra de cima que mostra relação dos clientes */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-xl p-4 shadow-xl">
                         <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Total de Clientes</span>
-                        <p className="text-2xl font-bold text-slate-100 mt-1">01</p>
+                        <p className="text-2xl font-bold text-slate-100 mt-1">{clientes.length}</p>
                     </div>
                     <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-xl p-4 shadow-xl">
                         <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Clientes Ativos</span>
-                        <p className="text-2xl font-bold text-emerald-400 mt-1">01</p>
+                        <p className="text-2xl font-bold text-emerald-400 mt-1">
+                            {clientes.filter(c => String(c.status).toUpperCase() === 'ATIVO').length}
+                        </p>
                     </div>
                     <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-xl p-4 shadow-xl">
                         <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Inativos</span>
-                        <p className="text-2xl font-bold text-slate-400 mt-1">00</p>
+                        <p className="text-2xl font-bold text-slate-400 mt-1">
+                            {clientes.filter(c => String(c.status).toUpperCase() !== 'ATIVO').length}
+                        </p>
                     </div>
                 </div>
-                
+ 
                 {/* Tabelinhas das entidades, cada um com a sua */}
                 <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl shadow-2xl shadow-blue-950/20 overflow-hidden">
                     <div className="overflow-x-auto">
@@ -55,6 +102,51 @@ export default function Clientes(){
                                     <th className="py-4 px-6 text-right">Ações</th>
                                 </tr>
                             </thead>
+                            <tbody className="divide-y divide-slate-800/60 text-sm">
+                                {clientes.map((cliente) => {
+                                    const rawStatus = cliente.status ? String(cliente.status).toUpperCase() : 'ATIVO';
+                                    const badgeClass = statusStyles[rawStatus] || "bg-slate-500/10 text-slate-400 border border-slate-500/20";
+                                    const labelText = statusLabels[rawStatus] || cliente.status || "Ativo";
+ 
+                                    return (
+                                        <tr key={cliente.id} className="hover:bg-slate-900/30 transition-colors">
+                                            <td className="py-4 px-6 text-slate-200 font-medium flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold text-xs uppercase">
+                                                    {cliente.nome ? cliente.nome.charAt(0) : 'C'}
+                                                </div>
+                                                {cliente.nome}
+                                            </td>
+                                            <td className="py-4 px-6 text-slate-400">{cliente.email}</td>
+                                            <td className="py-4 px-6">
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${badgeClass}`}>
+                                                    {labelText}
+                                                </span>
+                                            </td>
+                                            <td className="py-4 px-6 text-right">
+                                                <div className="flex items-center justify-end gap-3">
+                                                    <Link href={`/clientes/${cliente.id}`} className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors">
+                                                        Editar
+                                                    </Link>
+                                                    <button
+                                                        onClick={() => excluirCliente(cliente.id)}
+                                                        className="text-rose-400 hover:text-rose-300 font-medium text-xs transition-colors cursor-pointer"
+                                                    >
+                                                        Excluir
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+ 
+                                {clientes.length === 0 && (
+                                    <tr>
+                                        <td colSpan={4} className="py-12 text-center text-slate-500 italic">
+                                            Nenhum cliente encontrado
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -62,3 +154,4 @@ export default function Clientes(){
         </div>
     );
 }
+ 

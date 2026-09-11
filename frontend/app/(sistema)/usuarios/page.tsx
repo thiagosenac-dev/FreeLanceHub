@@ -21,7 +21,7 @@ export default function Usuarios() {
         }
     }
 
-    const excluirUsuario = async (id: number | string) => {
+    const excluirUsuario = async (id: number | null) => {
         if (confirm("Deseja realmente excluir este usuário?")) {
             try {
                 await axios.delete(`http://localhost:8080/usuarios/${id}`);
