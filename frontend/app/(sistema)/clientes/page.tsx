@@ -2,8 +2,9 @@
  
 import Link from "@/node_modules/next/link";
 import axios from "@/node_modules/axios/index";
-import { Cliente } from "@/node_modules/app/types/clientes";
+
 import { useEffect, useState } from "react";
+import { Cliente } from "@/app/types/cliente";
  
 export default function Clientes() {
     const [clientes, setClientes] = useState<Cliente[]>([])
@@ -21,7 +22,7 @@ export default function Clientes() {
         }
     }
  
-    const excluirCliente = async (id: number | string) => {
+    const excluirCliente = async (id: number | null) => {
         if (confirm("Deseja realmente excluir este cliente?")) {
             try {
                 await axios.delete(`http://localhost:8080/clientes/${id}`);
