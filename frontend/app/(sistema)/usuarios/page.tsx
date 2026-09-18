@@ -40,16 +40,17 @@ export default function Usuarios() {
  
     const statusStyles: Record<string, string> = {
         ATIVO: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
-        BLOQUEADO: "bg-rose-500/10 text-rose-400 border border-rose-500/20",
-        EXCLUIDO: "bg-slate-500/10 text-slate-400 border border-slate-500/20",
+        BLOQUEADO: "bg-amber-600/10 text-amber-500 border border-amber-600/20",
+        EXCLUIDO: "bg-rose-500/10 text-rose-400 border border-rose-500/20",
     };
  
+    
     return (
         <div className="relative min-h-screen bg-black flex flex-col text-slate-100 overflow-hidden p-6 md:p-10">
-            {/* Luizinha azul que pisca */}
+            {/* luizinha piscando */}
             <div className="absolute w-[500px] h-[500px] bg-gradient-to-r from-blue-600/20 to-cyan-500/20 rounded-full blur-[100px] z-0 pointer-events-none top-[-10%] left-[-10%] animate-pulse"></div>
             <div className="absolute w-[500px] h-[500px] bg-gradient-to-r from-indigo-600/20 to-blue-500/20 rounded-full blur-[100px] z-0 pointer-events-none bottom-[-10%] right-[-10%] animate-pulse"></div>
-            {/* Luizinha azul que pisca */}
+             {/* luizinha piscando */}
             <div className="w-full max-w-6xl mx-auto relative z-10 space-y-6">
                 
                 {/* Header Section */}

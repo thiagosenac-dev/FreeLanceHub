@@ -24,7 +24,7 @@ export default function Propostas() {
     const excluirProposta = async (id: number | null) => {
         if (confirm("Deseja realmente excluir esta proposta?")) {
             try {
-                await axios.delete(`http://localhost:8080/propostas/${id}/excluir`);
+                await axios.delete(`http://localhost:8080/propostas/${id}`);
                 setPropostas(propostas.filter(p => p.id !== id));
             } catch (error) {
                 alert("Erro ao excluir proposta");
@@ -32,32 +32,26 @@ export default function Propostas() {
         }
     }
 
-    const formatarValor = (valor: number) => {
-        if (valor === null || valor === undefined) return "-";
-        return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-    }
-
     const statusLabels: Record<string, string> = {
-        PENDENTE: "Pendente",
-        ACEITA: "Aceita",
-        RECUSADA: "Recusada",
-        CANCELADA: "Cancelada",
+        EM_NEGOCIACAO: "Em Negociação",
+        APROVADA: "Aprovada",
+        REJEITADA: "Rejeitada",
     };
 
     const statusStyles: Record<string, string> = {
-        PENDENTE: "bg-amber-500/10 text-amber-400 border border-amber-500/20",
-        ACEITA: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
-        RECUSADA: "bg-rose-500/10 text-rose-400 border border-rose-500/20",
-        CANCELADA: "bg-slate-500/10 text-slate-400 border border-slate-500/20",
+        EM_NEGOCIACAO: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
+        APROVADA: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+        REJEITADA: "bg-rose-500/10 text-rose-400 border border-rose-500/20",
     };
+
+    const contar = (status: string) => propostas.filter(p => String(p.status).toUpperCase() === status).length;
 
     return (
         <div className="relative min-h-screen bg-black flex flex-col text-slate-100 overflow-hidden p-6 md:p-10">
-            {/* Luizinha azul que pisca */}
-            <div className="absolute w-[500px] h-[500px] bg-gradient-to-r from-blue-600/20 to-cyan-500/20 rounded-full blur-[100px] z-0 pointer-events-none top-[-10%] left-[-10%] animate-pulse"></div>
+              {/* luizinha piscando */}
+              <div className="absolute w-[500px] h-[500px] bg-gradient-to-r from-blue-600/20 to-cyan-500/20 rounded-full blur-[100px] z-0 pointer-events-none top-[-10%] left-[-10%] animate-pulse"></div>
             <div className="absolute w-[500px] h-[500px] bg-gradient-to-r from-indigo-600/20 to-blue-500/20 rounded-full blur-[100px] z-0 pointer-events-none bottom-[-10%] right-[-10%] animate-pulse"></div>
-            {/* Luizinha azul que pisca */}
-          
+             {/* luizinha piscando */}
             <div className="w-full max-w-6xl mx-auto relative z-10 space-y-6">
 
                 {/* Header Section */}
@@ -84,16 +78,12 @@ export default function Propostas() {
                         <p className="text-2xl font-bold text-slate-100 mt-1">{propostas.length}</p>
                     </div>
                     <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-xl p-4 shadow-xl">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Pendentes</span>
-                        <p className="text-2xl font-bold text-blue-400 mt-1">
-                            {propostas.filter(p => String(p.status).toUpperCase() === 'PENDENTE').length}
-                        </p>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Em Negociação</span>
+                        <p className="text-2xl font-bold text-blue-400 mt-1">{contar("EM_NEGOCIACAO")}</p>
                     </div>
                     <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-xl p-4 shadow-xl">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Aceitas</span>
-                        <p className="text-2xl font-bold text-emerald-400 mt-1">
-                            {propostas.filter(p => String(p.status).toUpperCase() === 'ACEITA').length}
-                        </p>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Aprovadas</span>
+                        <p className="text-2xl font-bold text-emerald-400 mt-1">{contar("APROVADA")}</p>
                     </div>
                 </div>
 
@@ -103,6 +93,7 @@ export default function Propostas() {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-slate-800 bg-slate-900/40 text-xs font-semibold uppercase tracking-wider text-slate-300">
+                                    <th className="py-4 px-6">Código</th>
                                     <th className="py-4 px-6">Descrição</th>
                                     <th className="py-4 px-6">Valor</th>
                                     <th className="py-4 px-6">Prazo</th>
@@ -112,14 +103,17 @@ export default function Propostas() {
                             </thead>
                             <tbody className="divide-y divide-slate-800/60 text-sm">
                                 {propostas.map((proposta) => {
-                                    const rawStatus = proposta.status ? String(proposta.status).toUpperCase() : 'PENDENTE';
+                                    const rawStatus = String(proposta.status).toUpperCase();
                                     const badgeClass = statusStyles[rawStatus] || "bg-slate-500/10 text-slate-400 border border-slate-500/20";
-                                    const labelText = statusLabels[rawStatus] || proposta.status || "Pendente";
+                                    const labelText = statusLabels[rawStatus] || proposta.status;
 
                                     return (
                                         <tr key={proposta.id} className="hover:bg-slate-900/30 transition-colors">
+                                            <td className="py-4 px-6 text-slate-200 font-medium">#{proposta.id}</td>
                                             <td className="py-4 px-6 text-slate-200 font-medium">{proposta.descricao}</td>
-                                            <td className="py-4 px-6 text-slate-400">{formatarValor(proposta.valor)}</td>
+                                            <td className="py-4 px-6 text-slate-400">
+                                                {Number(proposta.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                                            </td>
                                             <td className="py-4 px-6 text-slate-400">{proposta.prazo}</td>
                                             <td className="py-4 px-6">
                                                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${badgeClass}`}>
@@ -145,7 +139,7 @@ export default function Propostas() {
 
                                 {propostas.length === 0 && (
                                     <tr>
-                                        <td colSpan={5} className="py-12 text-center text-slate-500 italic">
+                                        <td colSpan={6} className="py-12 text-center text-slate-500 italic">
                                             Nenhuma proposta encontrada
                                         </td>
                                     </tr>
