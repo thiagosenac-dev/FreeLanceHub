@@ -6,9 +6,13 @@ import com.senac.freelancehub.repository.UsuarioRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Comparator;
+
 
 @RestController
 @RequestMapping("/usuarios")
@@ -22,7 +26,9 @@ public class UsuarioController {
     @Operation(summary = "Método de consulta de lista de usuários!", description = "Método responsável pela colsulta de todas os usuários sem filtro")
     public ResponseEntity<?> ListarTodos() {
 
-        return ResponseEntity.ok(usuarioRepository.findAll());
+
+        var usuarios = usuarioRepository.findAll(Sort.by("id"));
+        return ResponseEntity.ok(usuarios);
     }
 
     @GetMapping("/{id}")

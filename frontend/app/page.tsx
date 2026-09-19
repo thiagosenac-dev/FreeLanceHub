@@ -1,5 +1,4 @@
 import Link from "@/node_modules/next/link";
-import Image from "next/image";
 
 export default function Home() {
   return (
