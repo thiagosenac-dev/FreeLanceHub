@@ -1,46 +1,86 @@
-import Link from "@/node_modules/next/link";
+"use client"
 
-export default function UsuarioForm() {
-    const formClasses = "max-w-2xl mx-auto bg-[#030712] p-8 rounded-2xl shadow-xl space-y-6";
-    const gridClasses = "grid grid-cols-1 md:grid-cols-2 gap-6";
-    const fieldClasses = "space-y-2";
-    const labelClasses = "block text-xs font-semibold text-gray-400 tracking-wider uppercase";
-    const inputClasses = "w-full px-4 py-3 rounded-xl text-base text-gray-200 bg-white/[0.02] border border-white/5 focus:border-[#3b82f6]/50 focus:bg-[#3b82f6]/[0.02] focus:outline-none focus:ring-2 focus:ring-[#3b82f6]/20 transition-all duration-300 shadow-sm";
-    const actionsClasses = "flex items-center justify-end space-x-4 pt-4 border-t border-white/5";
-    const cancelClasses = "px-6 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/[0.02] border border-transparent transition-all duration-200";
-    const submitClasses = "px-6 py-3 rounded-xl text-sm font-medium text-white bg-[#3b82f6] hover:bg-[#2563eb] border border-[#3b82f6]/30 shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all duration-300";
+import { FormEvent, useEffect, useState } from "react";
+import Link from "@/node_modules/next/link";
+import axios from "@/node_modules/axios/index";
+import { useRouter } from "@/node_modules/next/navigation";
+
+const API = "http://localhost:8080/usuarios";
+
+// campos do formulário (name = nome do input, campo = chave que o back usa)
+const campos = [
+    { label: "Nome completo:", name: "nome", campo: "nome" },
+    { label: "CPF:", name: "CPF", campo: "cpf" },
+    { label: "E-mail", name: "email", campo: "email", type: "email" },
+    { label: "Senha:", name: "Senha", campo: "senha", type: "password" },
+];
+
+// opções do status (só aparece na edição)
+const statusOpcoes = [
+    { valor: "ATIVO", texto: "Ativo" },
+    { valor: "BLOQUEADO", texto: "Bloqueado" },
+    { valor: "EXCLUIDO", texto: "Excluído" },
+];
+
+// com "codigo" edita o usuário, sem "codigo" cadastra um novo
+export default function UsuarioForm({ codigo }: { codigo?: number }) {
+    const router = useRouter();
+    const [dados, setDados] = useState<Record<string, string>>({ nome: "", cpf: "", email: "", senha: "", status: "ATIVO" });
+    const formClasses = "relative max-w-2xl mx-auto rounded-2xl border border-blue-400/15 bg-gradient-to-b from-slate-900/70 to-slate-950/90 p-8 shadow-[inset_0_1px_0_0_rgba(96,165,250,0.18)]";
+    const labelClasses = "flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-200/70";
+    const inputClasses = "w-full rounded-xl border border-slate-800 bg-slate-950/70 px-4 py-3 text-base text-slate-100 transition-all duration-300 hover:border-blue-400/30 focus:border-cyan-400/60 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:shadow-[0_0_22px_-6px_rgba(34,211,238,0.6)] [&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_#020617] [&:-webkit-autofill]:[-webkit-text-fill-color:#f1f5f9]";
+    const cancelClasses = "rounded-xl border border-transparent px-6 py-3 text-sm font-medium text-slate-400 transition-all duration-200 hover:border-blue-400/20 hover:bg-white/[0.04] hover:text-white";
+    const submitClasses = "rounded-xl border border-blue-300/20 bg-gradient-to-r from-blue-600 to-cyan-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_8px_25px_-8px_rgba(34,211,238,0.6)] transition-all duration-300 hover:-translate-y-0.5 hover:from-blue-500 hover:to-cyan-400 hover:shadow-[0_12px_32px_-6px_rgba(34,211,238,0.75)] active:translate-y-0";
+
+    // na edição, busca o usuário e preenche os campos
+    useEffect(() => {
+        if (!codigo) return;
+        axios.get(`${API}/${codigo}`)
+            .then(({ data }) => setDados({ nome: data.nome ?? "", cpf: data.cpf ?? "", email: data.email ?? "", senha: data.senha ?? "", status: String(data.status ?? "ATIVO").toUpperCase() }))
+            .catch(() => alert("Erro ao carregar usuário"));
+    }, [codigo]);
+
+    // salva (PUT na edição, POST no cadastro) e volta pra listagem
+    const salvar = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        try {
+            if (codigo) await axios.put(`${API}/${codigo}`, { id: codigo, ...dados });
+            else await axios.post(API, dados);
+            router.push("/usuarios");
+        } catch {
+            alert("Erro ao salvar usuário");
+        }
+    };
 
     return (
         <div className={formClasses}>
-            <form className="space-y-6">
-                <div className={gridClasses}>
-                    <div className={fieldClasses}>
-                        <label className={labelClasses}>
-                            Nome completo:
-                        </label>
-                        <input name="nome" className={inputClasses} />
-                    </div>
-                    <div className={fieldClasses}>
-                        <label className={labelClasses}>
-                            CPF:
-                        </label>
-                        <input name="CPF" className={inputClasses} />
-                    </div>
-                    <div className={fieldClasses}>
-                        <label className={labelClasses}>
-                            E-mail
-                        </label>
-                        <input name="email" type="email" className={inputClasses} />
-                    </div>
-                    <div className={fieldClasses}>
-                        <label className={labelClasses}>
-                            Senha:
-                        </label>
-                        <input name="Senha" type="password" className={inputClasses} />
-                    </div>
+            <form onSubmit={salvar} className="space-y-6">
+                {/* campos em duas colunas */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {campos.map(({ label, name, campo, type }) => (
+                        <div key={name} className="space-y-2">
+                            <label className={labelClasses}>
+                                <span className="h-1 w-1 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]"></span>
+                                {label}
+                            </label>
+                            <input name={name} type={type} value={dados[campo]} onChange={e => setDados({ ...dados, [campo]: e.target.value })} className={inputClasses} />
+                        </div>
+                    ))}
+                    {/* status (só na edição) */}
+                    {!!codigo && (
+                        <div className="space-y-2 md:col-span-2">
+                            <label className={labelClasses}>
+                                <span className="h-1 w-1 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]"></span>
+                                Status:
+                            </label>
+                            <select name="status" value={dados.status} onChange={e => setDados({ ...dados, status: e.target.value })} className={`${inputClasses} cursor-pointer [&>option]:bg-slate-950`}>
+                                {statusOpcoes.map(({ valor, texto }) => <option key={valor} value={valor}>{texto}</option>)}
+                            </select>
+                        </div>
+                    )}
                 </div>
-
-                <div className={actionsClasses}>
+                {/* botões */}
+                <div className="flex items-center justify-end space-x-4 border-t border-blue-400/10 pt-6">
                     <Link href="/usuarios" className={cancelClasses}>Cancelar</Link>
                     <button type="submit" className={submitClasses}>Salvar</button>
                 </div>

@@ -1,34 +1,30 @@
+import { Sora } from "next/font/google";
+
+// mesma fonte do menu lateral
+const sora = Sora({ subsets: ["latin"] });
+
 export default function Header(){
-    const headerClasses = "w-full bg-[#030712]/70 backdrop-blur-lg shadow-sm";
-    const containerClasses = "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between";
-    const userWrapperClasses = "flex items-center space-x-3";
-    const avatarClasses = "w-10 h-10 rounded-full bg-[#3b82f6]/10 border border-[#3b82f6]/20 flex items-center justify-center text-[#06b6d4] shadow-inner";
-    const nameClasses = "text-gray-200 font-medium text-sm sm:text-base";
-    const buttonClasses = "px-4 py-2 bg-[#3b82f6]/20 hover:bg-[#3b82f6]/30 text-[#06b6d4] border border-[#3b82f6]/30 font-medium text-sm rounded-lg transition-colors duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#06b6d4]";
+    const headerClasses = `${sora.className} w-full bg-gradient-to-r from-slate-950/80 via-[#030a1c]/70 to-slate-950/80 backdrop-blur-xl`;
+    const avatarClasses = "flex h-10 w-10 items-center justify-center rounded-xl border border-blue-400/20 bg-gradient-to-br from-blue-500/20 to-cyan-500/10 text-cyan-300 shadow-[0_0_18px_-4px_rgba(34,211,238,0.5)]";
+    const buttonClasses = "group inline-flex items-center gap-2 rounded-xl border border-blue-400/20 bg-gradient-to-r from-blue-600/20 to-cyan-500/10 px-4 py-2 text-sm font-medium text-blue-100 transition-all duration-300 hover:border-cyan-400/60 hover:from-blue-600 hover:to-cyan-500 hover:text-white hover:shadow-[0_0_25px_-5px_rgba(34,211,238,0.7)] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70";
 
     return (
         <header className={headerClasses}>
-            <div className={containerClasses}>
-                <div className={userWrapperClasses}>
+            <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+                {/* usuário logado */}
+                <div className="flex items-center gap-3">
                     <div className={avatarClasses}>
-                        <svg xmlns="http://www.w3.org/200/svg" 
-                        className="w-6 h-6" 
-                        viewBox="0 0 24 24" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        strokeWidth="2" 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
                             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                         </svg>
                     </div>
-                    <span className={nameClasses}>
-                        Usuário Thiago
-                    </span>
+                    <span className="text-sm font-semibold text-slate-200 sm:text-base">Usuário Thiago</span>
                 </div>
-                <button className={buttonClasses}>
+                {/* sai e volta pra landing page */}
+                <a href="/" className={buttonClasses}>
                     Sair
-                </button>
+                    <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                </a>
             </div>
         </header>
     );
