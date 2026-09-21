@@ -11,7 +11,7 @@ export default function Clientes() {
  
     useEffect(() => {
         carregarDados();
-    }, []);
+    }, []); 
  
     const carregarDados = async () => {
         try {
@@ -98,11 +98,14 @@ export default function Clientes() {
                             <thead>
                                 <tr className="border-b border-slate-800 bg-slate-900/40 text-xs font-semibold uppercase tracking-wider text-slate-300">
                                     <th className="py-4 px-6">Cliente / Empresa</th>
-                                    <th className="py-4 px-6">Contato</th>
+                                    <th className="py-4 px-6">CPF/CNPJ</th>
+                                    <th className="py-4 px-6">E-mail</th>
+                                    <th className="py-4 px-6">Telefone</th>
                                     <th className="py-4 px-6">Status</th>
                                     <th className="py-4 px-6 text-right">Ações</th>
                                 </tr>
                             </thead>
+
                             <tbody className="divide-y divide-slate-800/60 text-sm">
                                 {clientes.map((cliente) => {
                                     const rawStatus = cliente.status ? String(cliente.status).toUpperCase() : 'ATIVO';
@@ -111,23 +114,43 @@ export default function Clientes() {
  
                                     return (
                                         <tr key={cliente.id} className="hover:bg-slate-900/30 transition-colors">
-                                            <td className="py-4 px-6 text-slate-200 font-medium flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold text-xs uppercase">
-                                                    {cliente.nome ? cliente.nome.charAt(0) : 'C'}
+
+                                            <td className="py-4 px-6 text-slate-200 font-medium">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold text-xs uppercase">
+                                                        {cliente.nome ? cliente.nome.charAt(0) : 'C'}
+                                                    </div>
+                                                    {cliente.nome}
                                                 </div>
-                                                {cliente.nome}
                                             </td>
-                                            <td className="py-4 px-6 text-slate-400">{cliente.email}</td>
+
+                                            <td className="py-4 px-6 text-slate-400">
+                                                {cliente.cpf}
+                                            </td>
+
+                                            <td className="py-4 px-6 text-slate-400">
+                                                {cliente.email}
+                                            </td>
+
+                                            <td className="py-4 px-6 text-slate-400">
+                                                {cliente.telefone}
+                                            </td>
+
                                             <td className="py-4 px-6">
                                                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${badgeClass}`}>
                                                     {labelText}
                                                 </span>
                                             </td>
+
                                             <td className="py-4 px-6 text-right">
                                                 <div className="flex items-center justify-end gap-3">
-                                                    <Link href={`/clientes/${cliente.id}`} className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors">
+                                                    <Link
+                                                        href={`/clientes/${cliente.id}`}
+                                                        className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors"
+                                                    >
                                                         Editar
                                                     </Link>
+
                                                     <button
                                                         onClick={() => excluirCliente(cliente.id)}
                                                         className="text-rose-400 hover:text-rose-300 font-medium text-xs transition-colors cursor-pointer"
@@ -136,13 +159,14 @@ export default function Clientes() {
                                                     </button>
                                                 </div>
                                             </td>
+
                                         </tr>
                                     );
                                 })}
  
                                 {clientes.length === 0 && (
                                     <tr>
-                                        <td colSpan={4} className="py-12 text-center text-slate-500 italic">
+                                        <td colSpan={6} className="py-12 text-center text-slate-500 italic">
                                             Nenhum cliente encontrado
                                         </td>
                                     </tr>
@@ -155,4 +179,3 @@ export default function Clientes() {
         </div>
     );
 }
- 
