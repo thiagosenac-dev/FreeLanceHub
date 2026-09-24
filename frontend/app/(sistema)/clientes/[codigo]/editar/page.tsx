@@ -5,7 +5,7 @@ import { Sora } from "next/font/google";
 import Link from "@/node_modules/next/link";
 import axios from "@/node_modules/axios/index";
 import { useParams } from "@/node_modules/next/navigation";
-import ClienteForm from "../componentes/ClienteForm";
+import ClienteForm from "../../componentes/ClienteForm";
 
 // mesma fonte do menu lateral
 const sora = Sora({ subsets: ["latin"] });

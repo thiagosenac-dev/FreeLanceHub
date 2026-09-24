@@ -33,15 +33,18 @@ export default function Propostas() {
     }
 
     const statusLabels: Record<string, string> = {
-        EM_NEGOCIACAO: "Em Negociação",
-        APROVADA: "Aprovada",
-        REJEITADA: "Rejeitada",
+        PENDENTE: "Pendente",
+        ACEITA: "Aceita",
+        RECUSADA: "Recusada",
+        CANCELADA: "Cancelada",
+        
     };
 
     const statusStyles: Record<string, string> = {
-        EM_NEGOCIACAO: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
-        APROVADA: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
-        REJEITADA: "bg-rose-500/10 text-rose-400 border border-rose-500/20",
+        PENDENTE: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
+        ACEITA: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+        RECUSADA: "bg-rose-500/10 text-rose-400 border border-rose-500/20",
+        CANCELADA: "bg-rose-500/10 text-rose-400 border border-rose-500/20",
     };
 
     const contar = (status: string) => propostas.filter(p => String(p.status).toUpperCase() === status).length;
@@ -78,12 +81,20 @@ export default function Propostas() {
                         <p className="text-2xl font-bold text-slate-100 mt-1">{propostas.length}</p>
                     </div>
                     <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-xl p-4 shadow-xl">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Em Negociação</span>
-                        <p className="text-2xl font-bold text-blue-400 mt-1">{contar("EM_NEGOCIACAO")}</p>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Pendente</span>
+                        <p className="text-2xl font-bold text-blue-400 mt-1">{contar("PENDENTE")}</p>
                     </div>
                     <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-xl p-4 shadow-xl">
                         <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Aprovadas</span>
-                        <p className="text-2xl font-bold text-emerald-400 mt-1">{contar("APROVADA")}</p>
+                        <p className="text-2xl font-bold text-emerald-400 mt-1">{contar("ACEITA")}</p>
+                    </div>
+                    <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-xl p-4 shadow-xl">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">recusadas</span>
+                        <p className="text-2xl font-bold text-blue-400 mt-1">{contar("RECUSADA")}</p>
+                    </div>
+                    <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-xl p-4 shadow-xl">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Canceladas</span>
+                        <p className="text-2xl font-bold text-blue-400 mt-1">{contar("CANCELADA")}</p>
                     </div>
                 </div>
 
@@ -122,7 +133,7 @@ export default function Propostas() {
                                             </td>
                                             <td className="py-4 px-6 text-right">
                                                 <div className="flex items-center justify-end gap-3">
-                                                    <Link href={`/propostas/${proposta.id}`} className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors">
+                                                    <Link href={`/propostas/${proposta.id}/editar`} className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors">
                                                         Editar
                                                     </Link>
                                                     <button

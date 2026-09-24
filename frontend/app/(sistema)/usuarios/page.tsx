@@ -24,8 +24,8 @@ export default function Usuarios() {
     const excluirUsuario = async (id: number | null) => {
         if (confirm("Deseja realmente excluir este usuário?")) {
             try {
-                await axios.delete(`http://localhost:8080/usuarios/${id}`);
-                setUsuarios(usuarios.filter(u => u.id !== id));
+                await axios.delete(`http://localhost:8080/usuarios/${id}/excluir`);
+                setUsuarios(usuarios.map(u => u.id === id ? { ...u, status: "EXCLUIDO" } : u));
             } catch (error) {
                 alert("Erro ao excluir usuário");
             }

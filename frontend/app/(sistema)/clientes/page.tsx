@@ -145,7 +145,7 @@ export default function Clientes() {
                                             <td className="py-4 px-6 text-right">
                                                 <div className="flex items-center justify-end gap-3">
                                                     <Link
-                                                        href={`/clientes/${cliente.id}`}
+                                                        href={`/clientes/${cliente.id}/editar`}
                                                         className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors"
                                                     >
                                                         Editar
