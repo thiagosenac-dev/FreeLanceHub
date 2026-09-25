@@ -1,17 +1,28 @@
 'use client'
 
-import Link from "@/node_modules/next/link";
-import axios from "@/node_modules/axios/index";
+import Link from "next/link";
+import axios from "axios";
 import { Proposta } from "@/app/types/proposta";
 import { useEffect, useState } from "react";
 
+// Mostra um nome e uma cor diferente para cada status da proposta
+const statusInfo: Record<string, { label: string; style: string }> = {
+    PENDENTE: { label: "Pendente", style: "bg-amber-600/10 text-amber-500 border border-amber-600/20" },
+    APROVADA: { label: "Aprovada", style: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" },
+    REJEITADA: { label: "Rejeitada", style: "bg-rose-500/10 text-rose-400 border border-rose-500/20" },
+};
+
 export default function Propostas() {
+
+    // Estado com a lista de propostas
     const [propostas, setPropostas] = useState<Proposta[]>([])
 
+    // Carrega a lista assim que a página abre
     useEffect(() => {
         carregarDados();
     }, []);
 
+    // Busca as propostas na API
     const carregarDados = async () => {
         try {
             const dados = await axios.get<Proposta[]>("http://localhost:8080/propostas")
@@ -21,46 +32,38 @@ export default function Propostas() {
         }
     }
 
+    // Exclui uma proposta e atualiza a lista
     const excluirProposta = async (id: number | null) => {
-        if (confirm("Deseja realmente excluir esta proposta?")) {
-            try {
-                await axios.delete(`http://localhost:8080/propostas/${id}`);
-                setPropostas(propostas.filter(p => p.id !== id));
-            } catch (error) {
-                alert("Erro ao excluir proposta");
-            }
+        var dadosRetorno = await axios.delete('http://localhost:8080/propostas/' + id + '/excluir');
+
+        if (dadosRetorno.status === 200) {
+            alert("Excluído com sucesso!");
+        } else {
+            alert(dadosRetorno.data);
+            return;
         }
+
+        carregarDados();
     }
 
-    const statusLabels: Record<string, string> = {
-        EM_NEGOCIACAO: "Em Negociação",
-        APROVADA: "Aprovada",
-        REJEITADA: "Rejeitada",
-    };
-
-    const statusStyles: Record<string, string> = {
-        EM_NEGOCIACAO: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
-        APROVADA: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
-        REJEITADA: "bg-rose-500/10 text-rose-400 border border-rose-500/20",
-    };
-
+    // Conta quantas propostas existem com um determinado status
     const contar = (status: string) => propostas.filter(p => String(p.status).toUpperCase() === status).length;
 
     return (
         <div className="relative min-h-screen bg-black flex flex-col text-slate-100 overflow-hidden p-6 md:p-10">
-              {/* luizinha piscando */}
-              <div className="absolute w-[500px] h-[500px] bg-gradient-to-r from-blue-600/20 to-cyan-500/20 rounded-full blur-[100px] z-0 pointer-events-none top-[-10%] left-[-10%] animate-pulse"></div>
+            {/* blobs de fundo */}
+            <div className="absolute w-[500px] h-[500px] bg-gradient-to-r from-blue-600/20 to-cyan-500/20 rounded-full blur-[100px] z-0 pointer-events-none top-[-10%] left-[-10%] animate-pulse"></div>
             <div className="absolute w-[500px] h-[500px] bg-gradient-to-r from-indigo-600/20 to-blue-500/20 rounded-full blur-[100px] z-0 pointer-events-none bottom-[-10%] right-[-10%] animate-pulse"></div>
-             {/* luizinha piscando */}
+
             <div className="w-full max-w-6xl mx-auto relative z-10 space-y-6">
 
-                {/* Header Section */}
+                {/* Cabeçalho */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-2xl shadow-blue-950/20">
                     <div>
                         <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
                             Gestão de Propostas
                         </h1>
-                        <p className="text-sm text-slate-400 mt-1">Acompanhe e gerencie as propostas comerciais ativas</p>
+                        <p className="text-sm text-slate-400 mt-1">Acompanhe e gerencie as propostas enviadas</p>
                     </div>
 
                     <Link
@@ -71,15 +74,15 @@ export default function Propostas() {
                     </Link>
                 </div>
 
-                {/* Quick Stats Bar */}
+                {/* Barra com o resumo das propostas */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-xl p-4 shadow-xl">
                         <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Total de Propostas</span>
                         <p className="text-2xl font-bold text-slate-100 mt-1">{propostas.length}</p>
                     </div>
                     <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-xl p-4 shadow-xl">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Em Negociação</span>
-                        <p className="text-2xl font-bold text-blue-400 mt-1">{contar("EM_NEGOCIACAO")}</p>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Pendentes</span>
+                        <p className="text-2xl font-bold text-amber-500 mt-1">{contar("PENDENTE")}</p>
                     </div>
                     <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-xl p-4 shadow-xl">
                         <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Aprovadas</span>
@@ -87,10 +90,11 @@ export default function Propostas() {
                     </div>
                 </div>
 
-                {/* Content / Table Section */}
+                {/* Tabela de Propostas */}
                 <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl shadow-2xl shadow-blue-950/20 overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
+
                             <thead>
                                 <tr className="border-b border-slate-800 bg-slate-900/40 text-xs font-semibold uppercase tracking-wider text-slate-300">
                                     <th className="py-4 px-6">Código</th>
@@ -101,30 +105,40 @@ export default function Propostas() {
                                     <th className="py-4 px-6 text-right">Ações</th>
                                 </tr>
                             </thead>
+
                             <tbody className="divide-y divide-slate-800/60 text-sm">
                                 {propostas.map((proposta) => {
-                                    const rawStatus = String(proposta.status).toUpperCase();
-                                    const badgeClass = statusStyles[rawStatus] || "bg-slate-500/10 text-slate-400 border border-slate-500/20";
-                                    const labelText = statusLabels[rawStatus] || proposta.status;
+                                    const info = statusInfo[String(proposta.status).toUpperCase()] || { label: proposta.status, style: "bg-slate-500/10 text-slate-400 border border-slate-500/20" };
 
                                     return (
                                         <tr key={proposta.id} className="hover:bg-slate-900/30 transition-colors">
-                                            <td className="py-4 px-6 text-slate-200 font-medium">#{proposta.id}</td>
+
+                                            <td className="py-4 px-6 text-slate-400">#{proposta.id}</td>
+
                                             <td className="py-4 px-6 text-slate-200 font-medium">{proposta.descricao}</td>
+
                                             <td className="py-4 px-6 text-slate-400">
                                                 {Number(proposta.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                                             </td>
+
                                             <td className="py-4 px-6 text-slate-400">{proposta.prazo}</td>
+
                                             <td className="py-4 px-6">
-                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${badgeClass}`}>
-                                                    {labelText}
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${info.style}`}>
+                                                    {info.label}
                                                 </span>
                                             </td>
+
+                                            {/* Ações */}
                                             <td className="py-4 px-6 text-right">
                                                 <div className="flex items-center justify-end gap-3">
-                                                    <Link href={`/propostas/${proposta.id}`} className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors">
+                                                    <Link
+                                                        href={`/propostas/${proposta.id}`}
+                                                        className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors"
+                                                    >
                                                         Editar
                                                     </Link>
+
                                                     <button
                                                         onClick={() => excluirProposta(proposta.id)}
                                                         className="text-rose-400 hover:text-rose-300 font-medium text-xs transition-colors cursor-pointer"
@@ -133,10 +147,12 @@ export default function Propostas() {
                                                     </button>
                                                 </div>
                                             </td>
+
                                         </tr>
                                     );
                                 })}
 
+                                {/* Mensagem se a lista estiver vazia */}
                                 {propostas.length === 0 && (
                                     <tr>
                                         <td colSpan={6} className="py-12 text-center text-slate-500 italic">
@@ -150,5 +166,5 @@ export default function Propostas() {
                 </div>
             </div>
         </div>
-    );
+    )
 }

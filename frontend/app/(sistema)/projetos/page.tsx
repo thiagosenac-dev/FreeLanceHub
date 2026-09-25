@@ -30,7 +30,7 @@ export default function Projetos() {
     const excluirProjeto = async (id: number | null) => {
         if (confirm("Deseja realmente excluir este projeto?")) {
             try {
-                await axios.delete(`http://localhost:8080/projetos/${id}`);
+                await axios.delete(`http://localhost:8080/projetos/${id}/excluir`);
                 setProjetos(projetos.filter(p => p.id !== id));
             } catch (error) {
                 alert("Erro ao excluir projeto");

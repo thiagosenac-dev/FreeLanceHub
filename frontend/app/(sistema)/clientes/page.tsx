@@ -25,7 +25,7 @@ export default function Clientes() {
     const excluirCliente = async (id: number | null) => {
         if (confirm("Deseja realmente excluir este cliente?")) {
             try {
-                await axios.delete(`http://localhost:8080/clientes/${id}`);
+                await axios.delete(`http://localhost:8080/clientes/${id}/excluir`);
                 setClientes(clientes.filter(c => c.id !== id));
             } catch (error) {
                 alert("Erro ao excluir cliente");
