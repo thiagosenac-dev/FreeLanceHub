@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import { Sora } from "next/font/google";
 import Link from "@/node_modules/next/link";
 import axios from "@/node_modules/axios/index";
 import { useParams } from "@/node_modules/next/navigation";
@@ -9,7 +8,7 @@ import ProjetoForm from "../../componentes/ProjetoForm";
 
 
 // mesma fonte do menu lateral
-const sora = Sora({ subsets: ["latin"] });
+
 
 export default function EditarProjeto(){
     // pega o código do projeto que vem na rota
@@ -21,7 +20,7 @@ export default function EditarProjeto(){
     const cardClasses = "relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-950/80 backdrop-blur-xl shadow-2xl shadow-blue-950/30";
 
     return(
-        <div className={`${sora.className} relative isolate overflow-hidden rounded-3xl bg-gradient-to-br from-black via-[#030a1c] to-[#020617] p-4 sm:p-8 ring-1 ring-blue-500/10 min-h-[calc(100vh-10rem)]`}>
+        <div className=" relative isolate overflow-hidden rounded-3xl bg-gradient-to-br from-black via-[#030a1c] to-[#020617] p-4 sm:p-8 ring-1 ring-blue-500/10 min-h-[calc(100vh-10rem)]">
             {/* brilhos e grade do fundo */}
             <div aria-hidden className={`${glowClasses} -top-24 -left-24 h-72 w-72 bg-blue-600/20`}></div>
             <div aria-hidden className={`${glowClasses} -bottom-24 -right-24 h-72 w-72 bg-cyan-500/20`}></div>
