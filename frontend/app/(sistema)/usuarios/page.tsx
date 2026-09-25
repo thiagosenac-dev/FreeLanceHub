@@ -32,6 +32,10 @@ export default function Usuarios(){
     // Deleta o usuário e recarrega a lista
     const handleDeletarUsuario = async(usuario:Usuario) =>{
 
+        if(!confirm("Deseja realmente excluir este usuário?")){
+            return;
+        }
+
         var dadosRetorno = await  
         axios.delete('http://localhost:8080/usuarios/'+usuario.id+'/excluir');
 
