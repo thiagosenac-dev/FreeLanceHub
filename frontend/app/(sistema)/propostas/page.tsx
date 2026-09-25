@@ -42,9 +42,9 @@ export default function Propostas() {
             alert(dadosRetorno.data);
             return;
         }
-
         carregarDados();
     }
+    
 
     // Conta quantas propostas existem com um determinado status
     const contar = (status: string) => propostas.filter(p => String(p.status).toUpperCase() === status).length;

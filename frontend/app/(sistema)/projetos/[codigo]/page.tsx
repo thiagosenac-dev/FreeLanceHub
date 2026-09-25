@@ -35,7 +35,6 @@ export default function EditarProjeto(){
         }else{
             router.push("/projetos")
         }
-
     }
 
     // Enquanto os dados não chegam, mostra uma mensagem de "carregando"

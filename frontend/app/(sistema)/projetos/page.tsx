@@ -36,6 +36,7 @@ export default function Projetos() {
                 alert("Erro ao excluir projeto");
             }
         }
+        carregarDados();
     }
 
     const contar = (status: string) => projetos.filter(p => String(p.status).toUpperCase() === status).length;

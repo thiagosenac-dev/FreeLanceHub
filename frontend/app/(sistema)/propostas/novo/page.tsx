@@ -28,5 +28,6 @@ export default function CadastroProposta(){
             </div>
         </div>
     )
+    
 
 }

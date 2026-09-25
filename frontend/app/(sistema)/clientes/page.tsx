@@ -31,7 +31,10 @@ export default function Clientes() {
                 alert("Erro ao excluir cliente");
             }
         }
+        carregarDados();
+        
     }
+   
  
     const statusLabels: Record<string, string> = {
         ATIVO: "ATIVO",

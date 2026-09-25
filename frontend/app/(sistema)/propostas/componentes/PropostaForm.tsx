@@ -20,6 +20,7 @@ export default function PropostaForm({ propostaExistente }: PropostaFormProps) {
         propostaExistente ||
         new Proposta(null, "", 0, "", "PENDENTE")
     );
+    
 
     // Atualiza um campo específico da proposta conforme a pessoa digita
     const handlerChange = (campo: 'descricao' | 'valor' | 'prazo' | 'status', valor: string) => {

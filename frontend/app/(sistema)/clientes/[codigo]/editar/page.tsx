@@ -5,7 +5,7 @@ import axios from "@/node_modules/axios/index";
 import Link from "@/node_modules/next/link";
 import { useParams, useRouter } from "@/node_modules/next/navigation";
 import { useEffect, useState } from "react";
-import ClienteForm from "../componentes/ClienteForm";
+import ClienteForm from "../../componentes/ClienteForm";
 
 export default function EditarCliente(){
 

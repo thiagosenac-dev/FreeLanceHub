@@ -35,6 +35,7 @@ export default function EditarProposta(){
         }else{
             router.push("/propostas")
         }
+        
 
     }
 
