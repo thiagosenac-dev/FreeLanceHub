@@ -113,7 +113,7 @@ export default function Projetos() {
                                             </td>
                                             <td className="py-4 px-6 text-right">
                                                 <div className="flex items-center justify-end gap-3">
-                                                    <Link href={`/projetos/${projeto.id}`} className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors">
+                                                    <Link href={`/projetos/${projeto.id}/editar`} className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors">
                                                         Editar
                                                     </Link>
                                                     <button
