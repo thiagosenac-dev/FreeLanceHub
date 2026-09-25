@@ -1,140 +1,90 @@
-'use client'
+"use client"
 
-import { Usuario, UsuarioFormProps } from "@/app/types/usuario";
-import axios from "@/node_modules/axios/index";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "@/node_modules/next/link";
+import axios from "@/node_modules/axios/index";
 import { useRouter } from "@/node_modules/next/navigation";
-import { useState } from "react";
 
+const API = "http://localhost:8080/usuarios";
 
+// campos do formulário (name = nome do input, campo = chave que o back usa)
+const campos = [
+    { label: "Nome completo:", name: "nome", campo: "nome" },
+    { label: "CPF:", name: "CPF", campo: "cpf" },
+    { label: "E-mail", name: "email", campo: "email", type: "email" },
+    { label: "Senha:", name: "Senha", campo: "senha", type: "password" },
+];
 
-// Formulário de usuário. Serve tanto para cadastrar um novo quanto para editar um já existente
-export default function UsuarioForm({usuarioExistente}:UsuarioFormProps) {
+// opções do status (só aparece na edição)
+const statusOpcoes = [
+    { valor: "ATIVO", texto: "Ativo" },
+    { valor: "BLOQUEADO", texto: "Bloqueado" },
+    { valor: "EXCLUIDO", texto: "Excluído" },
+];
+
+// com "codigo" edita o usuário, sem "codigo" cadastra um novo
+export default function UsuarioForm({ codigo }: { codigo?: number }) {
     const router = useRouter();
+    const [dados, setDados] = useState<Record<string, string>>({ nome: "", cpf: "", email: "", senha: "", status: "ATIVO" });
+    const formClasses = "relative max-w-2xl mx-auto rounded-2xl border border-blue-400/15 bg-gradient-to-b from-slate-900/70 to-slate-950/90 p-8 shadow-[inset_0_1px_0_0_rgba(96,165,250,0.18)]";
+    const labelClasses = "flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-200/70";
+    const inputClasses = "w-full rounded-xl border border-slate-800 bg-slate-950/70 px-4 py-3 text-base text-slate-100 transition-all duration-300 hover:border-blue-400/30 focus:border-cyan-400/60 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:shadow-[0_0_22px_-6px_rgba(34,211,238,0.6)] [&:-webkit-autofill]:shadow-[inset_0_0_0_1000px_#020617] [&:-webkit-autofill]:[-webkit-text-fill-color:#f1f5f9]";
+    const cancelClasses = "rounded-xl border border-transparent px-6 py-3 text-sm font-medium text-slate-400 transition-all duration-200 hover:border-blue-400/20 hover:bg-white/[0.04] hover:text-white";
+    const submitClasses = "rounded-xl border border-blue-300/20 bg-gradient-to-r from-blue-600 to-cyan-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_8px_25px_-8px_rgba(34,211,238,0.6)] transition-all duration-300 hover:-translate-y-0.5 hover:from-blue-500 hover:to-cyan-400 hover:shadow-[0_12px_32px_-6px_rgba(34,211,238,0.75)] active:translate-y-0";
 
-    // Se recebeu um usuário existente, começa com os dados dele. Se não, começa em branco (cadastro novo)
-    const [ usuario,setUsuario ] = useState<Usuario>(
-        usuarioExistente ||
-        new Usuario(null,"","","ATIVO","","")
-    );
+    // na edição, busca o usuário e preenche os campos
+    useEffect(() => {
+        if (!codigo) return;
+        axios.get(`${API}/${codigo}`)
+            .then(({ data }) => setDados({ nome: data.nome ?? "", cpf: data.cpf ?? "", email: data.email ?? "", senha: data.senha ?? "", status: String(data.status ?? "ATIVO").toUpperCase() }))
+            .catch(() => alert("Erro ao carregar usuário"));
+    }, [codigo]);
 
-    // Atualiza um campo específico do usuário conforme a pessoa digita
-    const handlerChange = ( campo: 'nome'|  'email' |'cpf'| 'senha', valor:string) =>{
-        setUsuario(valorAnterior => 
-            new Usuario(
-                valorAnterior.id,
-                campo === 'nome' ? valor : valorAnterior.nome,
-                campo === 'email' ? valor : valorAnterior.email,
-                valorAnterior.status,
-                campo === 'cpf' ? valor : valorAnterior.cpf,
-                campo === 'senha' ? valor : valorAnterior.senha
-            )
-        )
-    }
-
-
-
-    // Salva o usuário: se já existir, atualiza; se não, cria um novo. Depois volta para a lista
-    const handlerSalvar = async (formData : FormData) =>{
-
-    if(usuarioExistente){
-        // Já existe: atualiza os dados desse usuário
-        var dadosRetorno = await  
-        axios.put<number>('http://localhost:8080/usuarios'+usuario.id,usuario);
-
-        if(dadosRetorno.status==200){
-            alert("Usuário foi salvo com sucesso!");
-        }else{
-            alert(dadosRetorno.data);
-
-            return;
+    // salva (PUT na edição, POST no cadastro) e volta pra listagem
+    const salvar = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        try {
+            if (codigo) await axios.put(`${API}/${codigo}`, { id: codigo, ...dados });
+            else await axios.post(API, dados);
+            router.push("/usuarios");
+        } catch {
+            alert("Erro ao salvar usuário");
         }
-
-
-    }else{
-        // Não existe ainda: cria um usuário novo
-        var dadosRetorno = await  axios.post<number>('http://localhost:8080/usuarios',usuario)
-
-        if(dadosRetorno.status==200){
-            alert("Usuário foi salvo com sucesso!");
-        }else{
-            alert(dadosRetorno.data);
-
-            return;
-        }
-    
-    }
-
-    // Depois de salvar, volta para a listagem de usuários
-    router.push("/usuarios");
-
-    }
-
+    };
 
     return (
-        <form action={handlerSalvar} className="space-y-6">
-
-            {/* Campos do formulário: nome, CPF, e-mail e senha */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        Nome completo:
-                    </label>
-                    <input 
-                    name="nome" 
-                    value={usuario.nome}
-                    required
-                    onChange={(e)=> handlerChange('nome',e.target.value)}
-                    placeholder="João da Silva Sauro"
-                    className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                    </input>
+        <div className={formClasses}>
+            <form onSubmit={salvar} className="space-y-6">
+                {/* campos em duas colunas */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {campos.map(({ label, name, campo, type }) => (
+                        <div key={name} className="space-y-2">
+                            <label className={labelClasses}>
+                                <span className="h-1 w-1 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]"></span>
+                                {label}
+                            </label>
+                            <input name={name} type={type} value={dados[campo]} onChange={e => setDados({ ...dados, [campo]: e.target.value })} className={inputClasses} />
+                        </div>
+                    ))}
+                    {/* status (só na edição) */}
+                    {!!codigo && (
+                        <div className="space-y-2 md:col-span-2">
+                            <label className={labelClasses}>
+                                <span className="h-1 w-1 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]"></span>
+                                Status:
+                            </label>
+                            <select name="status" value={dados.status} onChange={e => setDados({ ...dados, status: e.target.value })} className={`${inputClasses} cursor-pointer [&>option]:bg-slate-950`}>
+                                {statusOpcoes.map(({ valor, texto }) => <option key={valor} value={valor}>{texto}</option>)}
+                            </select>
+                        </div>
+                    )}
                 </div>
-                <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        CPF:
-                    </label>
-                    <input 
-                    name="CPF" 
-                    value={usuario.cpf}
-                    required
-                    placeholder="000.000.000-00"
-                    onChange={(e)=> handlerChange('cpf',e.target.value)}
-                    className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                    </input>
+                {/* botões */}
+                <div className="flex items-center justify-end space-x-4 border-t border-blue-400/10 pt-6">
+                    <Link href="/usuarios" className={cancelClasses}>Cancelar</Link>
+                    <button type="submit" className={submitClasses}>Salvar</button>
                 </div>
-                <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        E-mail
-                    </label>
-                    <input 
-                    name="email" 
-                    value={usuario.email}
-                    required
-                    placeholder="EmailDoJoao@SilvaSauro.com.br"
-                    onChange={(e)=> handlerChange('email',e.target.value)}
-                    className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                    </input>
-                </div>
-                <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        Senha:
-                    </label>
-                    <input 
-                    name="Senha" 
-                    value={usuario.senha}
-                    required
-                    placeholder= "*********************"
-                    onChange={(e)=> handlerChange('senha',e.target.value)}
-                    type="password" className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                    </input>
-                </div>
-            </div>
-
-            {/* Botões: cancelar volta para a lista sem salvar, salvar envia o formulário */}
-            <div className="flex items-center justify-end space-x-4 pt-6 border-t border-white/[0.08]">
-                <Link href="/usuarios" className="px-5 py-2.5 bg-white/[0.03] hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-cyan-500/10 text-slate-300 hover:text-white font-medium text-sm rounded-xl transition-all duration-300 text-center border border-white/[0.08] hover:border-blue-400/40 hover:shadow-[0_0_18px_rgba(34,211,238,0.3)]"> Cancelar</Link>
-                <button type="submit" className="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-400 hover:to-cyan-300 text-white font-semibold text-sm rounded-xl shadow-[0_0_20px_rgba(56,189,248,0.4)] hover:shadow-[0_0_25px_rgba(34,211,238,0.6)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 hover:-translate-y-0.5 active:translate-y-0"> Salvar</button>
-            </div>
-        </form>
+            </form>
+        </div>
     );
 }

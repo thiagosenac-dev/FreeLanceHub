@@ -1,7 +1,7 @@
 'use client'
 
-import axios from "axios";
-import Link from "next/link";
+import Link from "@/node_modules/next/link";
+import axios from "@/node_modules/axios/index";
 import { Projeto } from "@/app/types/projeto";
 import { useEffect, useState } from "react";
 
@@ -30,7 +30,7 @@ export default function Projetos() {
     const excluirProjeto = async (id: number | null) => {
         if (confirm("Deseja realmente excluir este projeto?")) {
             try {
-                await axios.delete(`http://localhost:8080/projetos/${id}/excluir`);
+                await axios.delete(`http://localhost:8080/projetos/${id}`);
                 setProjetos(projetos.filter(p => p.id !== id));
             } catch (error) {
                 alert("Erro ao excluir projeto");

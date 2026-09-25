@@ -1,30 +1,34 @@
 import Link from "@/node_modules/next/link";
 import UsuarioForm from "../components/UsuarioForm";
 
-// Página de cadastro: só mostra o cabeçalho e o formulário de usuário vazio
 export default function CadastroUsuario(){
+
     return(
-        <div className="space-y-6">
-
-            {/* Cabeçalho com título e botão de voltar para a lista */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-950/80 backdrop-blur-xl border border-white/[0.08] p-6 rounded-2xl shadow-[0_8px_30px_-8px_rgba(3,10,28,0.8)]">
-                <div className="space-y-1">
-                    <h1 className="text-2xl font-bold tracking-tight text-white flex items-center space-x-2">
-                        <span className="w-2.5 h-2.5 bg-gradient-to-br from-blue-400 to-cyan-300 rounded-full inline-block shadow-[0_0_10px_rgba(34,211,238,0.8)]"></span>
-                        <span className="bg-gradient-to-r from-blue-300 via-sky-300 to-cyan-300 bg-clip-text text-transparent">
-                            Novo Usuário
-                        </span>
-                    </h1>
-                    <p className="text-sm text-slate-400">Preencha os dados para registrar um novo Usuário</p>
+        <div className="relative isolate overflow-hidden rounded-3xl bg-gradient-to-br from-[#010409] via-[#040a1c] to-[#020617] p-4 sm:p-8 ring-1 ring-blue-500/10">
+            {/* Fundo decorativo */}
+            <div className="relative space-y-6">
+                {/* Cabeçalho */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl border border-blue-400/10 bg-white/[0.03] p-6 backdrop-blur-xl shadow-[0_10px_50px_-15px_rgba(37,99,235,0.45)]">
+                    <div className="space-y-1.5">
+                        <h1 className="flex items-center gap-3 text-2xl sm:text-3xl font-semibold tracking-tight">
+                            <span className="relative flex h-3 w-3">
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-60"></span>
+                                <span className="relative inline-flex h-3 w-3 rounded-full bg-blue-500 shadow-[0_0_14px_2px_rgba(59,130,246,0.8)]"></span>
+                            </span>
+                            <span className="bg-gradient-to-r from-white via-blue-100 to-blue-400 bg-clip-text text-transparent">Novo Usuário</span>
+                        </h1>
+                        <p className="text-sm text-slate-400">Preencha os dados para registrar um novo Usuário</p>
+                    </div>
+                    <Link href="/usuarios" className="group inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-blue-400/20 bg-gradient-to-r from-blue-600/20 to-blue-500/10 px-5 py-2.5 text-sm font-medium text-blue-100 shadow-sm transition-all duration-300 hover:border-blue-400/60 hover:from-blue-600 hover:to-blue-500 hover:text-white hover:shadow-[0_0_25px_-5px_rgba(59,130,246,0.8)] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/70">
+                        <span className="transition-transform duration-300 group-hover:-translate-x-1">&larr;</span>
+                        Voltar para Listagem
+                    </Link>
                 </div>
-                <Link href="/usuarios" className="inline-flex items-center justify-center text-sm font-medium text-slate-300 hover:text-white bg-white/[0.03] hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-cyan-500/10 border border-white/[0.08] hover:border-blue-400/40 px-4 py-2.5 rounded-xl transition-all duration-300 hover:shadow-[0_0_18px_rgba(34,211,238,0.3)] hover:-translate-x-0.5 w-full sm:w-auto">
-                    &larr; Voltar para Listagem
-                </Link>
-            </div>
-
-            {/* Card com o formulário. Sem passar dados, o formulário abre em branco (modo cadastro) */}
-            <div className="bg-slate-950/70 backdrop-blur-xl border border-white/[0.06] rounded-2xl p-6 md:p-8 shadow-[0_8px_30px_-8px_rgba(3,10,28,0.8)]">
-                <UsuarioForm/>
+                {/* Card do formulário */}
+                <div className="relative overflow-hidden rounded-2xl border border-blue-400/10 bg-[#050b1a]/80 p-6 md:p-8 backdrop-blur-xl shadow-[0_20px_60px_-20px_rgba(0,0,0,0.9)]">
+                    <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-400/70 to-transparent"></div>
+                    <UsuarioForm/>
+                </div>
             </div>
         </div>
     )
