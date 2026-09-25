@@ -37,7 +37,6 @@ export default function EditarUsuario(){
         }
 
     }
-
     // Enquanto os dados não chegam, mostra uma mensagem de "carregando"
     if(!usuario) return(
         <div className="flex items-center justify-center p-8">

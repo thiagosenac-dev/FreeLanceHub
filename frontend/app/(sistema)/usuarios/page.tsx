@@ -134,7 +134,6 @@ export default function Usuarios(){
                                                 >
                                                     Deletar
                                                 </button>
-
                                                 {/* Estilo dinâmico: Amarelo se bloqueado, Verde se ativo */}
                                                 <button
                                                     onClick={() => handleAlterarStatusUsuario(usuario)}

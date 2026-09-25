@@ -21,7 +21,6 @@ export default function CadastroUsuario(){
                     &larr; Voltar para Listagem
                 </Link>
             </div>
-
             {/* Card com o formulário. Sem passar dados, o formulário abre em branco (modo cadastro) */}
             <div className="bg-slate-950/70 backdrop-blur-xl border border-white/[0.06] rounded-2xl p-6 md:p-8 shadow-[0_8px_30px_-8px_rgba(3,10,28,0.8)]">
                 <UsuarioForm/>
