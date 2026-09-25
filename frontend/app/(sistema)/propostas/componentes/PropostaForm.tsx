@@ -1,9 +1,9 @@
 'use client'
 
 import { Proposta } from "@/app/types/proposta";
-import axios from "axios";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import axios from "@/node_modules/axios/index";
+import Link from "@/node_modules/next/link";
+import { useRouter } from "@/node_modules/next/navigation";
 import { useState } from "react";
 
 // Dados que esse formulário pode receber: uma proposta já existente (modo edição) ou nada (modo cadastro)
@@ -23,14 +23,14 @@ export default function PropostaForm({ propostaExistente }: PropostaFormProps) {
     
 
     // Atualiza um campo específico da proposta conforme a pessoa digita
-    const handlerChange = (campo: 'descricao' | 'valor' | 'prazo' | 'status', valor: string) => {
+    const handlerChange = (campo: 'descricao' | 'valor' | 'prazo', valor: string) => {
         setProposta(valorAnterior =>
             new Proposta(
                 valorAnterior.id,
                 campo === 'descricao' ? valor : valorAnterior.descricao,
                 campo === 'valor' ? Number(valor) : valorAnterior.valor,
                 campo === 'prazo' ? valor : valorAnterior.prazo,
-                campo === 'status' ? valor : valorAnterior.status
+                valorAnterior.status
             )
         )
     }
@@ -69,7 +69,7 @@ export default function PropostaForm({ propostaExistente }: PropostaFormProps) {
     return (
         <form action={handlerSalvar} className="space-y-6">
 
-            {/* Campos do formulário: descrição, valor, prazo e status */}
+            {/* Campos do formulário: descrição, valor e prazo */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2 md:col-span-2">
                     <label className="block text-sm font-medium text-slate-300">
@@ -112,20 +112,6 @@ export default function PropostaForm({ propostaExistente }: PropostaFormProps) {
                         onChange={(e) => handlerChange('prazo', e.target.value)}
                         className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
                     </input>
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        Status:
-                    </label>
-                    <select
-                        name="status"
-                        value={proposta.status}
-                        onChange={(e) => handlerChange('status', e.target.value)}
-                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                        <option value="PENDENTE">Pendente</option>
-                        <option value="APROVADA">Aprovada</option>
-                        <option value="REJEITADA">Rejeitada</option>
-                    </select>
                 </div>
             </div>
 

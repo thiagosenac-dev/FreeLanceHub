@@ -70,7 +70,7 @@ export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
     return (
         <form action={handlerSalvar} className="space-y-6">
 
-            {/* Campos do formulário: nome, CPF, e-mail, telefone e status */}
+            {/* Campos do formulário: nome, CPF, e-mail e telefone */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                     <label className="block text-sm font-medium text-slate-300">
@@ -123,20 +123,6 @@ export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
                         onChange={(e) => handlerChange('telefone', e.target.value)}
                         className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
                     </input>
-                </div>
-                <div className="space-y-2 md:col-span-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        Status:
-                    </label>
-                    <select
-                        name="status"
-                        value={cliente.status}
-                        onChange={(e) => handlerChange('status', e.target.value)}
-                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                        <option value="ATIVO">ATIVO</option>
-                        <option value="BLOQUEADO">BLOQUEADO</option>
-                        <option value="EXCLUIDO">EXCLUIDO</option>
-                    </select>
                 </div>
             </div>
 

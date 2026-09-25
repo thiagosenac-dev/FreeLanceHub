@@ -14,9 +14,9 @@ const sora = Sora({ subsets: ["latin"] });
 export default function EditarProjeto(){
     // pega o código do projeto que vem na rota
     const codigo = Number(useParams().codigo);
-    // busca o nome do projeto pra mostrar no título
-    const [nome, setNome] = useState("");
-    useEffect(() => { axios.get(`http://localhost:8080/projetos/${codigo}`).then(({ data }) => setNome(data.nome)).catch(() => {}); }, [codigo]);
+    // busca o projeto inteiro pra passar pro form e pra mostrar no título
+    const [projeto, setProjeto] = useState<any>(null);
+    useEffect(() => { axios.get(`http://localhost:8080/projetos/${codigo}`).then(({ data }) => setProjeto(data)).catch(() => {}); }, [codigo]);
     const glowClasses = "pointer-events-none absolute -z-10 rounded-full blur-3xl animate-pulse";
     const cardClasses = "relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-950/80 backdrop-blur-xl shadow-2xl shadow-blue-950/30";
 
@@ -32,7 +32,7 @@ export default function EditarProjeto(){
                     <div className="space-y-1.5">
                         <h1 className="flex items-center gap-3 text-2xl sm:text-3xl font-bold tracking-tight">
                             <span className="h-3 w-3 shrink-0 animate-pulse rounded-full bg-cyan-400 shadow-[0_0_14px_2px_rgba(34,211,238,0.8)]"></span>
-                            <span className="bg-gradient-to-r from-blue-300 via-sky-300 to-cyan-300 bg-clip-text text-transparent">Editar Projeto: {nome}, Codigo: {codigo}</span>
+                            <span className="bg-gradient-to-r from-blue-300 via-sky-300 to-cyan-300 bg-clip-text text-transparent">Editar Projeto: {projeto?.nome}, Codigo: {codigo}</span>
                         </h1>
                         <p className="text-sm text-slate-400">Preencha os dados para editar o Projeto</p>
                     </div>
@@ -44,7 +44,7 @@ export default function EditarProjeto(){
                 {/* card do formulário */}
                 <div className={`${cardClasses} p-6 md:p-8`}>
                     <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/70 to-transparent"></div>
-                    <ProjetoForm codigo={codigo}/>
+                    {projeto && <ProjetoForm projetoExistente={projeto}/>}
                     
                 </div>
             </div>

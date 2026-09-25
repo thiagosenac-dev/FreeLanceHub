@@ -15,7 +15,7 @@ export default function UsuarioForm({usuarioExistente}:UsuarioFormProps) {
     // Se recebeu um usuário existente, começa com os dados dele. Se não, começa em branco (cadastro novo)
     const [ usuario,setUsuario ] = useState<Usuario>(
         usuarioExistente ||
-        new Usuario(null,"","","ATIVO","","")
+        new Usuario(null,"","","","ATIVO","")
     );
 
     // Atualiza um campo específico do usuário conforme a pessoa digita
@@ -25,9 +25,10 @@ export default function UsuarioForm({usuarioExistente}:UsuarioFormProps) {
                 valorAnterior.id,
                 campo === 'nome' ? valor : valorAnterior.nome,
                 campo === 'email' ? valor : valorAnterior.email,
+                campo === 'senha' ? valor : valorAnterior.senha,
                 valorAnterior.status,
-                campo === 'cpf' ? valor : valorAnterior.cpf,
-                campo === 'senha' ? valor : valorAnterior.senha
+                campo === 'cpf' ? valor : valorAnterior.cpf
+                
             )
         )
     }
@@ -39,7 +40,7 @@ export default function UsuarioForm({usuarioExistente}:UsuarioFormProps) {
     if(usuarioExistente){
         // Já existe: atualiza os dados desse usuário
         var dadosRetorno = await  
-        axios.put<number>('http://localhost:8080/usuarios'+usuario.id,usuario);
+        axios.put<number>(`http://localhost:8080/usuarios/${usuario.id}`, usuario);
 
         if(dadosRetorno.status==200){
             alert("Usuário foi salvo com sucesso!");
@@ -83,6 +84,7 @@ export default function UsuarioForm({usuarioExistente}:UsuarioFormProps) {
                     name="nome" 
                     value={usuario.nome}
                     required
+                    autoComplete="off"
                     onChange={(e)=> handlerChange('nome',e.target.value)}
                     placeholder="João da Silva Sauro"
                     className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
@@ -96,6 +98,7 @@ export default function UsuarioForm({usuarioExistente}:UsuarioFormProps) {
                     name="CPF" 
                     value={usuario.cpf}
                     required
+                    autoComplete="off"
                     placeholder="000.000.000-00"
                     onChange={(e)=> handlerChange('cpf',e.target.value)}
                     className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
@@ -109,6 +112,7 @@ export default function UsuarioForm({usuarioExistente}:UsuarioFormProps) {
                     name="email" 
                     value={usuario.email}
                     required
+                    autoComplete="off"
                     placeholder="EmailDoJoao@SilvaSauro.com.br"
                     onChange={(e)=> handlerChange('email',e.target.value)}
                     className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
@@ -122,6 +126,7 @@ export default function UsuarioForm({usuarioExistente}:UsuarioFormProps) {
                     name="Senha" 
                     value={usuario.senha}
                     required
+                    autoComplete="new-password"
                     placeholder= "*********************"
                     onChange={(e)=> handlerChange('senha',e.target.value)}
                     type="password" className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
