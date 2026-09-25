@@ -34,6 +34,30 @@ export default function Clientes() {
         carregarDados();
         
     }
+
+    // Inverte o status do cliente entre ativo e bloqueado
+    const handleAlterarStatusCliente = async (cliente: Cliente) => {
+
+        var novoStatus = {};
+        if (String(cliente.status).toUpperCase() === "ATIVO") {
+            novoStatus = { status: "BLOQUEADO" }
+        } else {
+            novoStatus = { status: "ATIVO" }
+        }
+
+        var dadosRetorno = await
+        axios.patch('http://localhost:8080/clientes/' + cliente.id + '/status', novoStatus);
+
+        if (dadosRetorno.status == 200) {
+            alert("Atualizado status com sucesso!");
+        } else {
+            alert(dadosRetorno.data);
+            return;
+        }
+
+        carregarDados();
+
+    }
    
  
     const statusLabels: Record<string, string> = {
@@ -159,6 +183,16 @@ export default function Clientes() {
                                                         className="text-rose-400 hover:text-rose-300 font-medium text-xs transition-colors cursor-pointer"
                                                     >
                                                         Excluir
+                                                    </button>
+
+                                                    <button
+                                                        onClick={() => handleAlterarStatusCliente(cliente)}
+                                                        className={`font-medium text-xs transition-colors cursor-pointer ${rawStatus === 'BLOQUEADO'
+                                                            ? 'text-orange-400 hover:text-orange-300'
+                                                            : 'text-green-400 hover:text-green-300'}`
+                                                        }
+                                                    >
+                                                        {rawStatus === 'BLOQUEADO' ? 'Ativar' : 'Bloquear'}
                                                     </button>
                                                 </div>
                                             </td>
