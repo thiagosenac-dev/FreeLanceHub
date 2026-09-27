@@ -34,6 +34,9 @@ export default function Propostas() {
 
     // Exclui uma proposta e atualiza a lista
     const excluirProposta = async (id: number | null) => {
+        if(!confirm("Deseja realmente excluir esta Proposta?")){
+            return;
+        }
         var dadosRetorno = await axios.delete('http://localhost:8080/propostas/' + id + '/excluir');
 
         if (dadosRetorno.status === 200) {

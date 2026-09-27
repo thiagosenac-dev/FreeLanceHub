@@ -22,7 +22,8 @@ public class Cliente {
     public String cpf;
     public String email;
     public String telefone;
-    @Enumerated(EnumType.STRING)
+//    @Enumerated(EnumType.STRING) comando para deixar o status como string
+//    troca o status de 0,1 e 2. Para "ATIVO", "BLOQUEADO"...
     public EnumStatus status;
 
 }

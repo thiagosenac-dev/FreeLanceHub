@@ -22,7 +22,6 @@ public class Projeto {
     public String descricao;
     public Double valor;
     public String prazo;
-    @Enumerated(EnumType.STRING)
     public EnumStatusProjeto status;
 
 }

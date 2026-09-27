@@ -21,7 +21,6 @@ public class Proposta {
     public String descricao;
     public Double valor;
     public String prazo;
-    @Enumerated(EnumType.STRING)
     public EnumStatusProposta status;
 
 }
