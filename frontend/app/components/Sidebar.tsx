@@ -1,8 +1,3 @@
-import { Sora } from "next/font/google";
-
-// fonte moderna do menu
-const sora = Sora({ subsets: ["latin"] });
-
 // links do menu lateral (nome, rota e desenho do ícone)
 const links = [
     { nome: "Home", href: "/home", icone: "M3 11.5 12 4l9 7.5M5 10v10h5v-6h4v6h5V10" },
@@ -13,7 +8,7 @@ const links = [
 ];
 
 export default function Sidebar(){
-    const baseClasses = `${sora.className} w-64 h-screen flex flex-col p-6 bg-gradient-to-b from-slate-950/90 via-[#030a1c]/80 to-slate-950/90 backdrop-blur-xl`;
+    const baseClasses = `w-64 h-screen flex flex-col p-6 bg-gradient-to-b from-slate-950/90 via-[#030a1c]/80 to-slate-950/90 backdrop-blur-xl`;
     const linkClasses = "group relative flex items-center gap-3 px-3 py-2.5 rounded-2xl text-[15px] font-medium text-slate-300 bg-white/[0.03] border border-white/[0.06] transition-all duration-300 hover:text-white hover:translate-x-1 hover:border-blue-400/40 hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-cyan-500/10 hover:shadow-[0_8px_30px_-8px_rgba(59,130,246,0.6)]";
     const iconClasses = "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-blue-400/20 bg-gradient-to-br from-blue-500/20 to-cyan-500/10 text-blue-300 transition-all duration-300 group-hover:border-transparent group-hover:from-blue-500 group-hover:to-cyan-400 group-hover:text-white group-hover:shadow-[0_0_18px_rgba(34,211,238,0.55)]";
 

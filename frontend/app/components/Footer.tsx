@@ -1,14 +1,9 @@
-import { Sora } from "next/font/google";
-
-// mesma fonte do menu lateral
-const sora = Sora({ subsets: ["latin"] });
-
 // links do rodapé (os mesmos da landing page)
 const links = ["Privacidade", "Termos"];
 
 export default function Footer(){
     const anoAtual = new Date().getFullYear();
-    const footerClasses = `${sora.className} relative flex items-center justify-center px-6 py-6 md:h-24 md:py-0 bg-gradient-to-r from-slate-950/80 via-[#030a1c]/70 to-slate-950/80 backdrop-blur-xl`;
+    const footerClasses = `relative flex items-center justify-center px-6 py-6 md:h-24 md:py-0 bg-gradient-to-r from-slate-950/80 via-[#030a1c]/70 to-slate-950/80 backdrop-blur-xl`;
 
     return(
         <footer className={footerClasses}>
