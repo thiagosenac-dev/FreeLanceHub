@@ -1,6 +1,0 @@
-package com.senac.freelancehub.DTOs;
-
-import com.senac.freelancehub.entities.EnumStatus;
-
-public record AtualizarStatusClienteRequest(EnumStatus status) {
-}
