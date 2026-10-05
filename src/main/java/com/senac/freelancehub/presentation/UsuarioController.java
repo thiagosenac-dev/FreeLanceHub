@@ -38,29 +38,24 @@ public class UsuarioController {
     @Operation(summary = "Método de consulta de lista de usuários POR ID", description = "Método responsável pela colsulta de usuários por ID")
     public ResponseEntity<Usuario> BuscarPorId(@PathVariable Long id){
 
-        Usuario usuarioBanco = usuarioRepository.findById(id).orElse(null);
-        if (usuarioBanco != null){
-            return ResponseEntity.ok(usuarioBanco);
-        }
-        return ResponseEntity.notFound().build();
+        return usuarioService.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Método de criar novos usuários!", description = "Método responsável pela criação de. usuários")
     public ResponseEntity<Usuario> criar(@RequestBody Usuario usuario) {
-        var usuarioBanco = usuarioRepository.save(usuario);
-        return ResponseEntity.ok(usuarioBanco);
+
+        return ResponseEntity.ok(usuarioService.criar(usuario));
     }
 
     @PatchMapping("/{id}/status")
     @Operation(summary = "Método de aletrar Status", description = "Método responsável aletração dos status dos usuários")
     public ResponseEntity<Void> atualizarStatus(@PathVariable Long id, @RequestBody AtualizarStatusUsuarioRequest statusRequest){
 
-        Usuario usuarioBanco = usuarioRepository.findById(id).orElse(null);
-        if (usuarioBanco != null){
-            usuarioBanco.setStatus(statusRequest.status());
-            usuarioRepository.save(usuarioBanco);
+        if (usuarioService.atualizarStatus(id, statusRequest)) {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();
@@ -70,34 +65,17 @@ public class UsuarioController {
     @Operation(summary = "Método de alterar iformações do usuário", description = "Método responsável pela alteração de usuários")
     public ResponseEntity<Usuario> atualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuario){
 
-        try {
-            Usuario usuarioBanco = usuarioRepository.findById(id).orElse(null);
-
-            if (usuarioBanco != null){
-                usuarioBanco.setStatus(usuario.getStatus());
-                usuarioBanco.setNome(usuario.getNome());
-                usuarioBanco.setEmail(usuario.getEmail());
-                usuarioBanco.setCpf(usuario.getCpf());
-                usuarioBanco.setSenha(usuario.getSenha());
-                usuarioRepository.save(usuarioBanco);
-
-                return ResponseEntity.ok().build();
-            }
-            return ResponseEntity.notFound().build();
-
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
+        if (usuarioService.atualizarUsuario(id, usuario)) {
+            return ResponseEntity.ok().build();
         }
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}/excluir")
     @Operation(summary = "Método de inativação de cadastro", description = "Método responsável inativação do cadastro do usuários")
     public ResponseEntity<Void> excluir(@PathVariable Long id){
 
-        Usuario usuarioBanco = usuarioRepository.findById(id).orElse(null);
-        if (usuarioBanco != null){
-            usuarioBanco.setStatus(EnumStatus.EXCLUIDO);
-            usuarioRepository.save(usuarioBanco);
+        if (usuarioService.excluir(id)) {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();

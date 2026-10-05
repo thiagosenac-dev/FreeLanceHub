@@ -1,5 +1,4 @@
 package com.senac.freelancehub.presentation;
-
 import com.senac.freelancehub.application.DTOs.AtualizarStatusClienteRequest;
 import com.senac.freelancehub.domain.entities.Cliente;
 import com.senac.freelancehub.domain.entities.EnumStatus;
