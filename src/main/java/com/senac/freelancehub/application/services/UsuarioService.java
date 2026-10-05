@@ -30,9 +30,7 @@ public class UsuarioService {
     public LoginResponse validarUsuarioAutenticadoRetornaToken (LoginRequest request){
 
         if (usuarioRepository.existsUsuarioByEmailAndSenha(request.email(), request.senha())) {
-
             var token = tokenService.gerarToken(request.email());
-
             return new LoginResponse((token));
         }
         return null;
@@ -100,7 +98,6 @@ public class UsuarioService {
         if (usuarioBanco == null) {
             return false;
         }
-
         usuarioBanco.setStatus(EnumStatus.EXCLUIDO);
         usuarioRepository.save(usuarioBanco);
         return true;
