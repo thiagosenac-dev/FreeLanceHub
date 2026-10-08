@@ -1,6 +1,7 @@
 package com.senac.freelancehub.presentation;
 
 import com.senac.freelancehub.application.DTOs.AtualizarStatusPropostaRequest;
+import com.senac.freelancehub.application.services.PropostaService;
 import com.senac.freelancehub.domain.entities.EnumStatusProposta;
 import com.senac.freelancehub.domain.entities.Proposta;
 import com.senac.freelancehub.domain.repository.PropostaRepository;
@@ -13,82 +14,63 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/propostas")
-@Tag(name = "Propostas", description = "grupo de API responsável por controlar a estrutura de criação e edição das propostas para os usuários")
+@Tag(name = "Propostas", description = "grupo de API responsável por controlar a estrutura de criação e edição das propostas para os propostas")
 public class PropostaController {
 
     @Autowired
     private PropostaRepository propostaRepository;
 
+    @Autowired
+    private PropostaService propostaService;
+
     @GetMapping
-    @Operation(summary = "Método de consulta de lista de usuários!", description = "Método responsável pela colsulta de todas os usuários sem filtro")
+    @Operation(summary = "Método de consulta de lista de propostas!", description = "Método responsável pela colsulta de todas os propostas sem filtro")
     public ResponseEntity<?> ListarTodos() {
 
-        return ResponseEntity.ok(propostaRepository.findAll());
+        return ResponseEntity.ok(propostaService.ListarTodasPropostasGrid());
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Método de consulta de lista de usuários POR ID", description = "Método responsável pela colsulta de usuários por ID")
+    @Operation(summary = "Método de consulta de lista de propostas POR ID", description = "Método responsável pela colsulta de propostas por ID")
     public ResponseEntity<Proposta> BuscarPorId(@PathVariable Long id){
 
-        Proposta propostaBanco = propostaRepository.findById(id).orElse(null);
-        if (propostaBanco != null){
-            return ResponseEntity.ok(propostaBanco);
-        }
-        return ResponseEntity.notFound().build();
+        return propostaService.buscarPorId(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Método de consulta de lista de usuários!", description = "Método responsável pela colsulta de todas os usuários sem filtro")
+    @Operation(summary = "Método de consulta de lista de propostas!", description = "Método responsável pela colsulta de todas os propostas sem filtro")
     public ResponseEntity<Proposta> criar(@RequestBody Proposta proposta) {
-        var propostaBanco = propostaRepository.save(proposta);
-        return ResponseEntity.ok(propostaBanco);
+        return ResponseEntity.ok(propostaService.criar(proposta));
     }
 
     @PatchMapping("/{id}/status")
     @Operation(summary = "Método de aletrar Status", description = "Método responsável aletração dos status das propostas")
     public ResponseEntity<Void> atualizarStatus(@PathVariable Long id, @RequestBody AtualizarStatusPropostaRequest statusRequest){
 
-        Proposta propostaBanco = propostaRepository.findById(id).orElse(null);
-        if (propostaBanco != null){
-            propostaBanco.setStatus(statusRequest.status());
-            propostaRepository.save(propostaBanco);
+        if (propostaService.atualizarStatus(id, statusRequest)) {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Método de alterar iformações do usuário", description = "Método responsável pela alteração de propostas")
+    @Operation(summary = "Método de alterar iformações do propostas", description = "Método responsável pela alteração de propostas")
     public ResponseEntity<Proposta> atualizarProposta(@PathVariable Long id, @RequestBody Proposta proposta){
 
-        try {
-            Proposta propostaBanco = propostaRepository.findById(id).orElse(null);
-
-            if (propostaBanco != null){
-                propostaBanco.setStatus(proposta.getStatus());
-                propostaBanco.setDescricao(proposta.getDescricao());
-                propostaBanco.setValor(proposta.getValor());
-                propostaBanco.setPrazo(proposta.getPrazo());
-                propostaRepository.save(propostaBanco);
-
-                return ResponseEntity.ok().build();
-            }
-            return ResponseEntity.notFound().build();
-
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
+        if (propostaService.atualizarProposta(id, proposta)) {
+            return ResponseEntity.ok().build();
         }
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}/excluir")
     @Operation(summary = "Método de inativação de cadastro", description = "Método responsável inativação do cadastro da proposta")
     public ResponseEntity<Void> excluir(@PathVariable Long id){
 
-        Proposta propostaBanco = propostaRepository.findById(id).orElse(null);
-        if (propostaBanco != null){
-            propostaBanco.setStatus(EnumStatusProposta.CANCELADA);
-            propostaRepository.save(propostaBanco);
+        if (propostaService.excluir(id)) {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();
