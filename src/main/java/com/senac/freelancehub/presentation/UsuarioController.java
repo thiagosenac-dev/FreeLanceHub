@@ -1,5 +1,7 @@
 package com.senac.freelancehub.presentation;
 import com.senac.freelancehub.application.DTOs.AtualizarStatusUsuarioRequest;
+import com.senac.freelancehub.application.DTOs.CriarAdminRequest;
+import com.senac.freelancehub.application.DTOs.CriarAdminResponse;
 import com.senac.freelancehub.application.DTOs.UsuarioResponse;
 import com.senac.freelancehub.application.services.UsuarioService;
 import com.senac.freelancehub.domain.entities.EnumStatus;
@@ -41,6 +43,19 @@ public class UsuarioController {
         return usuarioService.buscarPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/admin")
+    public ResponseEntity<CriarAdminResponse> criarAdmin(@RequestBody CriarAdminRequest criarAdminRequest){
+
+        try{
+            CriarAdminResponse respostaSalvar = usuarioService.criarAdmin(criarAdminRequest);
+            return ResponseEntity.ok(respostaSalvar);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+
     }
 
     @PostMapping

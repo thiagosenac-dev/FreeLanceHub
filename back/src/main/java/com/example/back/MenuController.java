@@ -6,30 +6,37 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+
 import java.io.IOException;
 
 public class MenuController {
 
+
     @FXML
-    public void abrirCadastro(){
+    public void abrirCadastro(ActionEvent event) throws IOException {
+        FXMLLoader loader =
+                new FXMLLoader(getClass().getResource("/com/example/back/cadastro-usuario-view.fxml"));
 
+        Scene scene = new Scene(loader.load());
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(scene);
 
+    }
+
+    // abre a tela de cadastro de cliente
+    @FXML
+    public void abrirCadastroCliente(ActionEvent event) throws IOException {
+        FXMLLoader loader =
+                new FXMLLoader(getClass().getResource("/com/example/back/cadastro-cliente-view.fxml"));
+
+        Scene scene = new Scene(loader.load());
+        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        stage.setScene(scene);
     }
 
     @FXML
     public void sair(){
         System.exit(0);
-    }
-
-    // Abre a tela de cadastro ao clicar em "Cadastro admin"
-    @FXML
-    protected void abrirCadastro(ActionEvent event) throws IOException {
-        FXMLLoader loader =
-                new FXMLLoader(getClass().getResource("/com/example/back/cadastrousuario-view.fxml"));
-
-        Scene scene = new Scene(loader.load());
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(scene);
     }
 
 }

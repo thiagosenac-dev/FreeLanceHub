@@ -4,6 +4,6 @@ import javafx.application.Application;
 
 public class Launcher {
     public static void main(String[] args) {
-        Application.launch(AdmApplication.class, args);
+        Application.launch(AdminApplication.class, args);
     }
 }

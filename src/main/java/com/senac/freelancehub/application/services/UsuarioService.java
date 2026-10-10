@@ -1,14 +1,12 @@
 package com.senac.freelancehub.application.services;
 
-import com.senac.freelancehub.application.DTOs.LoginRequest;
-import com.senac.freelancehub.application.DTOs.LoginResponse;
-import com.senac.freelancehub.application.DTOs.UsuarioResponse;
+import com.senac.freelancehub.application.DTOs.*;
 import com.senac.freelancehub.domain.entities.EnumStatus;
 import com.senac.freelancehub.domain.entities.Usuario;
 import java.util.Optional;
-import com.senac.freelancehub.application.DTOs.AtualizarStatusUsuarioRequest;
 import com.senac.freelancehub.domain.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -26,6 +24,10 @@ public class UsuarioService {
 
     @Autowired
     private TokenService tokenService;
+
+    @Value("${spring.secretkey}")
+    private String secret;
+
 
     public LoginResponse validarUsuarioAutenticadoRetornaToken (LoginRequest request){
 
@@ -104,4 +106,20 @@ public class UsuarioService {
     }
 
 
+    public CriarAdminResponse criarAdmin(CriarAdminRequest criarAdminRequest) {
+
+        if(!criarAdminRequest.secretKey().equals(secret)){
+            return new CriarAdminResponse(0L,"Usuario Salvo com sucesso!");
+
+        }
+
+        Usuario usuarioAdminSalvar = new Usuario(criarAdminRequest);
+        usuarioAdminSalvar.setStatus(EnumStatus.ATIVO);
+        usuarioRepository.save(usuarioAdminSalvar);
+
+        return new CriarAdminResponse(usuarioAdminSalvar.getId(),"Usuario Salvo com sucesso!");
+    }
 }
+
+
+
