@@ -24,6 +24,7 @@ public class Usuario {
 
     private String role = "ROLE_USER";
 
+
     private EnumStatus status;
 
     public Usuario(CriarAdminRequest criarAdminRequest) {

@@ -13,5 +13,6 @@ public record ClienteResponse (long id, String nome, String cpf, String email, S
                 clienteIdentidade.getStatus()
         );
 
+
     }
 }

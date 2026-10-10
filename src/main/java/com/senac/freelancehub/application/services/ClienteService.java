@@ -24,6 +24,7 @@ public class ClienteService {
     public List<ClienteResponse> ListarTodosClientesGrid() {
 
 
+
         return clienteRepository
                 .findAll()
                 .stream()

@@ -12,6 +12,5 @@ public record UsuarioResponse (long id, String nome, String cpf, String email, E
             usuarioIdentidade.getEmail(),
             usuarioIdentidade.getStatus()
         );
-
     }
 }

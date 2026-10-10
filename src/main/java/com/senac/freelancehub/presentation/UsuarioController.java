@@ -55,7 +55,6 @@ public class UsuarioController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
-
     }
 
     @PostMapping

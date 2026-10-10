@@ -106,6 +106,7 @@ public class UsuarioService {
     }
 
 
+
     public CriarAdminResponse criarAdmin(CriarAdminRequest criarAdminRequest) {
 
         if(!criarAdminRequest.secretKey().equals(secret)){
