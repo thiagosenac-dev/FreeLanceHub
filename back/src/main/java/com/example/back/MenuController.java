@@ -23,17 +23,6 @@ public class MenuController {
 
     }
 
-    // abre a tela de cadastro de cliente
-    @FXML
-    public void abrirCadastroCliente(ActionEvent event) throws IOException {
-        FXMLLoader loader =
-                new FXMLLoader(getClass().getResource("/com/example/back/cadastro-cliente-view.fxml"));
-
-        Scene scene = new Scene(loader.load());
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(scene);
-    }
-
     @FXML
     public void sair(){
         System.exit(0);
