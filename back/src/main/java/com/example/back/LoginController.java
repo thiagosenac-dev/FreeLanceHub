@@ -25,7 +25,6 @@ public class LoginController {
         if (txtKey.getText().equals(key)) {
             showMessage(Alert.AlertType.INFORMATION, "Login efetuado com sucesso!");
 
-
             FXMLLoader loader =
                     new FXMLLoader(getClass().getResource("/com/example/back/menu-view.fxml"));
 

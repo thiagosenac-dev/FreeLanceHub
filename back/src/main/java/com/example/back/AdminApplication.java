@@ -17,3 +17,4 @@ public class AdminApplication extends Application {
         stage.show();
     }
 }
+
