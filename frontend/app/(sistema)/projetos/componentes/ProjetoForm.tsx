@@ -1,10 +1,11 @@
 'use client'
 
 import { Projeto } from "@/app/types/projeto";
+import { Categoria } from "@/app/types/categoria";
 import axios from "@/node_modules/axios/index";
 import Link from "@/node_modules/next/link";
 import { useRouter } from "@/node_modules/next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Dados que esse formulário pode receber: um projeto já existente (modo edição) ou nada (modo cadastro)
 interface ProjetoFormProps {
@@ -18,8 +19,16 @@ export default function ProjetoForm({ projetoExistente }: ProjetoFormProps) {
     // Se recebeu um projeto existente, começa com os dados dele. Se não, começa em branco (cadastro novo)
     const [projeto, setProjeto] = useState<Projeto>(
         projetoExistente ||
-        new Projeto(null, "", "", 0, "", "EM_ANDAMENTO")
+        new Projeto(null, "", "", 0, "", "EM_ANDAMENTO", null)
     );
+
+    // Lista de categorias ativas para o select
+    const [categorias, setCategorias] = useState<Categoria[]>([]);
+
+    useEffect(() => {
+        axios.get<Categoria[]>("http://localhost:8080/categorias")
+            .then(r => setCategorias(r.data.filter(c => String(c.status).toUpperCase() === "ATIVO")));
+    }, []);
 
     // Atualiza um campo específico do projeto conforme a pessoa digita
     const handlerChange = (campo: 'nome' | 'descricao' | 'valor' | 'prazo' | 'status', valor: string) => {
@@ -30,7 +39,8 @@ export default function ProjetoForm({ projetoExistente }: ProjetoFormProps) {
                 campo === 'descricao' ? valor : valorAnterior.descricao,
                 campo === 'valor' ? Number(valor) : valorAnterior.valor,
                 campo === 'prazo' ? valor : valorAnterior.prazo,
-                campo === 'status' ? valor : valorAnterior.status
+                campo === 'status' ? valor : valorAnterior.status,
+                valorAnterior.categoriaId
             )
         )
     }
@@ -69,7 +79,7 @@ export default function ProjetoForm({ projetoExistente }: ProjetoFormProps) {
     return (
         <form action={handlerSalvar} className="space-y-6">
 
-            {/* Campos do formulário: nome, descrição, valor e prazo */}
+            {/* Campos do formulário: nome, descrição, valor, prazo e categoria */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2 md:col-span-2">
                     <label className="block text-sm font-medium text-slate-300">
@@ -125,6 +135,21 @@ export default function ProjetoForm({ projetoExistente }: ProjetoFormProps) {
                         onChange={(e) => handlerChange('prazo', e.target.value)}
                         className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
                     </input>
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                    <label className="block text-sm font-medium text-slate-300">
+                        Categoria:
+                    </label>
+                    <select
+                        value={projeto.categoriaId ?? ""}
+                        required
+                        onChange={(e) => setProjeto({ ...projeto, categoriaId: Number(e.target.value) })}
+                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-400/20 transition-all duration-300">
+                        <option value="" className="bg-slate-950">Selecione uma categoria</option>
+                        {categorias.map(c => (
+                            <option key={c.id} value={c.id ?? ""} className="bg-slate-950">{c.nome}</option>
+                        ))}
+                    </select>
                 </div>
             </div>
 

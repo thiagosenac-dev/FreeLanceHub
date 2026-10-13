@@ -21,5 +21,6 @@ public class Projeto {
     public Double valor;
     public String prazo;
     public EnumStatusProjeto status;
+    public Long categoriaId;
 
 }

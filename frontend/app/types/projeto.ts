@@ -5,7 +5,8 @@ export class Projeto{
         public descricao: string,
         public valor: number,
         public prazo: string,
-        public status: string
+        public status: string,
+        public categoriaId: number | null
 
     ){}
 }

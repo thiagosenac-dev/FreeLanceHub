@@ -79,6 +79,18 @@ export default function Home(){
                         <p className="text-xs text-slate-400 mt-1 leading-relaxed">Acompanhamento de prazos e entregas</p>
                     </Link>
 
+                    <Link href="/categorias" className="group relative bg-slate-950/70 hover:bg-slate-900/90 backdrop-blur-xl border border-slate-800/80 hover:border-indigo-500/50 rounded-2xl p-6 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-indigo-500/10">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-bl-full pointer-events-none group-hover:bg-indigo-500/10 transition-colors"></div>
+                        <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 mb-4 group-hover:scale-110 transition-transform font-bold text-sm">
+                            CT
+                        </div>
+                        <h2 className="text-lg font-bold text-slate-100 group-hover:text-indigo-400 transition-colors flex items-center justify-between">
+                            Categorias
+                            <span className="text-xs text-slate-500 group-hover:text-indigo-400 transition-colors">&rarr;</span>
+                        </h2>
+                        <p className="text-xs text-slate-400 mt-1 leading-relaxed">Organização dos projetos por área de atuação</p>
+                    </Link>
+
                 </div>
             </div>
         </div>

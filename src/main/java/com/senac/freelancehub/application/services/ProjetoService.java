@@ -63,6 +63,7 @@ public class ProjetoService {
         projetoBanco.setDescricao(projeto.getDescricao());
         projetoBanco.setValor(projeto.getValor());
         projetoBanco.setPrazo(projeto.getPrazo());
+        projetoBanco.setCategoriaId(projeto.getCategoriaId());
         projetoRepository.save(projetoBanco);
         return true;
     }

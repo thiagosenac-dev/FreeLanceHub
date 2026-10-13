@@ -4,6 +4,7 @@ const links = [
     { nome: "Usuarios", href: "/usuarios", icone: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" },
     { nome: "Cliente", href: "/clientes", icone: "M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM2.5 20c0-3 2.9-5 6.5-5s6.5 2 6.5 5M16 4.3a3.5 3.5 0 0 1 0 6.4M18 15.2c2 .7 3.5 2.2 3.5 4.8" },
     { nome: "Projetos", href: "/projetos", icone: "M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" },
+    { nome: "Categorias", href: "/categorias", icone: "M4 4h7v7H4V4ZM13 4h7v7h-7V4ZM4 13h7v7H4v-7ZM13 13h7v7h-7v-7Z" },
     { nome: "Propostas", href: "/propostas", icone: "M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2ZM14 3v5h5M9 13h6M9 17h4" },
 ];
 

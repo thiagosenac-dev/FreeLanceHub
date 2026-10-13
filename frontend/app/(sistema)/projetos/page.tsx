@@ -3,6 +3,7 @@
 import Link from "@/node_modules/next/link";
 import axios from "@/node_modules/axios/index";
 import { Projeto } from "@/app/types/projeto";
+import { Categoria } from "@/app/types/categoria";
 import { useEffect, useState } from "react";
 
 const statusInfo: Record<string, { label: string; style: string }> = {
@@ -13,6 +14,7 @@ const statusInfo: Record<string, { label: string; style: string }> = {
 
 export default function Projetos() {
     const [projetos, setProjetos] = useState<Projeto[]>([])
+    const [categorias, setCategorias] = useState<Categoria[]>([])
 
     useEffect(() => {
         carregarDados();
@@ -22,6 +24,8 @@ export default function Projetos() {
         try {
             const dados = await axios.get<Projeto[]>("http://localhost:8080/projetos")
             setProjetos(dados.data);
+            const cats = await axios.get<Categoria[]>("http://localhost:8080/categorias")
+            setCategorias(cats.data);
         } catch (error) {
             alert("Erro ao carregar dados")
         }
@@ -88,6 +92,7 @@ export default function Projetos() {
                                     <th className="py-4 px-6">Código</th>
                                     <th className="py-4 px-6">Projeto</th>
                                     <th className="py-4 px-6">Descrição</th>
+                                    <th className="py-4 px-6">Categoria</th>
                                     <th className="py-4 px-6">Valor</th>
                                     <th className="py-4 px-6">Prazo</th>
                                     <th className="py-4 px-6">Status</th>
@@ -103,6 +108,7 @@ export default function Projetos() {
                                             <td className="py-4 px-6 text-slate-200 font-medium">#{projeto.id}</td>
                                             <td className="py-4 px-6 text-slate-200 font-medium">{projeto.nome}</td>
                                             <td className="py-4 px-6 text-slate-400">{projeto.descricao}</td>
+                                            <td className="py-4 px-6 text-slate-400">{categorias.find(c => c.id === projeto.categoriaId)?.nome ?? "-"}</td>
                                             <td className="py-4 px-6 text-slate-400">
                                                 {Number(projeto.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                                             </td>
@@ -131,7 +137,7 @@ export default function Projetos() {
 
                                 {projetos.length === 0 && (
                                     <tr>
-                                        <td colSpan={7} className="py-12 text-center text-slate-500 italic">
+                                        <td colSpan={8} className="py-12 text-center text-slate-500 italic">
                                             Nenhum projeto encontrado
                                         </td>
                                     </tr>
