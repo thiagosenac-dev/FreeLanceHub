@@ -6,10 +6,10 @@
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.back.CategoriaController">
     <children>
         <Button layoutX="24.0" layoutY="354.0" mnemonicParsing="false" onAction="#voltar" text="Voltar" />
-        <Button layoutX="516.0" layoutY="354.0" mnemonicParsing="false" onAction="#salvarUsuario" prefHeight="25.0" prefWidth="48.0" text="Salvar" />
-        <Label layoutX="180.0" layoutY="196.0" text="Categoria" />
-        <Label layoutX="180.0" layoutY="237.0" text="Descrição" />
-        <TextField fx:id="txtNome" layoutX="236.0" layoutY="192.0" />
-        <TextField fx:id="txtCpf" layoutX="236.0" layoutY="233.0" />
+        <Button layoutX="501.0" layoutY="354.0" mnemonicParsing="false" onAction="#salvarCategoria" text="Salvar" />
+        <Label layoutX="78.0" layoutY="56.0" text="Nome" />
+        <Label layoutX="78.0" layoutY="97.0" text="Descrição" />
+        <TextField fx:id="txtNome" layoutX="140.0" layoutY="52.0" />
+        <TextField fx:id="txtDescricao" layoutX="140.0" layoutY="93.0" />
     </children>
 </AnchorPane>

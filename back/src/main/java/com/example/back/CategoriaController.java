@@ -6,7 +6,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
@@ -21,28 +20,21 @@ public class CategoriaController {
     private TextField txtNome;
 
     @FXML
-    private TextArea txtDescricao;
+    private TextField txtDescricao;
 
     @FXML
     public void salvarCategoria(ActionEvent event) throws Exception {
 
-
-        //Validar Dados
-        if (txtNome.getText().isBlank() || txtDescricao.getText().isBlank()) {
-            showMessage(Alert.AlertType.WARNING, "Preencha todos os campos!");
-            return;
-        }
-
+        // monta o json com os dados da tela
         String jsonRequest = String.format("{\n" +
                         "  \"nome\": \"%s\",\n" +
                         "  \"descricao\": \"%s\",\n" +
                         "  \"status\": \"%s\"\n" +
                         "}", txtNome.getText(),
-                txtDescricao.getText().replace("\n", " "),
+                txtDescricao.getText(),
                 "ATIVO");
 
         int respostaApi = executaMetodoAPI("http://localhost:8080/categorias", jsonRequest, "POST");
-
 
         if (respostaApi == 200) {
             showMessage(Alert.AlertType.INFORMATION, "Categoria salva com sucesso!");
@@ -54,7 +46,7 @@ public class CategoriaController {
 
     }
 
-
+    // volta para o menu
     @FXML
     public void voltar(ActionEvent event) throws IOException {
         FXMLLoader loader =
@@ -66,21 +58,20 @@ public class CategoriaController {
 
     }
 
+    // envia o json para a api e retorna o codigo da resposta
     private int executaMetodoAPI(String url, String json, String protocoloHttp)
             throws Exception {
-
 
         URL urlAPI = new URL(url);
         HttpURLConnection connection = (HttpURLConnection) urlAPI.openConnection();
         connection.setRequestMethod(protocoloHttp);
         connection.setDoOutput(true);
 
-
         if (!json.isEmpty()) {
             connection.setRequestProperty("Content-Type", "application/json");
 
             try (OutputStream os = connection.getOutputStream()) {
-                os.write(json.getBytes("UTF-8"));
+                os.write(json.getBytes());
             }
 
         }
@@ -89,6 +80,7 @@ public class CategoriaController {
 
     }
 
+    // mostra uma mensagem na tela
     private void showMessage(Alert.AlertType type, String msg) {
         Alert alerta = new Alert(type);
         alerta.setTitle("Mensagem do Sistema!");
