@@ -4,6 +4,7 @@ import com.senac.freelancehub.application.DTOs.*;
 import com.senac.freelancehub.domain.entities.Cliente;
 import com.senac.freelancehub.domain.entities.EnumStatus;
 import com.senac.freelancehub.domain.repository.ClienteRepository;
+import com.senac.freelancehub.domain.valueobject.CPF;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +53,10 @@ public class ClienteService {
                 return null;
             }
         }
+
+        // valida cpf e email antes de salvar
+        if (!CPF.isValidCpf(request.cpf())) throw new IllegalArgumentException("CPF Invalido!");
+        if (request.email() == null || !request.email().contains("@")) throw new IllegalArgumentException("Email Invalido!");
 
         cliente.setNome(request.nome());
         cliente.setCpf(request.cpf());
