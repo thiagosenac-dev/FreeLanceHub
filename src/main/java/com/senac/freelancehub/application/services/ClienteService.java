@@ -1,12 +1,8 @@
 package com.senac.freelancehub.application.services;
 
-import com.senac.freelancehub.application.DTOs.AtualizarStatusClienteRequest;
-import com.senac.freelancehub.application.DTOs.AtualizarStatusUsuarioRequest;
-import com.senac.freelancehub.application.DTOs.ClienteResponse;
-import com.senac.freelancehub.application.DTOs.UsuarioResponse;
+import com.senac.freelancehub.application.DTOs.*;
 import com.senac.freelancehub.domain.entities.Cliente;
 import com.senac.freelancehub.domain.entities.EnumStatus;
-import com.senac.freelancehub.domain.entities.Usuario;
 import com.senac.freelancehub.domain.repository.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,7 +38,7 @@ public class ClienteService {
     }
 
     // altera o status do cliente, devolve false se ele não existir
-    public boolean atualizarStatus(Long id, AtualizarStatusClienteRequest statusRequest) {
+    public boolean atualizarStatus(Long id, AtualizarStatusRequest statusRequest) {
 
         Cliente clienteBanco = clienteRepository.findById(id).orElse(null);
         if (clienteBanco == null) {

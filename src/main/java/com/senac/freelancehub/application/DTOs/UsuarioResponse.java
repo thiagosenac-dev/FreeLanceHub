@@ -2,15 +2,16 @@ package com.senac.freelancehub.application.DTOs;
 
 import com.senac.freelancehub.domain.entities.Usuario;
 
-public record UsuarioResponse (long id, String nome, String cpf, String email, Enum status) {
+public record UsuarioResponse(Long id, String nome, String cpf, String email, EnumStatusUsuario status) {
 
-    public UsuarioResponse (Usuario usuarioIdentidade) {
-        this (
-            usuarioIdentidade.getId(),
-            usuarioIdentidade.getNome(),
-            usuarioIdentidade.getCpf(),
-            usuarioIdentidade.getEmail(),
-            usuarioIdentidade.getStatus()
+    public UsuarioResponse(Usuario usuarioEntidade){
+
+        this(
+                usuarioEntidade.getId(),
+                usuarioEntidade.getNome(),
+                usuarioEntidade.getCpf().toString(),
+                usuarioEntidade.getEmail(),
+                usuarioEntidade.getStatus()
         );
     }
 }

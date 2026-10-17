@@ -1,39 +1,60 @@
 package com.senac.freelancehub.domain.entities;
+
 import com.senac.freelancehub.application.DTOs.CriarAdminRequest;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.senac.freelancehub.application.DTOs.UsuarioRequest;
+import com.senac.freelancehub.domain.valueobject.CPF;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String nome;
-    private String cpf;
+
+    @Embedded
+    private CPF cpf;
+
     private String senha;
+
     private String email;
 
     private String role = "ROLE_USER";
 
+    // status do usuário, começa ativo
+    private EnumStatus status = EnumStatus.ATIVO;
 
-    private EnumStatus status;
+    // valida o email antes de salvar
+    public void setEmail(String email) {
+        if (!email.isEmpty() && !email.contains("@")) {
+            throw new IllegalArgumentException("Email Invalido!");
+        }
+        this.email = email;
+    }
 
+    // cria um admin a partir do request
     public Usuario(CriarAdminRequest criarAdminRequest) {
-        this.setCpf(criarAdminRequest.cpf());
+        this.setCpf(new CPF(criarAdminRequest.cpf()));
         this.setNome(criarAdminRequest.nome());
         this.setSenha(criarAdminRequest.senha());
         this.setEmail(criarAdminRequest.email());
         this.setRole("ROLE_ADMIN");
+    }
 
-
+    // cria um usuário comum a partir do request
+    public Usuario(UsuarioRequest usuario) {
+        this.setCpf(new CPF(usuario.cpf()));
+        this.setNome(usuario.nome());
+        this.setSenha(usuario.senha());
+        this.setEmail(usuario.email());
+        this.setRole("ROLE_USER");
     }
 }

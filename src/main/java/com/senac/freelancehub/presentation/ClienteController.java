@@ -1,10 +1,9 @@
 package com.senac.freelancehub.presentation;
-import com.senac.freelancehub.application.DTOs.AtualizarStatusClienteRequest;
+
+import com.senac.freelancehub.application.DTOs.AtualizarStatusRequest;
 import com.senac.freelancehub.application.DTOs.ClienteResponse;
-import com.senac.freelancehub.application.DTOs.UsuarioResponse;
 import com.senac.freelancehub.application.services.ClienteService;
 import com.senac.freelancehub.domain.entities.Cliente;
-import com.senac.freelancehub.domain.entities.EnumStatus;
 import com.senac.freelancehub.domain.repository.ClienteRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -53,7 +52,7 @@ public class ClienteController {
 
     @PatchMapping("/{id}/status")
     @Operation(summary = "Método de aletrar Status", description = "Método responsável aletração dos status dos clientes")
-    public ResponseEntity<Void> atualizarStatus(@PathVariable Long id, @RequestBody AtualizarStatusClienteRequest statusRequest){
+    public ResponseEntity<Void> atualizarStatus(@PathVariable Long id, @RequestBody AtualizarStatusRequest statusRequest){
 
         if (clienteService.atualizarStatus(id, statusRequest)) {
             return ResponseEntity.ok().build();
