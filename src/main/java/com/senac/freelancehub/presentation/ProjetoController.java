@@ -1,10 +1,9 @@
 package com.senac.freelancehub.presentation;
 
 import com.senac.freelancehub.application.DTOs.AtualizarStatusProjetoRequest;
+import com.senac.freelancehub.application.DTOs.ProjetoRequest;
+import com.senac.freelancehub.application.DTOs.ProjetoResponse;
 import com.senac.freelancehub.application.services.ProjetoService;
-import com.senac.freelancehub.domain.entities.EnumStatusProjeto;
-import com.senac.freelancehub.domain.entities.Projeto;
-import com.senac.freelancehub.domain.repository.ProjetoRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +17,6 @@ import org.springframework.web.bind.annotation.*;
 public class ProjetoController {
 
     @Autowired
-    private ProjetoRepository projetoRepository;
-
-    @Autowired
     private ProjetoService projetoService;
 
     @GetMapping
@@ -32,18 +28,26 @@ public class ProjetoController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Método de consulta de lista de usuários POR ID", description = "Método responsável pela colsulta dos projetos por ID")
-    public ResponseEntity<Projeto> BuscarPorId(@PathVariable Long id){
+    public ResponseEntity<ProjetoResponse> BuscarPorId(@PathVariable Long id){
 
-        return projetoService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        ProjetoResponse projetoBanco = projetoService.buscarPorId(id);
+        if (projetoBanco != null) {
+            return ResponseEntity.ok(projetoBanco);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Método de consulta de lista de usuários!", description = "Método responsável pela colsulta de todos os projetos sem filtro")
-    public ResponseEntity<Projeto> criar(@RequestBody Projeto projeto) {
-        return ResponseEntity.ok(projetoService.criar(projeto));
+    public ResponseEntity<?> criar(@RequestBody ProjetoRequest projeto) {
+
+        try {
+            ProjetoResponse projetoBanco = projetoService.salvarProjeto(projeto, 0L);
+            return ResponseEntity.ok(projetoBanco);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PatchMapping("/{id}/status")
@@ -58,12 +62,17 @@ public class ProjetoController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Método de alterar iformações do usuário", description = "Método responsável pela alteração de projetos")
-    public ResponseEntity<Projeto> atualizarProjeto(@PathVariable Long id, @RequestBody Projeto projeto){
+    public ResponseEntity<?> atualizarProjeto(@PathVariable Long id, @RequestBody ProjetoRequest projeto){
 
-        if (projetoService.atualizarProjeto(id, projeto)) {
-            return ResponseEntity.ok().build();
+        try {
+            ProjetoResponse projetoBanco = projetoService.salvarProjeto(projeto, id);
+            if (projetoBanco == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(projetoBanco);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}/excluir")

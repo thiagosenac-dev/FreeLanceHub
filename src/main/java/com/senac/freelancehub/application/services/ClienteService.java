@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ClienteService {
@@ -19,22 +18,51 @@ public class ClienteService {
     // busca todos os clientes, devolve vazio se não existir
     public List<ClienteResponse> ListarTodosClientesGrid() {
 
-
-
         return clienteRepository
                 .findAll()
                 .stream()
                 .map(ClienteResponse::new)
                 .toList();
+    }
 
+    // busca o cliente pelo id, devolve null se não existir
+    public ClienteResponse buscarPorId(Long id) {
+
+        var cliente = clienteRepository.findById(id).orElse(null);
+        if (cliente == null) {
+            return null;
+        }
+
+        return new ClienteResponse(cliente);
     }
-    // busca o cliente pelo id, devolve vazio se não existir
-    public Optional<Cliente> buscarPorId(Long id) {
-        return clienteRepository.findById(id);
-    }
-    // salva um novo cliente no banco e devolve ele já com o id
-    public Cliente criar(Cliente cliente) {
-        return clienteRepository.save(cliente);
+
+    // id 0 cria um cliente novo, qualquer outro id atualiza o existente (null se não achar)
+    public ClienteResponse salvarCliente(ClienteRequest request, Long id) {
+
+        Cliente cliente;
+
+        if (id == 0L) {
+            // novo cliente
+            cliente = new Cliente();
+            cliente.setStatus(EnumStatus.ATIVO);
+        } else {
+            // cliente existente
+            cliente = clienteRepository.findById(id).orElse(null);
+            if (cliente == null) {
+                return null;
+            }
+        }
+
+        cliente.setNome(request.nome());
+        cliente.setCpf(request.cpf());
+        cliente.setEmail(request.email());
+        cliente.setTelefone(request.telefone());
+        if (request.status() != null) {
+            cliente.setStatus(request.status());
+        }
+
+        clienteRepository.save(cliente);
+        return new ClienteResponse(cliente);
     }
 
     // altera o status do cliente, devolve false se ele não existir
@@ -46,23 +74,6 @@ public class ClienteService {
         }
         clienteBanco.setStatus(statusRequest.status());
         clienteRepository.save(clienteBanco);
-        return true;
-    }
-    // altera os dados do cliente, devolve false se ele não existir
-    public boolean atualizarCliente(Long id, Cliente cliente) {
-
-        Cliente clienetBanco = clienteRepository.findById(id).orElse(null);
-
-        if (clienetBanco == null) {
-            return false;
-        }
-
-        clienetBanco.setStatus(cliente.getStatus());
-        clienetBanco.setNome(cliente.getNome());
-        clienetBanco.setEmail(cliente.getEmail());
-        clienetBanco.setTelefone(cliente.getTelefone());
-        clienetBanco.setCpf(cliente.getCpf());
-        clienteRepository.save(clienetBanco);
         return true;
     }
 
@@ -79,5 +90,4 @@ public class ClienteService {
         clienteRepository.save(clienteBanco);
         return true;
     }
-
 }

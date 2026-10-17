@@ -1,6 +1,7 @@
 package com.senac.freelancehub.application.services;
 
 import com.senac.freelancehub.application.DTOs.AtualizarStatusRequest;
+import com.senac.freelancehub.application.DTOs.CategoriaRequest;
 import com.senac.freelancehub.application.DTOs.CategoriaResponse;
 import com.senac.freelancehub.domain.entities.Categoria;
 import com.senac.freelancehub.domain.entities.EnumStatus;
@@ -9,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CategoriaService {
@@ -19,6 +19,7 @@ public class CategoriaService {
 
     // busca todas as categorias, devolve lista vazia se não existir nenhuma
     public List<CategoriaResponse> listarTodasCategoriasGrid() {
+
         return categoriaRepository
                 .findAll()
                 .stream()
@@ -26,42 +27,52 @@ public class CategoriaService {
                 .toList();
     }
 
-    // busca a categoria pelo id, devolve vazio se não existir
-    public Optional<Categoria> buscarPorId(Long id) {
-        return categoriaRepository.findById(id);
+    // busca a categoria pelo id, devolve null se não existir
+    public CategoriaResponse buscarPorId(Long id) {
+
+        var categoria = categoriaRepository.findById(id).orElse(null);
+        if (categoria == null) {
+            return null;
+        }
+
+        return new CategoriaResponse(categoria);
     }
 
-    // salva uma nova categoria no banco e devolve ela já com o id
-    public Categoria criar(Categoria categoria) {
-        return categoriaRepository.save(categoria);
+    // id 0 cria uma categoria nova, qualquer outro id atualiza a existente (null se não achar)
+    public CategoriaResponse salvarCategoria(CategoriaRequest request, Long id) {
+
+        Categoria categoria;
+
+        if (id == 0L) {
+            // nova categoria
+            categoria = new Categoria();
+            categoria.setStatus(EnumStatus.ATIVO);
+        } else {
+            // categoria existente
+            categoria = categoriaRepository.findById(id).orElse(null);
+            if (categoria == null) {
+                return null;
+            }
+        }
+
+        categoria.setNome(request.nome());
+        categoria.setDescricao(request.descricao());
+        if (request.status() != null) {
+            categoria.setStatus(request.status());
+        }
+
+        categoriaRepository.save(categoria);
+        return new CategoriaResponse(categoria);
     }
 
     // altera o status da categoria, devolve false se ela não existir
     public boolean atualizarStatus(Long id, AtualizarStatusRequest statusRequest) {
 
         Categoria categoriaBanco = categoriaRepository.findById(id).orElse(null);
-
         if (categoriaBanco == null) {
             return false;
         }
-
         categoriaBanco.setStatus(statusRequest.status());
-        categoriaRepository.save(categoriaBanco);
-        return true;
-    }
-
-    // altera os dados da categoria, devolve false se ela não existir
-    public boolean atualizarCategoria(Long id, Categoria categoria) {
-
-        Categoria categoriaBanco = categoriaRepository.findById(id).orElse(null);
-
-        if (categoriaBanco == null) {
-            return false;
-        }
-
-        categoriaBanco.setNome(categoria.getNome());
-        categoriaBanco.setDescricao(categoria.getDescricao());
-        categoriaBanco.setStatus(categoria.getStatus());
         categoriaRepository.save(categoriaBanco);
         return true;
     }
@@ -70,7 +81,6 @@ public class CategoriaService {
     public boolean excluir(Long id) {
 
         Categoria categoriaBanco = categoriaRepository.findById(id).orElse(null);
-
         if (categoriaBanco == null) {
             return false;
         }
@@ -79,5 +89,4 @@ public class CategoriaService {
         categoriaRepository.save(categoriaBanco);
         return true;
     }
-
 }

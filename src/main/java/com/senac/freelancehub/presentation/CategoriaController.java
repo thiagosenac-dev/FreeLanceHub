@@ -1,9 +1,9 @@
 package com.senac.freelancehub.presentation;
 
 import com.senac.freelancehub.application.DTOs.AtualizarStatusRequest;
+import com.senac.freelancehub.application.DTOs.CategoriaRequest;
 import com.senac.freelancehub.application.DTOs.CategoriaResponse;
 import com.senac.freelancehub.application.services.CategoriaService;
-import com.senac.freelancehub.domain.entities.Categoria;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,22 +24,32 @@ public class CategoriaController {
     @GetMapping
     @Operation(summary = "Método de consulta de lista de categorias!", description = "Método responsável pela consulta de todas as categorias sem filtro")
     public ResponseEntity<List<CategoriaResponse>> listarTodas() {
+
         return ResponseEntity.ok(categoriaService.listarTodasCategoriasGrid());
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Método de consulta de categoria POR ID", description = "Método responsável pela consulta de categoria por ID")
-    public ResponseEntity<Categoria> buscarPorId(@PathVariable Long id) {
-        return categoriaService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<CategoriaResponse> buscarPorId(@PathVariable Long id) {
+
+        CategoriaResponse categoriaBanco = categoriaService.buscarPorId(id);
+        if (categoriaBanco != null) {
+            return ResponseEntity.ok(categoriaBanco);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Método criar novas categorias!", description = "Método responsável pela criação de novas categorias")
-    public ResponseEntity<Categoria> criar(@RequestBody Categoria categoria) {
-        return ResponseEntity.ok(categoriaService.criar(categoria));
+    public ResponseEntity<?> criar(@RequestBody CategoriaRequest categoria) {
+
+        try {
+            CategoriaResponse categoriaBanco = categoriaService.salvarCategoria(categoria, 0L);
+            return ResponseEntity.ok(categoriaBanco);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PatchMapping("/{id}/status")
@@ -54,12 +64,17 @@ public class CategoriaController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Método de alterar informações da categoria", description = "Método responsável pela alteração de categorias")
-    public ResponseEntity<Categoria> atualizarCategoria(@PathVariable Long id, @RequestBody Categoria categoria) {
+    public ResponseEntity<?> atualizarCategoria(@PathVariable Long id, @RequestBody CategoriaRequest categoria) {
 
-        if (categoriaService.atualizarCategoria(id, categoria)) {
-            return ResponseEntity.ok().build();
+        try {
+            CategoriaResponse categoriaBanco = categoriaService.salvarCategoria(categoria, id);
+            if (categoriaBanco == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(categoriaBanco);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}/excluir")

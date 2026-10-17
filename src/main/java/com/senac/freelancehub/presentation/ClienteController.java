@@ -1,10 +1,9 @@
 package com.senac.freelancehub.presentation;
 
 import com.senac.freelancehub.application.DTOs.AtualizarStatusRequest;
+import com.senac.freelancehub.application.DTOs.ClienteRequest;
 import com.senac.freelancehub.application.DTOs.ClienteResponse;
 import com.senac.freelancehub.application.services.ClienteService;
-import com.senac.freelancehub.domain.entities.Cliente;
-import com.senac.freelancehub.domain.repository.ClienteRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +19,6 @@ import java.util.List;
 public class ClienteController {
 
     @Autowired
-    private ClienteRepository clienteRepository;
-
-    @Autowired
     private ClienteService clienteService;
 
     @GetMapping
@@ -32,22 +28,28 @@ public class ClienteController {
         return ResponseEntity.ok(clienteService.ListarTodosClientesGrid());
     }
 
-
     @GetMapping("/{id}")
     @Operation(summary = "Método de consulta de lista de usuários POR ID", description = "Método responsável pela colsulta de usuários por ID")
-    public ResponseEntity<Cliente> BuscarPorId(@PathVariable Long id){
+    public ResponseEntity<ClienteResponse> BuscarPorId(@PathVariable Long id){
 
-        return clienteService.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        ClienteResponse clienteBanco = clienteService.buscarPorId(id);
+        if (clienteBanco != null) {
+            return ResponseEntity.ok(clienteBanco);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Método criar novos usuários!", description = "Método responsável pela colsulta de todas os usuários sem filtro")
-    public ResponseEntity<Cliente> criar(@RequestBody Cliente cliente) {
+    public ResponseEntity<?> criar(@RequestBody ClienteRequest cliente) {
 
-        return ResponseEntity.ok(clienteService.criar(cliente));
+        try {
+            ClienteResponse clienteBanco = clienteService.salvarCliente(cliente, 0L);
+            return ResponseEntity.ok(clienteBanco);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PatchMapping("/{id}/status")
@@ -62,12 +64,17 @@ public class ClienteController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Método de alterar iformações do usuário", description = "Método responsável pela alteração de usuários")
-    public ResponseEntity<Cliente> atualizarCliente(@PathVariable Long id, @RequestBody Cliente cliente){
+    public ResponseEntity<?> atualizarCliente(@PathVariable Long id, @RequestBody ClienteRequest cliente){
 
-        if (clienteService.atualizarCliente(id, cliente)) {
-            return ResponseEntity.ok().build();
+        try {
+            ClienteResponse clienteBanco = clienteService.salvarCliente(cliente, id);
+            if (clienteBanco == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(clienteBanco);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}/excluir")

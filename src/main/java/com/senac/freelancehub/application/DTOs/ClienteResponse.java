@@ -1,7 +1,9 @@
 package com.senac.freelancehub.application.DTOs;
-import com.senac.freelancehub.domain.entities.Cliente;
 
-public record ClienteResponse (long id, String nome, String cpf, String email, String telefone, Enum status) {
+import com.senac.freelancehub.domain.entities.Cliente;
+import com.senac.freelancehub.domain.entities.EnumStatus;
+
+public record ClienteResponse (long id, String nome, String cpf, String email, String telefone, EnumStatus status) {
 
     public ClienteResponse (Cliente clienteIdentidade) {
         this (
@@ -12,7 +14,5 @@ public record ClienteResponse (long id, String nome, String cpf, String email, S
                 clienteIdentidade.getTelefone(),
                 clienteIdentidade.getStatus()
         );
-
-
     }
 }
