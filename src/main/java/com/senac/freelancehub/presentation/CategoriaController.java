@@ -1,6 +1,6 @@
 package com.senac.freelancehub.presentation;
 
-import com.senac.freelancehub.application.DTOs.AtualizarStatusCategoriaRequest;
+import com.senac.freelancehub.application.DTOs.AtualizarStatusRequest;
 import com.senac.freelancehub.application.DTOs.CategoriaResponse;
 import com.senac.freelancehub.application.services.CategoriaService;
 import com.senac.freelancehub.domain.entities.Categoria;
@@ -44,7 +44,7 @@ public class CategoriaController {
 
     @PatchMapping("/{id}/status")
     @Operation(summary = "Método de alterar Status", description = "Método responsável pela alteração do status das categorias")
-    public ResponseEntity<Void> atualizarStatus(@PathVariable Long id, @RequestBody AtualizarStatusCategoriaRequest statusRequest) {
+    public ResponseEntity<Void> atualizarStatus(@PathVariable Long id, @RequestBody AtualizarStatusRequest statusRequest) {
 
         if (categoriaService.atualizarStatus(id, statusRequest)) {
             return ResponseEntity.ok().build();

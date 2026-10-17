@@ -1,6 +1,6 @@
 package com.senac.freelancehub.application.services;
 
-import com.senac.freelancehub.application.DTOs.AtualizarStatusCategoriaRequest;
+import com.senac.freelancehub.application.DTOs.AtualizarStatusRequest;
 import com.senac.freelancehub.application.DTOs.CategoriaResponse;
 import com.senac.freelancehub.domain.entities.Categoria;
 import com.senac.freelancehub.domain.entities.EnumStatus;
@@ -37,7 +37,7 @@ public class CategoriaService {
     }
 
     // altera o status da categoria, devolve false se ela não existir
-    public boolean atualizarStatus(Long id, AtualizarStatusCategoriaRequest statusRequest) {
+    public boolean atualizarStatus(Long id, AtualizarStatusRequest statusRequest) {
 
         Categoria categoriaBanco = categoriaRepository.findById(id).orElse(null);
 
