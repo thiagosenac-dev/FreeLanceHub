@@ -5,6 +5,11 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.senac.freelancehub.application.DTOs.LoginRequest;
+import com.senac.freelancehub.domain.entities.Token;
+import com.senac.freelancehub.domain.repository.TokenRepository;
+import com.senac.freelancehub.domain.repository.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -24,10 +29,20 @@ public class TokenService {
     @Value("${spring.emissor}")
     private String emissor;
 
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private TokenRepository tokenRepository;
+
+
     public String gerarToken(String subject){
         try{
 
             Algorithm algorithm = Algorithm.HMAC256(secret);
+
+            var usuario = usuarioRepository.findAll().stream()
+                    .filter( u -> u.getEmail().equals(subject)).findFirst().orElse(null);
 
             String token = com.auth0.jwt.JWT.create()
                     .withIssuer(emissor)
@@ -35,7 +50,10 @@ public class TokenService {
                     .withExpiresAt(getDataExpiracao())
                     .sign(algorithm);
 
+            tokenRepository.save(new Token(token,usuario));
+
             return token;
+
         }catch (RuntimeException e){
             throw new RuntimeException(e);
         }
