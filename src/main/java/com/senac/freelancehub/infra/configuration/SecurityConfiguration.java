@@ -16,13 +16,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfiguration {
 
     @Autowired
-    private JwtFilter  jwtFilter;
+    private JwtFilter jwtFilter;
 
     @Bean
-    public SecurityFilterChain filterChain (HttpSecurity http)throws Exception{
+    public SecurityFilterChain filterChain (HttpSecurity http) throws Exception{
 
-        return http
-                .cors(Customizer.withDefaults())
+        return http.cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login",
@@ -30,13 +29,15 @@ public class SecurityConfiguration {
                                 "/webjars/**",
                                 "/swagger-resources/**",
                                 "/v3/api-docs/**"
-                                ).permitAll()
-                                .anyRequest().authenticated()
+                        ).permitAll()
+                        .requestMatchers("/usuarios/**")
+                        .hasRole("ADMIN")
+                        .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore( jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
-    }
 
+    }
 
 
 }

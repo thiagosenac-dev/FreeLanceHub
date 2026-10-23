@@ -7,6 +7,7 @@ import com.senac.freelancehub.domain.repository.UsuarioRepository;
 import com.senac.freelancehub.domain.valueobject.CPF;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,10 +28,15 @@ public class UsuarioService {
     public LoginResponse validarUsuarioAutenticadoRetornaToken(LoginRequest request) {
 
         if (usuarioRepository.existsUsuarioByEmailAndSenha(request.email(), request.senha())) {
-            var token = tokenService.gerarToken(request.email());
+            var token = tokenService.gerarToken(request);
             return new LoginResponse(token);
         }
         return null;
+    }
+
+    // pega o usuário que está logado (vem do token, colocado pelo JwtFilter)
+    public UsuarioLogado getUsuarioLogado() {
+        return (UsuarioLogado) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
     // busca todos os usuários e devolve já convertidos pra response
@@ -55,6 +61,8 @@ public class UsuarioService {
 
     // id 0 cria um usuário novo, qualquer outro id atualiza o existente (null se não achar)
     public UsuarioResponse salvarUsuario(UsuarioRequest request, Long id) {
+
+        var usuarioLogado = getUsuarioLogado();
 
         // novo usuário
         if (id == 0L) {

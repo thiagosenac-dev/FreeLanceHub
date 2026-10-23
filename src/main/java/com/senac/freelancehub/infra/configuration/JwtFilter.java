@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.util.List;
 
 @Component
-
 public class JwtFilter extends OncePerRequestFilter {
 
     @Autowired
@@ -23,52 +22,57 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
 
-        String uri = request.getRequestURI();
+        String uri  = request.getRequestURI();
 
-            if  (uri.startsWith("/swagger-ui")
+        if(uri.startsWith("/swagger-ui")
                 || uri.startsWith("/v2/api-docs")
                 || uri.startsWith("/v3/api-docs")
                 || uri.startsWith("/swagger-resources")
                 || uri.startsWith("webjars")
                 || uri.startsWith("/auth/login")
-            ){
-            filterChain.doFilter(request, response);
+        ){
+            filterChain.doFilter(request,response);
             return;
         }
 
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")){
-            String token = authHeader.replace("Bearer ", "");
 
-            try {
-                var jwtValidador = tokenService.verificarToken(token);
+        String authHeader = request.getHeader("Authorization");
 
-                var user = new UsernamePasswordAuthenticationToken(jwtValidador
-                        .getSubject(),
+        if(authHeader!= null && authHeader.startsWith("Bearer ")){
+            String token = authHeader.replace("Bearer ","");
+
+            try{
+
+                var usuarioLogado = tokenService.verificarToken(token);
+
+
+                var user = new UsernamePasswordAuthenticationToken(
+                        usuarioLogado,
                         null,
-                        List.of()
+                        usuarioLogado.authorities()
                 );
 
                 SecurityContextHolder.getContext().setAuthentication(user);
 
 
-                System.out.println(jwtValidador.getSubject());
-
-            }catch (Exception e){
+            } catch (Exception e) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().println("Token invalido!");
+                response.getWriter().println("Token invalido");
                 return;
 
+
             }
+
         }else {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().println("Token invalido!");
+            response.getWriter().println("Token invalido");
             return;
         }
 
 
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(request,response);
+
     }
 }

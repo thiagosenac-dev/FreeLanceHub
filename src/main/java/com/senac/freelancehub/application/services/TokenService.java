@@ -6,6 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.senac.freelancehub.application.DTOs.LoginRequest;
+import com.senac.freelancehub.application.DTOs.UsuarioLogado;
 import com.senac.freelancehub.domain.entities.Token;
 import com.senac.freelancehub.domain.repository.TokenRepository;
 import com.senac.freelancehub.domain.repository.UsuarioRepository;
@@ -23,11 +24,10 @@ public class TokenService {
     @Value("${spring.secretkey}")
     private String secret;
 
-    @Value("${spring.expiracao}")
-    private Long expiracao;
+    @Value("${spring.tempo_expiracao}")
+    private Long tempo;
 
-    @Value("${spring.emissor}")
-    private String emissor;
+    private String emissor = "DEVTEST";
 
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -36,47 +36,49 @@ public class TokenService {
     private TokenRepository tokenRepository;
 
 
-    public String gerarToken(String subject){
-        try{
+    public String gerarToken(LoginRequest loginResquestDto){
 
-            Algorithm algorithm = Algorithm.HMAC256(secret);
+        Algorithm algorithm = Algorithm.HMAC256(secret);
 
-            var usuario = usuarioRepository.findAll().stream()
-                    .filter( u -> u.getEmail().equals(subject)).findFirst().orElse(null);
+        var usuario = usuarioRepository.findAll()
+                .stream().filter( u-> u.getEmail().equals(loginResquestDto.email()))
+                .findFirst().orElse(null);
 
-            String token = com.auth0.jwt.JWT.create()
-                    .withIssuer(emissor)
-                    .withSubject(subject)
-                    .withExpiresAt(getDataExpiracao())
-                    .sign(algorithm);
+        String token = JWT.create()
+                .withIssuer(emissor)
+                .withSubject(loginResquestDto.email())
+                .withExpiresAt(this.gerarDataExpiracao())
+                .sign(algorithm);
 
-            tokenRepository.save(new Token(token,usuario));
 
-            return token;
+        tokenRepository.save(new Token(token,usuario));
 
-        }catch (RuntimeException e){
-            throw new RuntimeException(e);
-        }
-
+        return token;
     }
 
-    public DecodedJWT verificarToken(String token) throws JWTVerificationException {
-
+    public UsuarioLogado verificarToken(String token) throws JWTVerificationException {
         Algorithm algorithm = Algorithm.HMAC256(secret);
 
         JWTVerifier verificador = JWT.require(algorithm).withIssuer(emissor).build();
 
-        return verificador.verify(token);
+        verificador.verify(token);
+
+        var tokenBanco = tokenRepository.findTokenByToken(token).orElse(null);
+
+        if(tokenBanco==null){
+            throw  new IllegalArgumentException("Token Invalido!");
+        }
+
+        return new UsuarioLogado(tokenBanco.getUsuario());
 
     }
 
-    private Instant getDataExpiracao(){
-        //pega data atual
+    private Instant gerarDataExpiracao(){
         var dataAtual = LocalDateTime.now();
-        //Aumentar ou diminuir a data, a partir da data atual
-        var dataFutura = dataAtual.plusMinutes(expiracao);
+        dataAtual = dataAtual.plusMinutes(tempo);
 
-        return dataFutura.toInstant(ZoneOffset.of("-03:00"));
+        return dataAtual.toInstant(ZoneOffset.of("-03:00"));
+
     }
 
 }

@@ -1,6 +1,7 @@
 package com.senac.freelancehub.domain.entities;
 
 import com.senac.freelancehub.application.DTOs.CriarAdminRequest;
+import com.senac.freelancehub.application.DTOs.UsuarioLogado;
 import com.senac.freelancehub.application.DTOs.UsuarioRequest;
 import com.senac.freelancehub.domain.valueobject.CPF;
 import jakarta.persistence.*;
@@ -9,6 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -64,9 +67,13 @@ public class Usuario implements UserDetails {
         this.setRole("ROLE_USER");
     }
 
+    public UsuarioLogado getUsuarioLogado(){
+        return (UsuarioLogado) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return List.of(new SimpleGrantedAuthority(this.role));
     }
 
     @Override
