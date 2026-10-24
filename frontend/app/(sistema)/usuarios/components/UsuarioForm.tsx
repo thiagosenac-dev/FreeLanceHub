@@ -1,7 +1,7 @@
 'use client'
 
 import { Usuario, UsuarioFormProps } from "@/app/types/usuario";
-import axios from "@/node_modules/axios/index";
+import api from "@/app/services/api";
 import Link from "@/node_modules/next/link";
 import { useRouter } from "@/node_modules/next/navigation";
 import { useState } from "react";
@@ -40,7 +40,7 @@ export default function UsuarioForm({usuarioExistente}:UsuarioFormProps) {
     if(usuarioExistente){
         // Já existe: atualiza os dados desse usuário
         var dadosRetorno = await  
-        axios.put<number>(`http://localhost:8080/usuarios/${usuario.id}`, usuario, { validateStatus: () => true });
+        api.put<number>(`/usuarios/${usuario.id}`, usuario, { validateStatus: () => true });
 
         if(dadosRetorno.status==200){
             alert("Usuário foi salvo com sucesso!");
@@ -53,7 +53,7 @@ export default function UsuarioForm({usuarioExistente}:UsuarioFormProps) {
 
     }else{
         // Não existe ainda: cria um usuário novo
-        var dadosRetorno = await  axios.post<number>('http://localhost:8080/usuarios',usuario, { validateStatus: () => true })
+        var dadosRetorno = await  api.post<number>('/usuarios',usuario, { validateStatus: () => true })
 
         if(dadosRetorno.status==200){
             alert("Usuário foi salvo com sucesso!");

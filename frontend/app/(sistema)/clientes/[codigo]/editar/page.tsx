@@ -1,7 +1,7 @@
 "use client"
 
 import { Cliente } from "@/app/types/cliente";
-import axios from "@/node_modules/axios/index";
+import api from "@/app/services/api";
 import Link from "@/node_modules/next/link";
 import { useParams, useRouter } from "@/node_modules/next/navigation";
 import { useEffect, useState } from "react";
@@ -28,7 +28,7 @@ export default function EditarCliente(){
     // Busca o cliente pelo código na API. Se não achar, volta para a listagem
     const buscarDados = async () => {
 
-        const valorClienteBack = await axios.get<Cliente>('http://localhost:8080/clientes/' + codigo);
+        const valorClienteBack = await api.get<Cliente>('/clientes/' + codigo);
 
         if(valorClienteBack.status==200){
             setCliente(valorClienteBack.data);

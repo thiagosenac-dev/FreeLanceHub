@@ -1,7 +1,7 @@
 'use client'
 
-import Link from "next/link";
-import axios from "axios";
+import Link from "@/node_modules/next/link";
+import api from "@/app/services/api";
 import { Proposta } from "@/app/types/proposta";
 import { useEffect, useState } from "react";
 
@@ -25,7 +25,7 @@ export default function Propostas() {
     // Busca as propostas na API
     const carregarDados = async () => {
         try {
-            const dados = await axios.get<Proposta[]>("http://localhost:8080/propostas")
+            const dados = await api.get<Proposta[]>("/propostas")
             setPropostas(dados.data);
         } catch (error) {
             alert("Erro ao carregar dados")
@@ -37,7 +37,7 @@ export default function Propostas() {
         if(!confirm("Deseja realmente excluir esta Proposta?")){
             return;
         }
-        var dadosRetorno = await axios.delete('http://localhost:8080/propostas/' + id + '/excluir');
+        var dadosRetorno = await api.delete('/propostas/' + id + '/excluir');
 
         if (dadosRetorno.status === 200) {
             alert("Excluído com sucesso!");

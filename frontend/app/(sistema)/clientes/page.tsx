@@ -1,7 +1,7 @@
 'use client'
  
 import Link from "@/node_modules/next/link";
-import axios from "@/node_modules/axios/index";
+import api from "@/app/services/api";
 
 import { useEffect, useState } from "react";
 import { Cliente } from "@/app/types/cliente";
@@ -15,7 +15,7 @@ export default function Clientes() {
  
     const carregarDados = async () => {
         try {
-            const dados = await axios.get<Cliente[]>("http://localhost:8080/clientes")
+            const dados = await api.get<Cliente[]>("/clientes")
             setClientes(dados.data);
         } catch (error) {
             alert("Erro ao carregar dados")
@@ -25,7 +25,7 @@ export default function Clientes() {
     const excluirCliente = async (id: number | null) => {
         if (confirm("Deseja realmente excluir este cliente?")) {
             try {
-                await axios.delete(`http://localhost:8080/clientes/${id}/excluir`);
+                await api.delete(`/clientes/${id}/excluir`);
                 setClientes(clientes.filter(c => c.id !== id));
             } catch (error) {
                 alert("Erro ao excluir cliente");
@@ -46,7 +46,7 @@ export default function Clientes() {
         }
 
         var dadosRetorno = await
-        axios.patch('http://localhost:8080/clientes/' + cliente.id + '/status', novoStatus);
+        api.patch('/clientes/' + cliente.id + '/status', novoStatus);
 
         if (dadosRetorno.status == 200) {
             alert("Atualizado status com sucesso!");

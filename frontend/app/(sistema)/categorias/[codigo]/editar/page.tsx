@@ -1,7 +1,7 @@
 "use client"
 
 import { Categoria } from "@/app/types/categoria";
-import axios from "@/node_modules/axios/index";
+import api from "@/app/services/api";
 import Link from "@/node_modules/next/link";
 import { useParams, useRouter } from "@/node_modules/next/navigation";
 import { useEffect, useState } from "react";
@@ -25,7 +25,7 @@ export default function EditarCategoria(){
     // Busca a categoria pelo código. Se não achar, volta para a listagem
     const buscarDados = async () => {
 
-        const valorCategoriaBack = await axios.get<Categoria>('http://localhost:8080/categorias/' + codigo);
+        const valorCategoriaBack = await api.get<Categoria>('/categorias/' + codigo);
 
         if(valorCategoriaBack.status==200){
             setCategoria(valorCategoriaBack.data);

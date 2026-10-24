@@ -1,7 +1,7 @@
 'use client'
 
 import { Proposta } from "@/app/types/proposta";
-import axios from "@/node_modules/axios/index";
+import api from "@/app/services/api";
 import Link from "@/node_modules/next/link";
 import { useRouter } from "@/node_modules/next/navigation";
 import { useState } from "react";
@@ -40,7 +40,7 @@ export default function PropostaForm({ propostaExistente }: PropostaFormProps) {
 
         if (propostaExistente) {
             // Já existe: atualiza os dados dessa proposta
-            var dadosRetorno = await axios.put<number>('http://localhost:8080/propostas/' + proposta.id, proposta);
+            var dadosRetorno = await api.put<number>('/propostas/' + proposta.id, proposta);
 
             if (dadosRetorno.status == 200) {
                 alert("Proposta foi salva com sucesso!");
@@ -51,7 +51,7 @@ export default function PropostaForm({ propostaExistente }: PropostaFormProps) {
 
         } else {
             // Não existe ainda: cria uma proposta nova
-            var dadosRetorno = await axios.post<number>('http://localhost:8080/propostas', proposta);
+            var dadosRetorno = await api.post<number>('/propostas', proposta);
 
             if (dadosRetorno.status == 200) {
                 alert("Proposta foi salva com sucesso!");

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from "@/node_modules/next/link";
-import axios from "@/node_modules/axios/index";
+import api from "@/app/services/api";
 import { Projeto } from "@/app/types/projeto";
 import { Categoria } from "@/app/types/categoria";
 import { useEffect, useState } from "react";
@@ -22,9 +22,9 @@ export default function Projetos() {
 
     const carregarDados = async () => {
         try {
-            const dados = await axios.get<Projeto[]>("http://localhost:8080/projetos")
+            const dados = await api.get<Projeto[]>("/projetos")
             setProjetos(dados.data);
-            const cats = await axios.get<Categoria[]>("http://localhost:8080/categorias")
+            const cats = await api.get<Categoria[]>("/categorias")
             setCategorias(cats.data);
         } catch (error) {
             alert("Erro ao carregar dados")
@@ -34,7 +34,7 @@ export default function Projetos() {
     const excluirProjeto = async (id: number | null) => {
         if (confirm("Deseja realmente excluir este projeto?")) {
             try {
-                await axios.delete(`http://localhost:8080/projetos/${id}/excluir`);
+                await api.delete(`/projetos/${id}/excluir`);
                 setProjetos(projetos.filter(p => p.id !== id));
             } catch (error) {
                 alert("Erro ao excluir projeto");

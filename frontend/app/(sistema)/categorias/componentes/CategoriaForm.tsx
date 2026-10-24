@@ -1,7 +1,7 @@
 'use client'
 
 import { Categoria } from "@/app/types/categoria";
-import axios from "@/node_modules/axios/index";
+import api from "@/app/services/api";
 import Link from "@/node_modules/next/link";
 import { useRouter } from "@/node_modules/next/navigation";
 import { useState } from "react";
@@ -37,8 +37,8 @@ export default function CategoriaForm({ categoriaExistente }: CategoriaFormProps
     const handlerSalvar = async () => {
 
         const dadosRetorno = categoriaExistente
-            ? await axios.put('http://localhost:8080/categorias/' + categoria.id, categoria)
-            : await axios.post('http://localhost:8080/categorias', categoria);
+            ? await api.put('/categorias/' + categoria.id, categoria)
+            : await api.post('/categorias', categoria);
 
         if (dadosRetorno.status == 200) {
             alert("Categoria foi salva com sucesso!");

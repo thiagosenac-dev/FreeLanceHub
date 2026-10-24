@@ -1,7 +1,7 @@
 'use client'
 
 import { Cliente } from "@/app/types/cliente";
-import axios from "@/node_modules/axios/index";
+import api from "@/app/services/api";
 import Link from "@/node_modules/next/link";
 import { useRouter } from "@/node_modules/next/navigation";
 import { useState } from "react";
@@ -41,7 +41,7 @@ export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
 
         if (clienteExistente) {
             // Já existe: atualiza os dados desse cliente
-            var dadosRetorno = await axios.put<number>('http://localhost:8080/clientes/' + cliente.id, cliente, { validateStatus: () => true });
+            var dadosRetorno = await api.put<number>('/clientes/' + cliente.id, cliente, { validateStatus: () => true });
 
             if (dadosRetorno.status == 200) {
                 alert("Cliente foi salvo com sucesso!");
@@ -52,7 +52,7 @@ export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
 
         } else {
             // Não existe ainda: cria um cliente novo
-            var dadosRetorno = await axios.post<number>('http://localhost:8080/clientes', cliente, { validateStatus: () => true });
+            var dadosRetorno = await api.post<number>('/clientes', cliente, { validateStatus: () => true });
 
             if (dadosRetorno.status == 200) {
                 alert("Cliente foi salvo com sucesso!");

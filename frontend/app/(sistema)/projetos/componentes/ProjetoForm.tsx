@@ -2,7 +2,7 @@
 
 import { Projeto } from "@/app/types/projeto";
 import { Categoria } from "@/app/types/categoria";
-import axios from "@/node_modules/axios/index";
+import api from "@/app/services/api";
 import Link from "@/node_modules/next/link";
 import { useRouter } from "@/node_modules/next/navigation";
 import { useEffect, useState } from "react";
@@ -26,7 +26,7 @@ export default function ProjetoForm({ projetoExistente }: ProjetoFormProps) {
     const [categorias, setCategorias] = useState<Categoria[]>([]);
 
     useEffect(() => {
-        axios.get<Categoria[]>("http://localhost:8080/categorias")
+        api.get<Categoria[]>("/categorias")
             .then(r => setCategorias(r.data.filter(c => String(c.status).toUpperCase() === "ATIVO")));
     }, []);
 
@@ -50,7 +50,7 @@ export default function ProjetoForm({ projetoExistente }: ProjetoFormProps) {
 
         if (projetoExistente) {
             // Já existe: atualiza os dados desse projeto
-            var dadosRetorno = await axios.put<number>('http://localhost:8080/projetos/' + projeto.id, projeto);
+            var dadosRetorno = await api.put<number>('/projetos/' + projeto.id, projeto);
 
             if (dadosRetorno.status == 200) {
                 alert("Projeto foi salvo com sucesso!");
@@ -61,7 +61,7 @@ export default function ProjetoForm({ projetoExistente }: ProjetoFormProps) {
 
         } else {
             // Não existe ainda: cria um projeto novo
-            var dadosRetorno = await axios.post<number>('http://localhost:8080/projetos', projeto);
+            var dadosRetorno = await api.post<number>('/projetos', projeto);
 
             if (dadosRetorno.status == 200) {
                 alert("Projeto foi salvo com sucesso!");

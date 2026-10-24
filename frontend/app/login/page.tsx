@@ -18,6 +18,8 @@ export default function Login(){
            
    
             if (loginResposta.status == 200){
+                // guarda o token pra mandar nas próximas requisições
+                localStorage.setItem("token", loginResposta.data.token);
                 router.push("/home")
             }
             else {

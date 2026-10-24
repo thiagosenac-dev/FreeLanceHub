@@ -1,7 +1,7 @@
 "use client"
 
 import { Projeto } from "@/app/types/projeto";
-import axios from "@/node_modules/axios/index";
+import api from "@/app/services/api";
 import Link from "@/node_modules/next/link";
 import { useParams, useRouter } from "@/node_modules/next/navigation";
 import { useEffect, useState } from "react";
@@ -28,7 +28,7 @@ export default function EditarProjeto(){
     // Busca o projeto pelo código na API. Se não achar, volta para a listagem
     const buscarDados = async () => {
 
-        const valorProjetoBack = await axios.get<Projeto>('http://localhost:8080/projetos/' + codigo);
+        const valorProjetoBack = await api.get<Projeto>('/projetos/' + codigo);
 
         if(valorProjetoBack.status==200){
             setProjeto(valorProjetoBack.data);

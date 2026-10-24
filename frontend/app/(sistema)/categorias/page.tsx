@@ -1,7 +1,7 @@
 'use client'
 
 import Link from "@/node_modules/next/link";
-import axios from "@/node_modules/axios/index";
+import api from "@/app/services/api";
 
 import { useEffect, useState } from "react";
 import { Categoria } from "@/app/types/categoria";
@@ -16,7 +16,7 @@ export default function Categorias() {
     // Busca todas as categorias na API
     const carregarDados = async () => {
         try {
-            const dados = await axios.get<Categoria[]>("http://localhost:8080/categorias")
+            const dados = await api.get<Categoria[]>("/categorias")
             setCategorias(dados.data);
         } catch (error) {
             alert("Erro ao carregar dados")
@@ -27,7 +27,7 @@ export default function Categorias() {
     const excluirCategoria = async (id: number | null) => {
         if (confirm("Deseja realmente excluir esta categoria?")) {
             try {
-                await axios.delete(`http://localhost:8080/categorias/${id}/excluir`);
+                await api.delete(`/categorias/${id}/excluir`);
             } catch (error) {
                 alert("Erro ao excluir categoria");
             }
@@ -42,7 +42,7 @@ export default function Categorias() {
             ? { status: "BLOQUEADO" }
             : { status: "ATIVO" };
 
-        const dadosRetorno = await axios.patch('http://localhost:8080/categorias/' + categoria.id + '/status', novoStatus);
+        const dadosRetorno = await api.patch('/categorias/' + categoria.id + '/status', novoStatus);
 
         if (dadosRetorno.status == 200) {
             alert("Atualizado status com sucesso!");

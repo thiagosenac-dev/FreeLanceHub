@@ -1,6 +1,6 @@
 "use client"
 import { Usuario } from "@/app/types/usuario";
-import axios from "@/node_modules/axios/index";
+import api from "@/app/services/api";
 import Link from "@/node_modules/next/link";
 import { useEffect, useState } from "react";
 
@@ -18,7 +18,7 @@ export default function Usuarios(){
     const carregarDados = async ()=>{
 
         try {
-            const dados = await axios.get<Usuario[]>("http://localhost:8080/usuarios");
+            const dados = await api.get<Usuario[]>("/usuarios");
 
             setUsuarios( dados.data);
 
@@ -37,7 +37,7 @@ export default function Usuarios(){
         }
 
         var dadosRetorno = await  
-        axios.delete('http://localhost:8080/usuarios/'+usuario.id+'/excluir');
+        api.delete('/usuarios/'+usuario.id+'/excluir');
 
         if(dadosRetorno.status==200){
             alert("Excluido com sucesso!");
@@ -63,7 +63,7 @@ export default function Usuarios(){
         }
 
         var dadosRetorno = await  
-        axios.patch('http://localhost:8080/usuarios/'+usuario.id+'/status',novoStatus);
+        api.patch('/usuarios/'+usuario.id+'/status',novoStatus);
 
         if(dadosRetorno.status==200){
             alert("Atulizado status com sucesso!");

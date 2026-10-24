@@ -48,6 +48,7 @@ public class UsuarioService {
                 .toList();
     }
 
+
     // busca o usuário pelo id, devolve null se não existir
     public UsuarioResponse buscarPorId(Long id) {
 
@@ -123,5 +124,15 @@ public class UsuarioService {
         usuarioRepository.save(usuarioAdminSalvar);
 
         return new CriarAdminResponse(usuarioAdminSalvar.getId(), "Usuario Salvo com sucesso!");
+    }
+
+    // cria um usuário com a role de gerente (só o admin chega aqui, pela SecurityConfiguration)
+    public UsuarioResponse criarGerente(UsuarioRequest request) {
+
+        Usuario gerente = new Usuario(request);
+        gerente.setRole("ROLE_GERENTE");
+        usuarioRepository.save(gerente);
+
+        return new UsuarioResponse(gerente);
     }
 }

@@ -1,9 +1,9 @@
 "use client"
 
 import { Proposta } from "@/app/types/proposta";
-import axios from "axios";
-import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import api from "@/app/services/api";
+import Link from "@/node_modules/next/link";
+import { useParams, useRouter } from "@/node_modules/next/navigation";
 import { useEffect, useState } from "react";
 import PropostaForm from "../componentes/PropostaForm";
 
@@ -28,7 +28,7 @@ export default function EditarProposta(){
     // Busca a proposta pelo código na API. Se não achar, volta para a listagem
     const buscarDados = async () => {
 
-        const valorPropostaBack = await axios.get<Proposta>('http://localhost:8080/propostas/' + codigo);
+        const valorPropostaBack = await api.get<Proposta>('/propostas/' + codigo);
 
         if(valorPropostaBack.status==200){
             setProposta(valorPropostaBack.data);
