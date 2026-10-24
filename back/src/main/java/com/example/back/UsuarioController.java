@@ -54,7 +54,7 @@ public class UsuarioController {
 
 
         if(respostaApi ==200){
-            showMessage(Alert.AlertType.INFORMATION,"Usuario salv com sucesso!");
+            showMessage(Alert.AlertType.INFORMATION,"Usuario salvo com sucesso!");
             voltar(event);
 
         }else {
