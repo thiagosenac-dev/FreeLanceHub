@@ -18,4 +18,9 @@ public class Proposta {
     public String prazo;
     public EnumStatusProposta status;
 
+    // usuário que criou a proposta
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "usuario_id", referencedColumnName = "id")
+    public Usuario usuario;
+
 }

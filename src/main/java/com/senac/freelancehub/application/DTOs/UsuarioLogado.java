@@ -4,7 +4,6 @@ import com.senac.freelancehub.domain.entities.Usuario;
 import com.senac.freelancehub.domain.valueobject.CPF;
 
 public record UsuarioLogado(Long id, String email, CPF cpf,
-                            Long empresa_id,
                             java.util.Collection<? extends org.springframework.security.core.GrantedAuthority> authorities) {
 
     public UsuarioLogado(Usuario usuario){
@@ -12,8 +11,14 @@ public record UsuarioLogado(Long id, String email, CPF cpf,
                 usuario.getId(),
                 usuario.getEmail(),
                 usuario.getCpf(),
-                1L,
                 usuario.getAuthorities()
         );
+    }
+
+    // admin e gerente veem todos os cadastros
+    public boolean veTudo(){
+        return authorities.stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")
+                        || a.getAuthority().equals("ROLE_GERENTE"));
     }
 }

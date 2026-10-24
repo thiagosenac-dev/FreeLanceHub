@@ -6,6 +6,7 @@ import com.senac.freelancehub.application.DTOs.ProjetoResponse;
 import com.senac.freelancehub.domain.entities.EnumStatusProjeto;
 import com.senac.freelancehub.domain.entities.Projeto;
 import com.senac.freelancehub.domain.repository.ProjetoRepository;
+import com.senac.freelancehub.domain.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +18,27 @@ public class ProjetoService {
     @Autowired
     private ProjetoRepository projetoRepository;
 
-    // busca todos os projeto, devolve vazio se não existir
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private UsuarioService usuarioService;
+
+    // lista os projetos: admin e gerente veem todos, o usuário comum só os que criou
     public List<ProjetoResponse> ListarTodosProjetosGrid() {
 
+        var usuarioLogado = usuarioService.getUsuarioLogado();
+
+        if (usuarioLogado.veTudo()) {
+            return projetoRepository
+                    .findAll()
+                    .stream()
+                    .map(ProjetoResponse::new)
+                    .toList();
+        }
+
         return projetoRepository
-                .findAll()
+                .getProjetosByUsuario_Id(usuarioLogado.id())
                 .stream()
                 .map(ProjetoResponse::new)
                 .toList();
@@ -44,9 +61,12 @@ public class ProjetoService {
         Projeto projeto;
 
         if (id == 0L) {
-            // novo projeto
+            // novo projeto, guarda o usuário que criou
+            var usuarioLogado = usuarioService.getUsuarioLogado();
+
             projeto = new Projeto();
             projeto.setStatus(EnumStatusProjeto.ABERTO);
+            projeto.setUsuario(usuarioRepository.findById(usuarioLogado.id()).orElse(null));
         } else {
             // projeto existente
             projeto = projetoRepository.findById(id).orElse(null);

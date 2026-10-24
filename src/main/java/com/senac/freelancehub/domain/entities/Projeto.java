@@ -1,8 +1,5 @@
 package com.senac.freelancehub.domain.entities;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,5 +19,10 @@ public class Projeto {
     public String prazo;
     public EnumStatusProjeto status;
     public Long categoriaId;
+
+    // usuário que criou o projeto
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "usuario_id", referencedColumnName = "id")
+    public Usuario usuario;
 
 }

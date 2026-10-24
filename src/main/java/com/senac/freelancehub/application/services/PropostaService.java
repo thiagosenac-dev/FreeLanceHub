@@ -6,6 +6,7 @@ import com.senac.freelancehub.application.DTOs.PropostaResponse;
 import com.senac.freelancehub.domain.entities.EnumStatusProposta;
 import com.senac.freelancehub.domain.entities.Proposta;
 import com.senac.freelancehub.domain.repository.PropostaRepository;
+import com.senac.freelancehub.domain.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +18,27 @@ public class PropostaService {
     @Autowired
     private PropostaRepository propostaRepository;
 
-    // busca todos os proposta, devolve vazio se não existir
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private UsuarioService usuarioService;
+
+    // lista as propostas: admin e gerente veem todas, o usuário comum só as que criou
     public List<PropostaResponse> ListarTodasPropostasGrid() {
 
+        var usuarioLogado = usuarioService.getUsuarioLogado();
+
+        if (usuarioLogado.veTudo()) {
+            return propostaRepository
+                    .findAll()
+                    .stream()
+                    .map(PropostaResponse::new)
+                    .toList();
+        }
+
         return propostaRepository
-                .findAll()
+                .getPropostasByUsuario_Id(usuarioLogado.id())
                 .stream()
                 .map(PropostaResponse::new)
                 .toList();
@@ -44,9 +61,12 @@ public class PropostaService {
         Proposta proposta;
 
         if (id == 0L) {
-            // nova proposta
+            // nova proposta, guarda o usuário que criou
+            var usuarioLogado = usuarioService.getUsuarioLogado();
+
             proposta = new Proposta();
             proposta.setStatus(EnumStatusProposta.PENDENTE);
+            proposta.setUsuario(usuarioRepository.findById(usuarioLogado.id()).orElse(null));
         } else {
             // proposta existente
             proposta = propostaRepository.findById(id).orElse(null);
