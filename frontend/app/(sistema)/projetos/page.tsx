@@ -7,6 +7,7 @@ import { Categoria } from "@/app/types/categoria";
 import { useEffect, useState } from "react";
 
 const statusInfo: Record<string, { label: string; style: string }> = {
+    ABERTO: { label: "Aberto", style: "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" }, // MUDANÇA: status novo do projeto
     EM_ANDAMENTO: { label: "Em Andamento", style: "bg-blue-500/10 text-blue-400 border border-blue-500/20" },
     CONCLUIDO: { label: "Concluído", style: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" },
     CANCELADO: { label: "Cancelado", style: "bg-rose-500/10 text-rose-400 border border-rose-500/20" },
@@ -15,8 +16,11 @@ const statusInfo: Record<string, { label: string; style: string }> = {
 export default function Projetos() {
     const [projetos, setProjetos] = useState<Projeto[]>([])
     const [categorias, setCategorias] = useState<Categoria[]>([])
+    // MUDANÇA: perfil do usuário logado (só a empresa cria projeto)
+    const [role, setRole] = useState("");
 
     useEffect(() => {
+        setRole(localStorage.getItem("role") ?? "");
         carregarDados();
     }, []);
 
@@ -62,9 +66,11 @@ export default function Projetos() {
                         <p className="text-sm text-slate-400 mt-1">Acompanhe e gerencie o progresso dos projetos da plataforma</p>
                     </div>
 
-                    <Link className="inline-flex items-center justify-center py-3 px-5 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200 transform active:scale-[0.99] cursor-pointer text-sm tracking-wide w-full sm:w-auto text-center" href="/projetos/novo">
+                    {role === "ROLE_EMPRESA" && (
+                        <Link className="inline-flex items-center justify-center py-3 px-5 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200 transform active:scale-[0.99] cursor-pointer text-sm tracking-wide w-full sm:w-auto text-center" href="/projetos/novo">
                         + Novo Projeto
                     </Link>
+                    )}
                 </div>
 
                 {/* Quick Stats Bar */}
@@ -120,6 +126,9 @@ export default function Projetos() {
                                             </td>
                                             <td className="py-4 px-6 text-right">
                                                 <div className="flex items-center justify-end gap-3">
+                                                    <Link href={`/projetos/${projeto.id}/propostas`} className="text-green-400 hover:text-green-300 font-medium text-xs transition-colors">
+                                                        Propostas
+                                                    </Link>
                                                     <Link href={`/projetos/${projeto.id}/editar`} className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors">
                                                         Editar
                                                     </Link>

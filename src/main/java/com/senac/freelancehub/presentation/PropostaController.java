@@ -37,6 +37,18 @@ public class PropostaController {
         return ResponseEntity.notFound().build();
     }
 
+    // MUDANÇA (novo): lista as propostas de um projeto (admin e empresa dona)
+    @GetMapping("/projeto/{projetoId}")
+    @Operation(summary = "Método de consulta das propostas de um projeto", description = "Método responsável pela consulta das propostas recebidas por um projeto")
+    public ResponseEntity<?> listarPorProjeto(@PathVariable Long projetoId) {
+
+        var propostas = propostaService.listarPorProjeto(projetoId);
+        if (propostas == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(propostas);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Método de consulta de lista de propostas!", description = "Método responsável pela colsulta de todas os propostas sem filtro")
@@ -51,13 +63,18 @@ public class PropostaController {
     }
 
     @PatchMapping("/{id}/status")
-    @Operation(summary = "Método de aletrar Status", description = "Método responsável aletração dos status das propostas")
-    public ResponseEntity<Void> atualizarStatus(@PathVariable Long id, @RequestBody AtualizarStatusPropostaRequest statusRequest){
+    @Operation(summary = "Método de aletrar Status", description = "Método responsável aletração dos status das propostas (aceitar ou recusar)")
+    public ResponseEntity<?> atualizarStatus(@PathVariable Long id, @RequestBody AtualizarStatusPropostaRequest statusRequest){
 
-        if (propostaService.atualizarStatus(id, statusRequest)) {
-            return ResponseEntity.ok().build();
+        // MUDANÇA: devolve a mensagem quando não dá para aceitar (ex.: projeto já tem proposta aceita)
+        try {
+            if (propostaService.atualizarStatus(id, statusRequest)) {
+                return ResponseEntity.ok().build();
+            }
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        return ResponseEntity.notFound().build();
     }
 
     @PutMapping("/{id}")

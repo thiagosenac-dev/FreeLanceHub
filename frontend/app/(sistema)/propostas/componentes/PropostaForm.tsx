@@ -40,7 +40,7 @@ export default function PropostaForm({ propostaExistente }: PropostaFormProps) {
 
         if (propostaExistente) {
             // Já existe: atualiza os dados dessa proposta
-            var dadosRetorno = await api.put<number>('/propostas/' + proposta.id, proposta);
+            var dadosRetorno = await api.put<number>('/propostas/' + proposta.id, proposta, { validateStatus: () => true });
 
             if (dadosRetorno.status == 200) {
                 alert("Proposta foi salva com sucesso!");
@@ -51,7 +51,9 @@ export default function PropostaForm({ propostaExistente }: PropostaFormProps) {
 
         } else {
             // Não existe ainda: cria uma proposta nova
-            var dadosRetorno = await api.post<number>('/propostas', proposta);
+            // MUDANÇA: manda também o projeto escolhido nas vagas (vem na URL, ex: /propostas/novo?projetoId=5)
+            const projetoId = Number(new URLSearchParams(window.location.search).get("projetoId"));
+            var dadosRetorno = await api.post<number>('/propostas', { ...proposta, projetoId }, { validateStatus: () => true });
 
             if (dadosRetorno.status == 200) {
                 alert("Proposta foi salva com sucesso!");

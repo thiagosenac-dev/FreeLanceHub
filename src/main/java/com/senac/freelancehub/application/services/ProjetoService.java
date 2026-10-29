@@ -6,10 +6,13 @@ import com.senac.freelancehub.application.DTOs.ProjetoResponse;
 import com.senac.freelancehub.domain.entities.EnumStatusProjeto;
 import com.senac.freelancehub.domain.entities.Projeto;
 import com.senac.freelancehub.domain.repository.ProjetoRepository;
+import com.senac.freelancehub.domain.entities.Usuario;
+import com.senac.freelancehub.domain.repository.ClienteRepository;
 import com.senac.freelancehub.domain.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,17 +22,20 @@ public class ProjetoService {
     private ProjetoRepository projetoRepository;
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private ClienteRepository clienteRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository; // MUDANÇA: para buscar o freelancer logado (habilidades)
 
     @Autowired
     private UsuarioService usuarioService;
 
-    // lista os projetos: admin e gerente veem todos, o usuário comum só os que criou
+    // lista os projetos: admin vê todos, a empresa só os do cliente dela (MUDANÇA: filtro por cliente_id, igual ao empresa_id do professor)
     public List<ProjetoResponse> ListarTodosProjetosGrid() {
 
         var usuarioLogado = usuarioService.getUsuarioLogado();
 
-        if (usuarioLogado.veTudo()) {
+        if (usuarioLogado.ehAdmin()) {
             return projetoRepository
                     .findAll()
                     .stream()
@@ -38,7 +44,61 @@ public class ProjetoService {
         }
 
         return projetoRepository
-                .getProjetosByUsuario_Id(usuarioLogado.id())
+                .getProjetosByCliente_Id(usuarioLogado.cliente_id())
+                .stream()
+                .map(ProjetoResponse::new)
+                .toList();
+    }
+
+    // MUDANÇA (novo): lista pública, só os projetos abertos (sem login)
+    public List<ProjetoResponse> listarProjetosPublicos() {
+
+        return projetoRepository
+                .findByStatus(EnumStatusProjeto.ABERTO)
+                .orElse(new ArrayList<>())
+                .stream()
+                .map(ProjetoResponse::new)
+                .toList();
+    }
+
+    // MUDANÇA (novo): admin vê todos, a empresa só os projetos do cliente dela
+    private boolean ehDoUsuario(Projeto projeto) {
+
+        var usuarioLogado = usuarioService.getUsuarioLogado();
+
+        return usuarioLogado.ehAdmin()
+                || (projeto.getCliente() != null
+                && projeto.getCliente().getId().equals(usuarioLogado.cliente_id()));
+    }
+
+    // MUDANÇA (novo): consulta pública por id, só projeto aberto (sem login)
+    public ProjetoResponse buscarPublicoPorId(Long id) {
+
+        var projeto = projetoRepository.findById(id).orElse(null);
+        if (projeto == null || projeto.getStatus() != EnumStatusProjeto.ABERTO) {
+            return null;
+        }
+
+        return new ProjetoResponse(projeto);
+    }
+
+    // MUDANÇA (novo): projetos abertos que combinam com as habilidades do freelancer logado
+    public List<ProjetoResponse> listarProjetosDoFreelancer() {
+
+        Usuario freelancer = usuarioRepository.findById(usuarioService.getUsuarioLogado().id()).orElse(null);
+
+        List<Long> categorias = freelancer.getHabilidades()
+                .stream()
+                .map(c -> c.getId())
+                .toList();
+
+        // sem habilidade cadastrada não vê nenhum projeto
+        if (categorias.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return projetoRepository
+                .getProjetosByStatusAndCategoriaIdIn(EnumStatusProjeto.ABERTO, categorias)
                 .stream()
                 .map(ProjetoResponse::new)
                 .toList();
@@ -48,7 +108,8 @@ public class ProjetoService {
     public ProjetoResponse buscarPorId(Long id) {
 
         var projeto = projetoRepository.findById(id).orElse(null);
-        if (projeto == null) {
+        // MUDANÇA: a empresa só vê projeto do cliente dela (admin vê todos)
+        if (projeto == null || !ehDoUsuario(projeto)) {
             return null;
         }
 
@@ -61,16 +122,16 @@ public class ProjetoService {
         Projeto projeto;
 
         if (id == 0L) {
-            // novo projeto, guarda o usuário que criou
+            // novo projeto, guarda o cliente (empresa) do usuário logado (MUDANÇA: antes guardava o usuário)
             var usuarioLogado = usuarioService.getUsuarioLogado();
 
             projeto = new Projeto();
             projeto.setStatus(EnumStatusProjeto.ABERTO);
-            projeto.setUsuario(usuarioRepository.findById(usuarioLogado.id()).orElse(null));
+            projeto.setCliente(clienteRepository.findById(usuarioLogado.cliente_id()).orElse(null));
         } else {
-            // projeto existente
+            // projeto existente (MUDANÇA: só do cliente da empresa)
             projeto = projetoRepository.findById(id).orElse(null);
-            if (projeto == null) {
+            if (projeto == null || !ehDoUsuario(projeto)) {
                 return null;
             }
         }
@@ -92,7 +153,7 @@ public class ProjetoService {
     public boolean atualizarStatus(Long id, AtualizarStatusProjetoRequest statusRequest) {
 
         Projeto projetoBanco = projetoRepository.findById(id).orElse(null);
-        if (projetoBanco == null) {
+        if (projetoBanco == null || !ehDoUsuario(projetoBanco)) { // MUDANÇA: só do cliente da empresa
             return false;
         }
         projetoBanco.setStatus(statusRequest.status());
@@ -104,7 +165,7 @@ public class ProjetoService {
     public boolean excluir(Long id) {
 
         Projeto projetoBanco = projetoRepository.findById(id).orElse(null);
-        if (projetoBanco == null) {
+        if (projetoBanco == null || !ehDoUsuario(projetoBanco)) { // MUDANÇA: só do cliente da empresa
             return false;
         }
 

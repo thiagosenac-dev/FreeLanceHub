@@ -5,6 +5,8 @@ import com.senac.freelancehub.application.DTOs.EsqueciSenhaResponse;
 import com.senac.freelancehub.application.DTOs.LoginRequest;
 import com.senac.freelancehub.application.DTOs.LoginResponse;
 import com.senac.freelancehub.application.DTOs.RedefinirSenhaRequest;
+import com.senac.freelancehub.application.DTOs.UsuarioRequest;
+import com.senac.freelancehub.application.DTOs.UsuarioResponse;
 import com.senac.freelancehub.application.services.UsuarioService;
 import com.senac.freelancehub.domain.entities.Usuario;
 import com.senac.freelancehub.application.services.TokenService;
@@ -37,10 +39,22 @@ public class AuthController {
         var resultadoAutenticacaoeRetorno = usuarioService.validarUsuarioAutenticadoRetornaToken(loginRequest);
 
         if (resultadoAutenticacaoeRetorno != null) {
-            return ResponseEntity.ok(new LoginResponse(resultadoAutenticacaoeRetorno.token()));
+            return ResponseEntity.ok(resultadoAutenticacaoeRetorno);
         }
 
         return ResponseEntity.status(HttpURLConnection.HTTP_UNAUTHORIZED).body("Usuário ou senha inválidos!");
+    }
+
+// MUDANÇA (novo): cadastro público, cria um usuário freelancer (sem login)
+    @PostMapping("/registrar")
+    @Operation(summary = "Cadastro de freelancers", description = "Método de cadastro aberto, cria um usuário com perfil de freelancer")
+    public ResponseEntity<?> registrar(@RequestBody UsuarioRequest usuarioRequest) {
+        try {
+            UsuarioResponse freelancerBanco = usuarioService.registrarFreelancer(usuarioRequest);
+            return ResponseEntity.ok(freelancerBanco);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 //    @PostMapping("/esqueci-senha")

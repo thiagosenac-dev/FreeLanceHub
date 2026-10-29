@@ -24,18 +24,33 @@ public class SecurityConfiguration {
         return http.cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // rotas livres
+                        // rotas livres (sem login)
+                        // MUDANÇA: liberei o cadastro de freelancer e a área pública de projetos
                         .requestMatchers("/auth/login",
+                                "/auth/registrar",
+                                "/publico/**",
                                 "/swagger-ui/**",
                                 "/webjars/**",
                                 "/swagger-resources/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
-                        // usuários: só admin (o gerente fica de fora)
-                        .requestMatchers("/usuarios/**").hasRole("ADMIN")
-                        // deletar: todo mundo menos o gerente
-                        .requestMatchers(HttpMethod.DELETE, "/**").hasAnyRole("ADMIN", "USER")
-                        // o resto: qualquer usuário logado (inclui o gerente)
+                        // usuários e clientes: só admin
+                        .requestMatchers("/usuarios/**", "/clientes/**").hasRole("ADMIN")
+                        // projetos: só a empresa cria, admin e empresa mexem nos projetos
+                        .requestMatchers(HttpMethod.POST, "/projetos").hasRole("EMPRESA")
+                        .requestMatchers("/projetos/**").hasAnyRole("ADMIN", "EMPRESA")
+                        // propostas: só o freelancer cria, admin e empresa veem as propostas de um projeto
+                        .requestMatchers(HttpMethod.POST, "/propostas").hasRole("FREELANCER")
+                        .requestMatchers("/propostas/projeto/**").hasAnyRole("ADMIN", "EMPRESA")
+                        // categorias: todo mundo logado consulta, só o admin altera
+                        .requestMatchers(HttpMethod.GET, "/categorias/**").authenticated()
+                        .requestMatchers("/categorias/**").hasRole("ADMIN")
+                        // freelancer: habilidades e projetos que combinam com elas
+                        .requestMatchers("/freelancer/**").hasRole("FREELANCER")
+                        // propostas: só admin e empresa aceitam ou recusam, o freelancer edita as dele
+                        .requestMatchers(HttpMethod.PATCH, "/propostas/*/status").hasAnyRole("ADMIN", "EMPRESA")
+                        .requestMatchers(HttpMethod.PUT, "/propostas/**").hasRole("FREELANCER")
+                        // o resto: qualquer usuário logado
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

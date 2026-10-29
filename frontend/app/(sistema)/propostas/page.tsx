@@ -6,23 +6,27 @@ import { Proposta } from "@/app/types/proposta";
 import { useEffect, useState } from "react";
 
 // Mostra um nome e uma cor diferente para cada status da proposta
+// MUDANÇA: os status agora são os mesmos do back (ACEITA, RECUSADA, CANCELADA)
 const statusInfo: Record<string, { label: string; style: string }> = {
     PENDENTE: { label: "Pendente", style: "bg-amber-600/10 text-amber-500 border border-amber-600/20" },
-    APROVADA: { label: "Aprovada", style: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" },
-    REJEITADA: { label: "Rejeitada", style: "bg-rose-500/10 text-rose-400 border border-rose-500/20" },
+    ACEITA: { label: "Aceita", style: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" },
+    RECUSADA: { label: "Recusada", style: "bg-rose-500/10 text-rose-400 border border-rose-500/20" },
+    CANCELADA: { label: "Cancelada", style: "bg-slate-500/10 text-slate-400 border border-slate-500/20" },
 };
 
 export default function Propostas() {
 
-    // Estado com a lista de propostas
+    // Estado com a lista de propostas e o perfil do usuário logado
     const [propostas, setPropostas] = useState<Proposta[]>([])
+    const [role, setRole] = useState("");
 
     // Carrega a lista assim que a página abre
     useEffect(() => {
+        setRole(localStorage.getItem("role") ?? "");
         carregarDados();
     }, []);
 
-    // Busca as propostas na API
+    // Busca as propostas na API (o back já filtra pelo perfil)
     const carregarDados = async () => {
         try {
             const dados = await api.get<Proposta[]>("/propostas")
@@ -32,22 +36,28 @@ export default function Propostas() {
         }
     }
 
-    // Exclui uma proposta e atualiza a lista
-    const excluirProposta = async (id: number | null) => {
-        if(!confirm("Deseja realmente excluir esta Proposta?")){
+    // Freelancer cancela a própria proposta
+    const cancelarProposta = async (id: number | null) => {
+        if (!confirm("Deseja realmente cancelar esta Proposta?")) {
             return;
         }
-        var dadosRetorno = await api.delete('/propostas/' + id + '/excluir');
-
-        if (dadosRetorno.status === 200) {
-            alert("Excluído com sucesso!");
-        } else {
-            alert(dadosRetorno.data);
-            return;
+        try {
+            await api.delete('/propostas/' + id + '/excluir');
+        } catch (error) {
+            alert("Erro ao cancelar proposta");
         }
         carregarDados();
     }
-    
+
+    // MUDANÇA: empresa aceita ou recusa a proposta (ao aceitar, as outras do projeto são recusadas)
+    const alterarStatus = async (id: number | null, status: string) => {
+        try {
+            await api.patch('/propostas/' + id + '/status', { status });
+        } catch (error: any) {
+            alert(error.response?.data ?? "Erro ao atualizar status");
+        }
+        carregarDados();
+    }
 
     // Conta quantas propostas existem com um determinado status
     const contar = (status: string) => propostas.filter(p => String(p.status).toUpperCase() === status).length;
@@ -64,17 +74,20 @@ export default function Propostas() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-2xl shadow-blue-950/20">
                     <div>
                         <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                            Gestão de Propostas
+                            {role === "ROLE_FREELANCER" ? "Minhas Propostas" : "Gestão de Propostas"}
                         </h1>
-                        <p className="text-sm text-slate-400 mt-1">Acompanhe e gerencie as propostas enviadas</p>
+                        <p className="text-sm text-slate-400 mt-1">Acompanhe e gerencie as propostas</p>
                     </div>
 
-                    <Link
-                        href="/propostas/novo"
-                        className="inline-flex items-center justify-center py-3 px-5 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200 transform active:scale-[0.99] cursor-pointer text-sm tracking-wide w-full sm:w-auto text-center"
-                    >
-                        + Nova Proposta
-                    </Link>
+                    {/* MUDANÇA: só o freelancer envia proposta, escolhendo uma vaga */}
+                    {role === "ROLE_FREELANCER" && (
+                        <Link
+                            href="/vagas"
+                            className="inline-flex items-center justify-center py-3 px-5 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200 transform active:scale-[0.99] cursor-pointer text-sm tracking-wide w-full sm:w-auto text-center"
+                        >
+                            Ver vagas
+                        </Link>
+                    )}
                 </div>
 
                 {/* Barra com o resumo das propostas */}
@@ -88,8 +101,8 @@ export default function Propostas() {
                         <p className="text-2xl font-bold text-amber-500 mt-1">{contar("PENDENTE")}</p>
                     </div>
                     <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-xl p-4 shadow-xl">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Aprovadas</span>
-                        <p className="text-2xl font-bold text-emerald-400 mt-1">{contar("APROVADA")}</p>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Aceitas</span>
+                        <p className="text-2xl font-bold text-emerald-400 mt-1">{contar("ACEITA")}</p>
                     </div>
                 </div>
 
@@ -101,6 +114,7 @@ export default function Propostas() {
                             <thead>
                                 <tr className="border-b border-slate-800 bg-slate-900/40 text-xs font-semibold uppercase tracking-wider text-slate-300">
                                     <th className="py-4 px-6">Código</th>
+                                    <th className="py-4 px-6">Projeto</th>
                                     <th className="py-4 px-6">Descrição</th>
                                     <th className="py-4 px-6">Valor</th>
                                     <th className="py-4 px-6">Prazo</th>
@@ -112,11 +126,14 @@ export default function Propostas() {
                             <tbody className="divide-y divide-slate-800/60 text-sm">
                                 {propostas.map((proposta) => {
                                     const info = statusInfo[String(proposta.status).toUpperCase()] || { label: proposta.status, style: "bg-slate-500/10 text-slate-400 border border-slate-500/20" };
+                                    const pendente = String(proposta.status).toUpperCase() === "PENDENTE";
 
                                     return (
                                         <tr key={proposta.id} className="hover:bg-slate-900/30 transition-colors">
 
                                             <td className="py-4 px-6 text-slate-400">#{proposta.id}</td>
+
+                                            <td className="py-4 px-6 text-slate-400">#{proposta.projetoId}</td>
 
                                             <td className="py-4 px-6 text-slate-200 font-medium">{proposta.descricao}</td>
 
@@ -132,22 +149,41 @@ export default function Propostas() {
                                                 </span>
                                             </td>
 
-                                            {/* Ações */}
+                                            {/* Ações: o freelancer edita e cancela, a empresa aceita e recusa (só pendentes) */}
                                             <td className="py-4 px-6 text-right">
                                                 <div className="flex items-center justify-end gap-3">
-                                                    <Link
-                                                        href={`/propostas/${proposta.id}`}
-                                                        className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors"
-                                                    >
-                                                        Editar
-                                                    </Link>
-
-                                                    <button
-                                                        onClick={() => excluirProposta(proposta.id)}
-                                                        className="text-rose-400 hover:text-rose-300 font-medium text-xs transition-colors cursor-pointer"
-                                                    >
-                                                        Excluir
-                                                    </button>
+                                                    {pendente && role === "ROLE_FREELANCER" && (
+                                                        <>
+                                                            <Link
+                                                                href={`/propostas/${proposta.id}`}
+                                                                className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors"
+                                                            >
+                                                                Editar
+                                                            </Link>
+                                                            <button
+                                                                onClick={() => cancelarProposta(proposta.id)}
+                                                                className="text-rose-400 hover:text-rose-300 font-medium text-xs transition-colors cursor-pointer"
+                                                            >
+                                                                Cancelar
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                    {pendente && role !== "ROLE_FREELANCER" && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => alterarStatus(proposta.id, "ACEITA")}
+                                                                className="text-green-400 hover:text-green-300 font-medium text-xs transition-colors cursor-pointer"
+                                                            >
+                                                                Aceitar
+                                                            </button>
+                                                            <button
+                                                                onClick={() => alterarStatus(proposta.id, "RECUSADA")}
+                                                                className="text-rose-400 hover:text-rose-300 font-medium text-xs transition-colors cursor-pointer"
+                                                            >
+                                                                Recusar
+                                                            </button>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </td>
 
@@ -158,7 +194,7 @@ export default function Propostas() {
                                 {/* Mensagem se a lista estiver vazia */}
                                 {propostas.length === 0 && (
                                     <tr>
-                                        <td colSpan={6} className="py-12 text-center text-slate-500 italic">
+                                        <td colSpan={7} className="py-12 text-center text-slate-500 italic">
                                             Nenhuma proposta encontrada
                                         </td>
                                     </tr>

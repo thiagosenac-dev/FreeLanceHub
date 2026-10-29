@@ -20,9 +20,9 @@ public class Projeto {
     public EnumStatusProjeto status;
     public Long categoriaId;
 
-    // usuário que criou o projeto
+    // MUDANÇA: antes guardava o usuário, agora guarda o cliente (empresa) dono do projeto
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "usuario_id", referencedColumnName = "id")
-    public Usuario usuario;
+    @JoinColumn(name = "cliente_id", referencedColumnName = "id")
+    public Cliente cliente;
 
 }

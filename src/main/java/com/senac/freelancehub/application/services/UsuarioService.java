@@ -3,6 +3,11 @@ package com.senac.freelancehub.application.services;
 import com.senac.freelancehub.application.DTOs.*;
 import com.senac.freelancehub.domain.entities.EnumStatus;
 import com.senac.freelancehub.domain.entities.Usuario;
+import com.senac.freelancehub.application.DTOs.CategoriaResponse;
+import com.senac.freelancehub.application.DTOs.HabilidadeRequest;
+import com.senac.freelancehub.domain.entities.Categoria;
+import com.senac.freelancehub.domain.repository.CategoriaRepository;
+import com.senac.freelancehub.domain.repository.ClienteRepository;
 import com.senac.freelancehub.domain.repository.UsuarioRepository;
 import com.senac.freelancehub.domain.valueobject.CPF;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +24,12 @@ public class UsuarioService {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
+    private ClienteRepository clienteRepository;
+
+    @Autowired
+    private CategoriaRepository categoriaRepository;
+
+    @Autowired
     private TokenService tokenService;
 
     @Value("${spring.secretkey}")
@@ -29,7 +40,11 @@ public class UsuarioService {
 
         if (usuarioRepository.existsUsuarioByEmailAndSenha(request.email(), request.senha())) {
             var token = tokenService.gerarToken(request);
-            return new LoginResponse(token);
+            // MUDANÇA: devolve também o perfil (role) para o front saber o que mostrar
+            var usuario = usuarioRepository.findAll()
+                    .stream().filter(u -> u.getEmail().equals(request.email()))
+                    .findFirst().orElse(null);
+            return new LoginResponse(token, usuario.getRole());
         }
         return null;
     }
@@ -65,9 +80,18 @@ public class UsuarioService {
 
         var usuarioLogado = getUsuarioLogado();
 
-        // novo usuário
+        // novo usuário (MUDANÇA: criado pelo admin, é do tipo empresa e fica ligado a um cliente)
         if (id == 0L) {
+            if (request.clienteId() == null) {
+                throw new IllegalArgumentException("Informe o clienteId!");
+            }
+            var cliente = clienteRepository.findById(request.clienteId()).orElse(null);
+            if (cliente == null) {
+                throw new IllegalArgumentException("Cliente não encontrado!");
+            }
             Usuario usuarioNovo = new Usuario(request);
+            usuarioNovo.setRole("ROLE_EMPRESA");
+            usuarioNovo.setCliente(cliente);
             usuarioRepository.save(usuarioNovo);
             return new UsuarioResponse(usuarioNovo);
         }
@@ -126,13 +150,57 @@ public class UsuarioService {
         return new CriarAdminResponse(usuarioAdminSalvar.getId(), "Usuario Salvo com sucesso!");
     }
 
-    // cria um usuário com a role de gerente (só o admin chega aqui, pela SecurityConfiguration)
-    public UsuarioResponse criarGerente(UsuarioRequest request) {
+    // MUDANÇA (novo): lista as habilidades (categorias) do freelancer logado
+    public List<CategoriaResponse> listarHabilidades() {
 
-        Usuario gerente = new Usuario(request);
-        gerente.setRole("ROLE_GERENTE");
-        usuarioRepository.save(gerente);
+        Usuario usuarioBanco = usuarioRepository.findById(getUsuarioLogado().id()).orElse(null);
 
-        return new UsuarioResponse(gerente);
+        return usuarioBanco.getHabilidades()
+                .stream()
+                .map(CategoriaResponse::new)
+                .toList();
+    }
+
+    // MUDANÇA (novo): adiciona uma habilidade ao freelancer logado (igual ao matricularAluno do professor)
+    public boolean adicionarHabilidade(HabilidadeRequest habilidadeRequest) {
+
+        Usuario usuarioBanco = usuarioRepository.findById(getUsuarioLogado().id()).orElse(null);
+        Categoria categoriaBanco = categoriaRepository.findById(habilidadeRequest.categoria_id()).orElse(null);
+        if (usuarioBanco != null && categoriaBanco != null) {
+
+            var habilidade = usuarioBanco.getHabilidades().stream()
+                    .anyMatch(c -> c.getId().equals(categoriaBanco.getId()));
+
+            if (habilidade) {
+                return true;
+            } else {
+                usuarioBanco.getHabilidades().add(categoriaBanco);
+                usuarioRepository.save(usuarioBanco);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // MUDANÇA (novo): remove uma habilidade do freelancer logado
+    public boolean removerHabilidade(Long categoriaId) {
+
+        Usuario usuarioBanco = usuarioRepository.findById(getUsuarioLogado().id()).orElse(null);
+        if (usuarioBanco == null) {
+            return false;
+        }
+
+        usuarioBanco.getHabilidades().removeIf(c -> c.getId().equals(categoriaId));
+        usuarioRepository.save(usuarioBanco);
+        return true;
+    }
+
+    // MUDANÇA (novo): cadastro público, cria um usuário freelancer
+    public UsuarioResponse registrarFreelancer(UsuarioRequest request) {
+
+        Usuario freelancer = new Usuario(request);
+        usuarioRepository.save(freelancer);
+
+        return new UsuarioResponse(freelancer);
     }
 }

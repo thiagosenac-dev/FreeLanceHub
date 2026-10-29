@@ -3,6 +3,8 @@
 import axios from "@/node_modules/axios/index";
 import { useRouter } from "@/node_modules/next/navigation";
 import { loginResponse } from "../types/auth";
+import Link from "@/node_modules/next/link";
+import { salvarSessao } from "../services/sessao"; // MUDANÇA: guarda token e perfil
 
 export default function Login(){
     const router = useRouter();
@@ -20,7 +22,9 @@ export default function Login(){
             if (loginResposta.status == 200){
                 // guarda o token pra mandar nas próximas requisições
                 localStorage.setItem("token", loginResposta.data.token);
-                router.push("/home")
+                // MUDANÇA: guarda o token e o perfil, o freelancer vai direto para as vagas
+                salvarSessao(loginResposta.data.token, loginResposta.data.role);
+                router.push(loginResposta.data.role === "ROLE_FREELANCER" ? "/vagas" : "/home")
             }
             else {
                 alert("Usuário e/ou senha inválidos!")
@@ -87,6 +91,11 @@ export default function Login(){
                     ENTRAR
                 </button>
             </form>
+
+            {/* MUDANÇA: link para o cadastro público */}
+            <p className="mt-6 text-center text-sm text-slate-400">
+                Ainda não tem conta? <Link href="/registrar" className="text-cyan-400 hover:text-cyan-300 font-medium">Cadastre-se como freelancer</Link>
+            </p>
         </div>
     </div>
     </>);

@@ -1,8 +1,9 @@
 "use client"
 
+
 import { useEffect, useState } from "react";
 import Link from "@/node_modules/next/link";
-import axios from "@/node_modules/axios/index";
+import api from "@/app/services/api";
 import { useParams } from "@/node_modules/next/navigation";
 import ProjetoForm from "../../componentes/ProjetoForm";
 
@@ -15,7 +16,7 @@ export default function EditarProjeto(){
     const codigo = Number(useParams().codigo);
     // busca o projeto inteiro pra passar pro form e pra mostrar no título
     const [projeto, setProjeto] = useState<any>(null);
-    useEffect(() => { axios.get(`http://localhost:8080/projetos/${codigo}`).then(({ data }) => setProjeto(data)).catch(() => {}); }, [codigo]);
+    useEffect(() => { api.get(`/projetos/${codigo}`).then(({ data }) => setProjeto(data)).catch(() => {}); }, [codigo]);
     const glowClasses = "pointer-events-none absolute -z-10 rounded-full blur-3xl animate-pulse";
     const cardClasses = "relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-950/80 backdrop-blur-xl shadow-2xl shadow-blue-950/30";
 

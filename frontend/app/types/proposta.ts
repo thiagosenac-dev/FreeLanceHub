@@ -4,7 +4,8 @@ export class Proposta{
         public descricao: string,
         public valor: number,
         public prazo: string,
-        public status: string
+        public status: string,
+        public projetoId?: number | null // MUDANÇA: projeto que recebeu a proposta
 
     ){}
 }

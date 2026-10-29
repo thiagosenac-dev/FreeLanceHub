@@ -112,17 +112,4 @@ public class UsuarioController {
         return ResponseEntity.notFound().build();
     }
 
-    // cria um gerente (só admin acessa)
-    @PostMapping("/gerente")
-    @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Método de criar gerente", description = "Método responsável pela criação de usuários com perfil de gerente")
-    public ResponseEntity<?> criarGerente(@RequestBody UsuarioRequest usuario) {
-
-        try {
-            UsuarioResponse gerenteBanco = usuarioService.criarGerente(usuario);
-            return ResponseEntity.ok(gerenteBanco);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
 }

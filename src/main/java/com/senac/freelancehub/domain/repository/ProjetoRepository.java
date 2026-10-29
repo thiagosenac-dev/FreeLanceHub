@@ -12,7 +12,10 @@ public interface ProjetoRepository extends JpaRepository<Projeto, Long> {
 
     Optional<List<Projeto>> findByStatus(EnumStatusProjeto status);
 
-    // projetos criados por um usuário
-    List<Projeto> getProjetosByUsuario_Id(Long usuario);
+    // MUDANÇA: projetos de um cliente (empresa)
+    List<Projeto> getProjetosByCliente_Id(Long cliente);
+
+    // MUDANÇA: projetos de um status e de várias categorias (habilidades do freelancer)
+    List<Projeto> getProjetosByStatusAndCategoriaIdIn(EnumStatusProjeto status, List<Long> categorias);
 
 }

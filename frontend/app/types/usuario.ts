@@ -5,7 +5,8 @@ export class Usuario{
         public email:string,
         public senha:string,
         public status:string,
-        public cpf:string){
+        public cpf:string,
+        public clienteId?: number | null){ // MUDANÇA: cliente (empresa), só para usuário do tipo empresa
 
     }
 }

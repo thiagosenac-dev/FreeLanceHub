@@ -1,4 +1,5 @@
 import Link from "@/node_modules/next/link";
+import ProjetosPublicos from "./components/ProjetosPublicos"; // MUDANÇA: lista pública de projetos
 
 export default function Home() {
   return (
@@ -56,6 +57,7 @@ export default function Home() {
             {/* Desktop Menu & Login Button */}
             <nav className="hidden md:flex space-x-8 items-center">
               <a href="#inicio" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Início</a>
+              <a href="#projetos" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Projetos</a>
               <a href="#historia" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Nossa História</a>
               
               <Link href = "/login"
@@ -104,12 +106,12 @@ export default function Home() {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
-                <button className="px-8 py-4 rounded-full bg-gradient-to-r from-[#3b82f6] to-[#06b6d4] text-white font-heading font-semibold text-lg hover:scale-105 transition-transform duration-300 shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+                <Link href="/registrar" className="px-8 py-4 rounded-full bg-gradient-to-r from-[#3b82f6] to-[#06b6d4] text-white font-heading font-semibold text-lg hover:scale-105 transition-transform duration-300 shadow-[0_0_20px_rgba(59,130,246,0.3)] text-center">
                   Sou Freelancer
-                </button>
-                <button className="px-8 py-4 rounded-full bg-transparent border border-gray-600 text-white font-heading font-semibold text-lg hover:border-[#06b6d4] hover:text-[#06b6d4] transition-all duration-300">
+                </Link>
+                <Link href="/login" className="px-8 py-4 rounded-full bg-transparent border border-gray-600 text-white font-heading font-semibold text-lg hover:border-[#06b6d4] hover:text-[#06b6d4] transition-all duration-300 text-center">
                   Sou Empresa
-                </button>
+                </Link>
               </div>
             </div>
 
@@ -152,6 +154,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* PROJETOS ABERTOS (MUDANÇA: área pública) */}
+      <ProjetosPublicos />
 
       {/* ABOUT SECTION (NOSSA HISTÓRIA) */}
       <section id="historia" className="py-24 relative border-t border-white/5 bg-gradient-to-b from-transparent to-[#0f172a]/50">

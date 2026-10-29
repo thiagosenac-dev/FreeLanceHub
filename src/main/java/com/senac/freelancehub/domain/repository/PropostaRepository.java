@@ -12,7 +12,16 @@ public interface PropostaRepository extends JpaRepository<Proposta, Long> {
 
     Optional<List<Proposta>> findByStatus(EnumStatusProposta status);
 
-    // propostas criadas por um usuário
+    // propostas enviadas por um usuário (freelancer)
     List<Proposta> getPropostasByUsuario_Id(Long usuario);
+
+    // MUDANÇA: propostas recebidas pelos projetos de um cliente (empresa)
+    List<Proposta> getPropostasByProjeto_Cliente_Id(Long cliente);
+
+    // MUDANÇA: propostas de um projeto
+    List<Proposta> getPropostasByProjeto_Id(Long projeto);
+
+    // MUDANÇA: confere se o freelancer já enviou proposta para o projeto
+    boolean existsByUsuario_IdAndProjeto_Id(Long usuario, Long projeto);
 
 }

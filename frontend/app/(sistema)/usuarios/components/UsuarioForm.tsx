@@ -4,7 +4,8 @@ import { Usuario, UsuarioFormProps } from "@/app/types/usuario";
 import api from "@/app/services/api";
 import Link from "@/node_modules/next/link";
 import { useRouter } from "@/node_modules/next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Cliente } from "@/app/types/cliente";
 
 
 
@@ -15,8 +16,18 @@ export default function UsuarioForm({usuarioExistente}:UsuarioFormProps) {
     // Se recebeu um usuário existente, começa com os dados dele. Se não, começa em branco (cadastro novo)
     const [ usuario,setUsuario ] = useState<Usuario>(
         usuarioExistente ||
-        new Usuario(null,"","","","ATIVO","")
+        new Usuario(null,"","","","ATIVO","",null)
     );
+
+    // MUDANÇA: lista de clientes (empresas) para o admin ligar o novo usuário a uma empresa
+    const [clientes, setClientes] = useState<Cliente[]>([]);
+
+    useEffect(() => {
+        if (!usuarioExistente) {
+            api.get<Cliente[]>("/clientes")
+                .then(r => setClientes(r.data.filter(c => String(c.status).toUpperCase() === "ATIVO")));
+        }
+    }, []);
 
     // Atualiza um campo específico do usuário conforme a pessoa digita
     const handlerChange = ( campo: 'nome'|  'email' |'cpf'| 'senha', valor:string) =>{
@@ -27,7 +38,8 @@ export default function UsuarioForm({usuarioExistente}:UsuarioFormProps) {
                 campo === 'email' ? valor : valorAnterior.email,
                 campo === 'senha' ? valor : valorAnterior.senha,
                 valorAnterior.status,
-                campo === 'cpf' ? valor : valorAnterior.cpf
+                campo === 'cpf' ? valor : valorAnterior.cpf,
+                valorAnterior.clienteId
                 
             )
         )
@@ -132,6 +144,24 @@ export default function UsuarioForm({usuarioExistente}:UsuarioFormProps) {
                     type="password" className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
                     </input>
                 </div>
+            {/* MUDANÇA: no cadastro novo o admin escolhe a empresa (cliente) do usuário */}
+                {!usuarioExistente && (
+                    <div className="space-y-2 md:col-span-2">
+                        <label className="block text-sm font-medium text-slate-300">
+                            Cliente (empresa):
+                        </label>
+                        <select
+                            value={usuario.clienteId ?? ""}
+                            required
+                            onChange={(e) => setUsuario({ ...usuario, clienteId: Number(e.target.value) })}
+                            className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-400/20 transition-all duration-300">
+                            <option value="" className="bg-slate-950">Selecione uma empresa</option>
+                            {clientes.map(c => (
+                                <option key={c.id} value={c.id ?? ""} className="bg-slate-950">{c.nome}</option>
+                            ))}
+                        </select>
+                    </div>
+                )}
             </div>
 
             {/* Botões: cancelar volta para a lista sem salvar, salvar envia o formulário */}

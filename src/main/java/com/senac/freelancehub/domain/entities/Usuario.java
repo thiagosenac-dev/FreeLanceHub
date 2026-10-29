@@ -16,7 +16,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -39,14 +41,24 @@ public class Usuario implements UserDetails {
 
     private String email;
 
-    private String role = "ROLE_USER";
+    private String role = "ROLE_FREELANCER"; // MUDANÇA: antes era ROLE_USER
 
     // status do usuário, começa ativo
     private EnumStatus status = EnumStatus.ATIVO;
 
-    // projetos que o usuário criou
-    @OneToMany(mappedBy = "usuario")
-    private List<Projeto> projetos;
+    // MUDANÇA: cliente (empresa) do usuário, só os usuários do tipo empresa têm
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "cliente_id", referencedColumnName = "id")
+    private Cliente cliente;
+
+    // MUDANÇA: habilidades do freelancer (categorias), igual ao cursos/matrícula do professor
+    @ManyToMany
+    @JoinTable(
+            name = "tb_habilidade",
+            joinColumns = @JoinColumn(name = "usuario_id"),
+            inverseJoinColumns = @JoinColumn(name = "categoria_id")
+    )
+    private Set<Categoria> habilidades = new HashSet<>();
 
     // propostas que o usuário criou
     @OneToMany(mappedBy = "usuario")
@@ -69,13 +81,13 @@ public class Usuario implements UserDetails {
         this.setRole("ROLE_ADMIN");
     }
 
-    // cria um usuário comum a partir do request
+    // cria um freelancer a partir do request (MUDANÇA: antes era usuário comum)
     public Usuario(UsuarioRequest usuario) {
         this.setCpf(new CPF(usuario.cpf()));
         this.setNome(usuario.nome());
         this.setSenha(usuario.senha());
         this.setEmail(usuario.email());
-        this.setRole("ROLE_USER");
+        this.setRole("ROLE_FREELANCER");
     }
 
     public UsuarioLogado getUsuarioLogado(){
