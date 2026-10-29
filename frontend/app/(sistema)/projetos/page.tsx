@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 
 const statusInfo: Record<string, { label: string; style: string }> = {
     ABERTO: { label: "Aberto", style: "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" }, // MUDANÇA: status novo do projeto
-    EM_ANDAMENTO: { label: "Em Andamento", style: "bg-blue-500/10 text-blue-400 border border-blue-500/20" },
     CONCLUIDO: { label: "Concluído", style: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" },
     CANCELADO: { label: "Cancelado", style: "bg-rose-500/10 text-rose-400 border border-rose-500/20" },
 };
@@ -80,8 +79,8 @@ export default function Projetos() {
                         <p className="text-2xl font-bold text-slate-100 mt-1">{projetos.length}</p>
                     </div>
                     <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-xl p-4 shadow-xl">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Em Andamento</span>
-                        <p className="text-2xl font-bold text-blue-400 mt-1">{contar("EM_ANDAMENTO")}</p>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Abertos</span>
+                        <p className="text-2xl font-bold text-blue-400 mt-1">{contar("ABERTO")}</p>
                     </div>
                     <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-xl p-4 shadow-xl">
                         <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Concluídos</span>

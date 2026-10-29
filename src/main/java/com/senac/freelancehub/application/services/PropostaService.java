@@ -191,7 +191,7 @@ public class PropostaService {
                     });
 
             // o projeto sai da lista de abertos
-            projeto.setStatus(EnumStatusProjeto.EM_ANDAMENTO);
+            projeto.setStatus(EnumStatusProjeto.CONCLUIDO);
             projetoRepository.save(projeto);
         }
 

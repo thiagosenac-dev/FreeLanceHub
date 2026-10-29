@@ -141,7 +141,8 @@ public class ProjetoService {
         projeto.setValor(request.valor());
         projeto.setPrazo(request.prazo());
         projeto.setCategoriaId(request.categoriaId());
-        if (request.status() != null) {
+        // MUDANÇA: o status só muda na edição, no cadastro o projeto sempre nasce ABERTO
+        if (id != 0L && request.status() != null) {
             projeto.setStatus(request.status());
         }
 

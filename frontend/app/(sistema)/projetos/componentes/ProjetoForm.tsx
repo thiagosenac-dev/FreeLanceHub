@@ -19,7 +19,7 @@ export default function ProjetoForm({ projetoExistente }: ProjetoFormProps) {
     // Se recebeu um projeto existente, começa com os dados dele. Se não, começa em branco (cadastro novo)
     const [projeto, setProjeto] = useState<Projeto>(
         projetoExistente ||
-        new Projeto(null, "", "", 0, "", "EM_ANDAMENTO", null)
+        new Projeto(null, "", "", 0, "", "ABERTO", null)
     );
 
     // Lista de categorias ativas para o select
