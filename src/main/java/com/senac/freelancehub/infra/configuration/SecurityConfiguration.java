@@ -26,14 +26,18 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         // rotas livres (sem login)
                         // MUDANÇA: liberei o cadastro de freelancer e a área pública de projetos
+                        // MUDANÇA: liberei a criação do admin (o desktop usa, ela se protege com a secretKey)
                         .requestMatchers("/auth/login",
                                 "/auth/registrar",
+                                "/usuarios/admin",
                                 "/publico/**",
                                 "/swagger-ui/**",
                                 "/webjars/**",
                                 "/swagger-resources/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
+                        // MUDANÇA: liberei só o POST de categorias (o desktop usa)
+                        .requestMatchers(HttpMethod.POST, "/categorias").permitAll()
                         // usuários e clientes: só admin
                         .requestMatchers("/usuarios/**", "/clientes/**").hasRole("ADMIN")
                         // projetos: só a empresa cria, admin e empresa mexem nos projetos
