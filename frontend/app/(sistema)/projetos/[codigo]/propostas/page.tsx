@@ -75,7 +75,7 @@ export default function PropostasDoProjeto() {
                             <thead>
                                 <tr className="border-b border-slate-800 bg-slate-900/40 text-xs font-semibold uppercase tracking-wider text-slate-300">
                                     <th className="py-4 px-6">Código</th>
-                                    <th className="py-4 px-6">Descrição</th>
+                                    <th className="py-4 px-6">Contato do Freelancer</th>
                                     <th className="py-4 px-6">Valor</th>
                                     <th className="py-4 px-6">Prazo</th>
                                     <th className="py-4 px-6">Status</th>
@@ -90,7 +90,12 @@ export default function PropostasDoProjeto() {
                                     return (
                                         <tr key={proposta.id} className="hover:bg-slate-900/30 transition-colors">
                                             <td className="py-4 px-6 text-slate-400">#{proposta.id}</td>
-                                            <td className="py-4 px-6 text-slate-200 font-medium">{proposta.descricao}</td>
+                                            <td className="py-4 px-6 text-slate-400">
+                                                <div className="leading-tight">
+                                                    <p className="text-slate-200 font-medium">{proposta.freelancerNome}</p>
+                                                    <p className="text-xs">{proposta.freelancerEmail}</p>
+                                                </div>
+                                            </td>
                                             <td className="py-4 px-6 text-slate-400">
                                                 {Number(proposta.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                                             </td>

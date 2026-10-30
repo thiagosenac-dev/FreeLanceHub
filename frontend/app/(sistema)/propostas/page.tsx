@@ -114,7 +114,7 @@ export default function Propostas() {
                             <thead>
                                 <tr className="border-b border-slate-800 bg-slate-900/40 text-xs font-semibold uppercase tracking-wider text-slate-300">
                                     <th className="py-4 px-6">Código</th>
-                                    <th className="py-4 px-6">Projeto</th>
+                                    <th className="py-4 px-6">{role === "ROLE_FREELANCER" ? "Projeto" : "Contato do Freelancer"}</th>
                                     <th className="py-4 px-6">Descrição</th>
                                     <th className="py-4 px-6">Valor</th>
                                     <th className="py-4 px-6">Prazo</th>
@@ -133,7 +133,14 @@ export default function Propostas() {
 
                                             <td className="py-4 px-6 text-slate-400">#{proposta.id}</td>
 
-                                            <td className="py-4 px-6 text-slate-400">#{proposta.projetoId}</td>
+                                            <td className="py-4 px-6 text-slate-400">
+                                                {role === "ROLE_FREELANCER" ? `#${proposta.projetoId}` : (
+                                                    <div className="leading-tight">
+                                                        <p className="text-slate-200 font-medium">{proposta.freelancerNome}</p>
+                                                        <p className="text-xs">{proposta.freelancerEmail}</p>
+                                                    </div>
+                                                )}
+                                            </td>
 
                                             <td className="py-4 px-6 text-slate-200 font-medium">{proposta.descricao}</td>
 

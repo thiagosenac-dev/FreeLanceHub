@@ -5,7 +5,9 @@ export class Proposta{
         public valor: number,
         public prazo: string,
         public status: string,
-        public projetoId?: number | null // MUDANÇA: projeto que recebeu a proposta
+        public projetoId?: number | null, // MUDANÇA: projeto que recebeu a proposta
+        public freelancerNome?: string | null, // MUDANÇA: contato do freelancer
+        public freelancerEmail?: string | null
 
     ){}
 }
