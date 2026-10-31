@@ -1,10 +1,14 @@
 'use client'
 
 import Link from "@/node_modules/next/link";
-import api from "@/app/services/api";
+import { buscarListaProjetos, deletarProjeto } from "@/app/services/projetoService";
+import { buscarListaCategorias } from "@/app/services/categoriaService";
+import { setCategorias } from "@/app/redux/slices/categoriasSlice";
+import { RootState } from "@/app/redux/store";
 import { Projeto } from "@/app/types/projeto";
 import { Categoria } from "@/app/types/categoria";
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 const statusInfo: Record<string, { label: string; style: string }> = {
     ABERTO: { label: "Aberto", style: "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" }, // MUDANÇA: status novo do projeto
@@ -14,21 +18,20 @@ const statusInfo: Record<string, { label: string; style: string }> = {
 
 export default function Projetos() {
     const [projetos, setProjetos] = useState<Projeto[]>([])
-    const [categorias, setCategorias] = useState<Categoria[]>([])
-    // MUDANÇA: perfil do usuário logado (só a empresa cria projeto)
-    const [role, setRole] = useState("");
+    // categorias ficam no Redux (slice compartilhado com as outras telas)
+    const categorias = useSelector((state: RootState) => state.categorias.lista)
+    // perfil do usuário logado, vem do Redux (só a empresa cria projeto)
+    const role = useSelector((state: RootState) => state.auth.usuario?.role) ?? "";
+    const dispatch = useDispatch();
 
     useEffect(() => {
-        setRole(localStorage.getItem("role") ?? "");
         carregarDados();
     }, []);
 
     const carregarDados = async () => {
         try {
-            const dados = await api.get<Projeto[]>("/projetos")
-            setProjetos(dados.data);
-            const cats = await api.get<Categoria[]>("/categorias")
-            setCategorias(cats.data);
+            setProjetos(await buscarListaProjetos());
+            dispatch(setCategorias(await buscarListaCategorias()));
         } catch (error) {
             alert("Erro ao carregar dados")
         }
@@ -37,7 +40,7 @@ export default function Projetos() {
     const excluirProjeto = async (id: number | null) => {
         if (confirm("Deseja realmente excluir este projeto?")) {
             try {
-                await api.delete(`/projetos/${id}/excluir`);
+                await deletarProjeto(id);
                 setProjetos(projetos.filter(p => p.id !== id));
             } catch (error) {
                 alert("Erro ao excluir projeto");

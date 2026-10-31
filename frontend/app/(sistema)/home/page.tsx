@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "@/node_modules/next/link";
-import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/redux/store";
 
 // cores de cada card (classes completas para o Tailwind enxergar)
 const cores: Record<string, { card: string, blob: string, icone: string, titulo: string, seta: string }> = {
@@ -23,12 +24,8 @@ const cards = [
 ];
 
 export default function Home(){
-    // perfil do usuário logado
-    const [role, setRole] = useState("");
-
-    useEffect(() => {
-        setRole(localStorage.getItem("role") ?? "");
-    }, []);
+    // perfil do usuário logado (vem do Redux)
+    const role = useSelector((state: RootState) => state.auth.usuario?.role) ?? "";
 
     return(
         <div className="relative min-h-screen bg-black flex flex-col text-slate-100 overflow-hidden p-6 md:p-10">

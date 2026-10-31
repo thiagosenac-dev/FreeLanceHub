@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react";
-import { sairDaSessao } from "../services/sessao";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux/store";
+import { logout } from "../redux/slices/authSlice";
 
 // nome mostrado na boas-vindas de cada perfil
 const nomes: Record<string, string> = {
@@ -11,17 +12,13 @@ const nomes: Record<string, string> = {
 };
 
 export default function Header(){
-    // MUDANÇA: perfil do usuário logado
-    const [role, setRole] = useState("");
+    // perfil do usuário logado (vem do Redux)
+    const role = useSelector((state: RootState) => state.auth.usuario?.role) ?? "";
+    const dispatch = useDispatch();
 
-    useEffect(() => {
-        setRole(localStorage.getItem("role") ?? "");
-    }, []);
-
-    // limpa o login e volta pra landing page
+    // limpa o login no Redux; o layout do sistema volta sozinho para a tela de login
     const handlerSair = () => {
-        sairDaSessao();
-        window.location.href = "/";
+        dispatch(logout());
     };
 
     const headerClasses = "w-full bg-gradient-to-r from-slate-950/80 via-[#030a1c]/70 to-slate-950/80 backdrop-blur-xl";
@@ -40,7 +37,7 @@ export default function Header(){
                     </div>
                     <span className="text-sm font-semibold text-slate-200 sm:text-base">Bem-vindo {nomes[role] ?? ""}</span>
                 </div>
-                {/* sai e volta pra landing page */}
+                {/* faz logout no Redux */}
                 <button onClick={handlerSair} className={buttonClasses}>
                     Sair
                     <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>

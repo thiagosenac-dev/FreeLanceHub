@@ -1,7 +1,7 @@
 'use client'
 
 import { Proposta } from "@/app/types/proposta";
-import api from "@/app/services/api";
+import { atualizarProposta, salvarProposta } from "@/app/services/propostaService";
 import Link from "@/node_modules/next/link";
 import { useRouter } from "@/node_modules/next/navigation";
 import { useState } from "react";
@@ -40,7 +40,7 @@ export default function PropostaForm({ propostaExistente }: PropostaFormProps) {
 
         if (propostaExistente) {
             // Já existe: atualiza os dados dessa proposta
-            var dadosRetorno = await api.put<number>('/propostas/' + proposta.id, proposta, { validateStatus: () => true });
+            var dadosRetorno = await atualizarProposta(proposta);
 
             if (dadosRetorno.status == 200) {
                 alert("Proposta foi salva com sucesso!");
@@ -53,7 +53,7 @@ export default function PropostaForm({ propostaExistente }: PropostaFormProps) {
             // Não existe ainda: cria uma proposta nova
             // MUDANÇA: manda também o projeto escolhido nas vagas (vem na URL, ex: /propostas/novo?projetoId=5)
             const projetoId = Number(new URLSearchParams(window.location.search).get("projetoId"));
-            var dadosRetorno = await api.post<number>('/propostas', { ...proposta, projetoId }, { validateStatus: () => true });
+            var dadosRetorno = await salvarProposta(proposta, projetoId);
 
             if (dadosRetorno.status == 200) {
                 alert("Proposta foi salva com sucesso!");

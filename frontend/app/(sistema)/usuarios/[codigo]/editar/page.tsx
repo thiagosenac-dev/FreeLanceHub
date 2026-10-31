@@ -1,7 +1,7 @@
 "use client"
 
 import { Usuario } from "@/app/types/usuario";
-import api from "@/app/services/api";
+import { consultaUsuarioPorId } from "@/app/services/usuarioService";
 import Link from "@/node_modules/next/link";
 import { useParams, useRouter } from "@/node_modules/next/navigation";
 import { useEffect, useState } from "react";
@@ -28,11 +28,9 @@ export default function EditarUsuario(){
     // Busca o usuário pelo código na API. Se não achar, volta para a listagem
     const buscarDados =async() =>{
 
-        const valorUsuarioBack = await api.get<Usuario>('/usuarios/'+codigo);
-
-        if(valorUsuarioBack.status==200){
-            setUsuario(valorUsuarioBack.data);
-        }else{
+        try {
+            setUsuario(await consultaUsuarioPorId(codigo));
+        } catch (error) {
             router.push("/usuarios")
         }
 

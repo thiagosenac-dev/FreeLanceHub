@@ -1,7 +1,7 @@
 "use client"
 
 import { Proposta } from "@/app/types/proposta";
-import api from "@/app/services/api";
+import { consultaPropostaPorId } from "@/app/services/propostaService";
 import Link from "@/node_modules/next/link";
 import { useParams, useRouter } from "@/node_modules/next/navigation";
 import { useEffect, useState } from "react";
@@ -28,11 +28,9 @@ export default function EditarProposta(){
     // Busca a proposta pelo código na API. Se não achar, volta para a listagem
     const buscarDados = async () => {
 
-        const valorPropostaBack = await api.get<Proposta>('/propostas/' + codigo);
-
-        if(valorPropostaBack.status==200){
-            setProposta(valorPropostaBack.data);
-        }else{
+        try {
+            setProposta(await consultaPropostaPorId(codigo));
+        } catch (error) {
             router.push("/propostas")
         }
         

@@ -1,29 +1,33 @@
 "use client"
 
-import api from "@/app/services/api";
+import { buscarCategoriasPublicas, buscarProjetosPublicos } from "@/app/services/publicoService";
+import { RootState } from "@/app/redux/store";
 import { Categoria } from "@/app/types/categoria";
 import { Projeto } from "@/app/types/projeto";
 import Link from "@/node_modules/next/link";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 // MUDANÇA (novo): lista pública de projetos abertos na landing page (sem login)
 export default function ProjetosPublicos() {
     const [projetos, setProjetos] = useState<Projeto[]>([]);
     const [categorias, setCategorias] = useState<Categoria[]>([]);
-    // se já tem login, o botão leva direto para as vagas
+    // se já tem login (token no Redux), o botão leva direto para as vagas
+    const token = useSelector((state: RootState) => state.auth.token);
     const [logado, setLogado] = useState(false);
 
     useEffect(() => {
-        setLogado(!!localStorage.getItem("token"));
+        setLogado(!!token);
+    }, [token]);
+
+    useEffect(() => {
         carregarDados();
     }, []);
 
     const carregarDados = async () => {
         try {
-            const dados = await api.get<Projeto[]>("/publico/projetos");
-            setProjetos(dados.data);
-            const cats = await api.get<Categoria[]>("/publico/categorias");
-            setCategorias(cats.data);
+            setProjetos(await buscarProjetosPublicos());
+            setCategorias(await buscarCategoriasPublicas());
         } catch (error) {
             setProjetos([]);
         }

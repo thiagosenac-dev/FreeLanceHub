@@ -6,7 +6,8 @@ export class Usuario{
         public senha:string,
         public status:string,
         public cpf:string,
-        public clienteId?: number | null){ // MUDANÇA: cliente (empresa), só para usuário do tipo empresa
+        public clienteId?: number | null, // cliente (empresa), só para usuário do tipo empresa
+        public role?: string){ // perfil: ROLE_ADMIN, ROLE_EMPRESA ou ROLE_FREELANCER
 
     }
 }

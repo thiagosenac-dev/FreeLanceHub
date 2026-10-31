@@ -2,10 +2,14 @@
 
 import { Projeto } from "@/app/types/projeto";
 import { Categoria } from "@/app/types/categoria";
-import api from "@/app/services/api";
+import { atualizarProjeto, salvarProjeto } from "@/app/services/projetoService";
+import { buscarListaCategorias } from "@/app/services/categoriaService";
+import { setCategorias } from "@/app/redux/slices/categoriasSlice";
+import { RootState } from "@/app/redux/store";
 import Link from "@/node_modules/next/link";
 import { useRouter } from "@/node_modules/next/navigation";
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 // Dados que esse formulário pode receber: um projeto já existente (modo edição) ou nada (modo cadastro)
 interface ProjetoFormProps {
@@ -22,12 +26,13 @@ export default function ProjetoForm({ projetoExistente }: ProjetoFormProps) {
         new Projeto(null, "", "", 0, "", "ABERTO", null)
     );
 
-    // Lista de categorias ativas para o select
-    const [categorias, setCategorias] = useState<Categoria[]>([]);
+    // Lista de categorias ativas para o select (vem do Redux)
+    const todasCategorias = useSelector((state: RootState) => state.categorias.lista);
+    const categorias = todasCategorias.filter(c => String(c.status).toUpperCase() === "ATIVO");
+    const dispatch = useDispatch();
 
     useEffect(() => {
-        api.get<Categoria[]>("/categorias")
-            .then(r => setCategorias(r.data.filter(c => String(c.status).toUpperCase() === "ATIVO")));
+        buscarListaCategorias().then(lista => dispatch(setCategorias(lista)));
     }, []);
 
     // Atualiza um campo específico do projeto conforme a pessoa digita
@@ -50,7 +55,7 @@ export default function ProjetoForm({ projetoExistente }: ProjetoFormProps) {
 
         if (projetoExistente) {
             // Já existe: atualiza os dados desse projeto
-            var dadosRetorno = await api.put<number>('/projetos/' + projeto.id, projeto);
+            var dadosRetorno = await atualizarProjeto(projeto);
 
             if (dadosRetorno.status == 200) {
                 alert("Projeto foi salvo com sucesso!");
@@ -61,7 +66,7 @@ export default function ProjetoForm({ projetoExistente }: ProjetoFormProps) {
 
         } else {
             // Não existe ainda: cria um projeto novo
-            var dadosRetorno = await api.post<number>('/projetos', projeto);
+            var dadosRetorno = await salvarProjeto(projeto);
 
             if (dadosRetorno.status == 200) {
                 alert("Projeto foi salvo com sucesso!");

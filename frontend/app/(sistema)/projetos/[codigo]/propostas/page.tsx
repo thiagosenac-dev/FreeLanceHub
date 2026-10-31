@@ -1,7 +1,7 @@
 'use client'
 
 import Link from "@/node_modules/next/link";
-import api from "@/app/services/api";
+import { atualizarStatusProposta, buscarPropostasDoProjeto } from "@/app/services/propostaService";
 import { Proposta } from "@/app/types/proposta";
 import { useParams } from "@/node_modules/next/navigation";
 import { useEffect, useState } from "react";
@@ -30,8 +30,7 @@ export default function PropostasDoProjeto() {
     // Busca as propostas do projeto
     const carregarDados = async () => {
         try {
-            const dados = await api.get<Proposta[]>("/propostas/projeto/" + codigo)
-            setPropostas(dados.data);
+            setPropostas(await buscarPropostasDoProjeto(codigo));
         } catch (error) {
             alert("Erro ao carregar dados")
         }
@@ -40,7 +39,7 @@ export default function PropostasDoProjeto() {
     // Aceita ou recusa a proposta (ao aceitar, as outras do projeto são recusadas)
     const alterarStatus = async (id: number | null, status: string) => {
         try {
-            await api.patch('/propostas/' + id + '/status', { status });
+            await atualizarStatusProposta(id, status);
         } catch (error: any) {
             alert(error.response?.data ?? "Erro ao atualizar status");
         }

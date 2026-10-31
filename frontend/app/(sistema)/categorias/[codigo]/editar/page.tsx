@@ -1,7 +1,7 @@
 "use client"
 
 import { Categoria } from "@/app/types/categoria";
-import api from "@/app/services/api";
+import { consultaCategoriaPorId } from "@/app/services/categoriaService";
 import Link from "@/node_modules/next/link";
 import { useParams, useRouter } from "@/node_modules/next/navigation";
 import { useEffect, useState } from "react";
@@ -25,11 +25,9 @@ export default function EditarCategoria(){
     // Busca a categoria pelo código. Se não achar, volta para a listagem
     const buscarDados = async () => {
 
-        const valorCategoriaBack = await api.get<Categoria>('/categorias/' + codigo);
-
-        if(valorCategoriaBack.status==200){
-            setCategoria(valorCategoriaBack.data);
-        }else{
+        try {
+            setCategoria(await consultaCategoriaPorId(codigo));
+        } catch (error) {
             router.push("/categorias")
         }
     }
