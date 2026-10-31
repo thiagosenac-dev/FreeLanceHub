@@ -143,7 +143,7 @@ public class PropostaService {
             // MUDANÇA: o projeto precisa estar aberto e combinar com as habilidades do freelancer
             var freelancer = proposta.getUsuario();
             boolean temHabilidade = freelancer.getHabilidades().stream()
-                    .anyMatch(c -> c.getId().equals(projeto.getCategoriaId()));
+                    .anyMatch(c -> projeto.getCategoria() != null && c.getId().equals(projeto.getCategoria().getId()));
             if (projeto.getStatus() != EnumStatusProjeto.ABERTO || !temHabilidade) {
                 throw new IllegalArgumentException("Projeto indisponível para as suas habilidades!");
             }

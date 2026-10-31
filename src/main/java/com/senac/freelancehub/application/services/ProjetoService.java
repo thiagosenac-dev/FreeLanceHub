@@ -7,6 +7,7 @@ import com.senac.freelancehub.domain.entities.EnumStatusProjeto;
 import com.senac.freelancehub.domain.entities.Projeto;
 import com.senac.freelancehub.domain.repository.ProjetoRepository;
 import com.senac.freelancehub.domain.entities.Usuario;
+import com.senac.freelancehub.domain.repository.CategoriaRepository;
 import com.senac.freelancehub.domain.repository.ClienteRepository;
 import com.senac.freelancehub.domain.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ public class ProjetoService {
 
     @Autowired
     private ClienteRepository clienteRepository;
+
+    @Autowired
+    private CategoriaRepository categoriaRepository;
 
     @Autowired
     private UsuarioRepository usuarioRepository; // MUDANÇA: para buscar o freelancer logado (habilidades)
@@ -98,7 +102,7 @@ public class ProjetoService {
         }
 
         return projetoRepository
-                .getProjetosByStatusAndCategoriaIdIn(EnumStatusProjeto.ABERTO, categorias)
+                .getProjetosByStatusAndCategoria_IdIn(EnumStatusProjeto.ABERTO, categorias)
                 .stream()
                 .map(ProjetoResponse::new)
                 .toList();
@@ -140,7 +144,12 @@ public class ProjetoService {
         projeto.setDescricao(request.descricao());
         projeto.setValor(request.valor());
         projeto.setPrazo(request.prazo());
-        projeto.setCategoriaId(request.categoriaId());
+        // a categoria precisa existir
+        var categoria = request.categoriaId() == null ? null : categoriaRepository.findById(request.categoriaId()).orElse(null);
+        if (categoria == null) {
+            throw new IllegalArgumentException("Categoria não encontrada!");
+        }
+        projeto.setCategoria(categoria);
         // MUDANÇA: o status só muda na edição, no cadastro o projeto sempre nasce ABERTO
         if (id != 0L && request.status() != null) {
             projeto.setStatus(request.status());

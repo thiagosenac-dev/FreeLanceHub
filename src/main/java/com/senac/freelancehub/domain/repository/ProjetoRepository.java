@@ -16,6 +16,6 @@ public interface ProjetoRepository extends JpaRepository<Projeto, Long> {
     List<Projeto> getProjetosByCliente_Id(Long cliente);
 
     // MUDANÇA: projetos de um status e de várias categorias (habilidades do freelancer)
-    List<Projeto> getProjetosByStatusAndCategoriaIdIn(EnumStatusProjeto status, List<Long> categorias);
+    List<Projeto> getProjetosByStatusAndCategoria_IdIn(EnumStatusProjeto status, List<Long> categorias);
 
 }

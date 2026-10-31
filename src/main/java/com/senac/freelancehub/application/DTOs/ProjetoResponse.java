@@ -13,7 +13,7 @@ public record ProjetoResponse (long id, String nome, String descricao, Double va
                 projetoIdentidade.getValor(),
                 projetoIdentidade.getPrazo(),
                 projetoIdentidade.getStatus(),
-                projetoIdentidade.getCategoriaId()
+                projetoIdentidade.getCategoria() != null ? projetoIdentidade.getCategoria().getId() : null
         );
     }
 }

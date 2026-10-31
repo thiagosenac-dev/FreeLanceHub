@@ -138,7 +138,7 @@ export default function Projetos() {
                                                         Propostas
                                                     </Link>
                                                     <Link href={`/projetos/${projeto.id}/editar`} className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors">
-                                                        Editar
+                                                        {String(projeto.status).toUpperCase() === 'ABERTO' ? 'Editar' : 'Ver'}
                                                     </Link>
                                                     <button
                                                         onClick={() => excluirProjeto(projeto.id)}

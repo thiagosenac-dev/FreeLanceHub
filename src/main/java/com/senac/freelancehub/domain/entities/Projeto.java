@@ -18,7 +18,11 @@ public class Projeto {
     public Double valor;
     public String prazo;
     public EnumStatusProjeto status;
-    public Long categoriaId;
+
+    // categoria (ramo) do projeto
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "categoria_id", referencedColumnName = "id")
+    public Categoria categoria;
 
     // MUDANÇA: antes guardava o usuário, agora guarda o cliente (empresa) dono do projeto
     @ManyToOne(fetch = FetchType.EAGER)

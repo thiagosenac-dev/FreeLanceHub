@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.UUID;
 
 @Service
 public class TokenService {
@@ -47,6 +48,8 @@ public class TokenService {
         String token = JWT.create()
                 .withIssuer(emissor)
                 .withSubject(loginResquestDto.email())
+                // identificador único: dois logins no mesmo segundo não geram o mesmo token
+                .withJWTId(UUID.randomUUID().toString())
                 .withExpiresAt(this.gerarDataExpiracao())
                 .sign(algorithm);
 

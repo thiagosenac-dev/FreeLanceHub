@@ -47,6 +47,12 @@ public class UsuarioService {
             if (usuario.getStatus() == EnumStatus.BLOQUEADO || usuario.getStatus() == EnumStatus.EXCLUIDO) {
                 return null;
             }
+            // empresa (cliente) bloqueada ou excluída também não entra
+            if (usuario.getCliente() != null
+                    && (usuario.getCliente().getStatus() == EnumStatus.BLOQUEADO
+                    || usuario.getCliente().getStatus() == EnumStatus.EXCLUIDO)) {
+                return null;
+            }
             var token = tokenService.gerarToken(request);
             return new LoginResponse(token, usuario.getRole());
         }
@@ -93,6 +99,9 @@ public class UsuarioService {
             if (cliente == null) {
                 throw new IllegalArgumentException("Cliente não encontrado!");
             }
+            if (usuarioRepository.existsByEmail(request.email())) {
+                throw new IllegalArgumentException("E-mail já cadastrado!");
+            }
             Usuario usuarioNovo = new Usuario(request);
             usuarioNovo.setRole("ROLE_EMPRESA");
             usuarioNovo.setCliente(cliente);
@@ -104,6 +113,10 @@ public class UsuarioService {
         Usuario usuarioBanco = usuarioRepository.findById(id).orElse(null);
         if (usuarioBanco == null) {
             return null;
+        }
+
+        if (!request.email().equals(usuarioBanco.getEmail()) && usuarioRepository.existsByEmail(request.email())) {
+            throw new IllegalArgumentException("E-mail já cadastrado!");
         }
 
         usuarioBanco.setNome(request.nome());
@@ -144,7 +157,11 @@ public class UsuarioService {
     public CriarAdminResponse criarAdmin(CriarAdminRequest criarAdminRequest) {
 
         if (!criarAdminRequest.secretKey().equals(secret)) {
-            return new CriarAdminResponse(0L, "Chave secreta inválida!");
+            throw new IllegalArgumentException("Chave secreta inválida!");
+        }
+
+        if (usuarioRepository.existsByEmail(criarAdminRequest.email())) {
+            throw new IllegalArgumentException("E-mail já cadastrado!");
         }
 
         Usuario usuarioAdminSalvar = new Usuario(criarAdminRequest);
@@ -214,6 +231,10 @@ public class UsuarioService {
 
     // MUDANÇA (novo): cadastro público, cria um usuário freelancer
     public UsuarioResponse registrarFreelancer(UsuarioRequest request) {
+
+        if (usuarioRepository.existsByEmail(request.email())) {
+            throw new IllegalArgumentException("E-mail já cadastrado!");
+        }
 
         Usuario freelancer = new Usuario(request);
         usuarioRepository.save(freelancer);

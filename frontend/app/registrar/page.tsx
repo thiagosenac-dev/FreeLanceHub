@@ -3,18 +3,25 @@
 import { registrarFreelancer } from "@/app/services/authService";
 import Link from "@/node_modules/next/link";
 import { useRouter } from "@/node_modules/next/navigation";
+import { useState } from "react";
 
 // MUDANÇA (novo): cadastro público de freelancer
 export default function Registrar(){
     const router = useRouter();
 
+    // guarda o que a pessoa digitou (assim os campos não somem quando dá erro)
+    const [nome, setNome] = useState("");
+    const [cpf, setCpf] = useState("");
+    const [email, setEmail] = useState("");
+    const [senha, setSenha] = useState("");
+
     // envia os dados para o back, que cria o usuário como freelancer
     const handlerRegistrar = async(formData : FormData) =>{
         const dadosRetorno = await registrarFreelancer({
-            nome: formData.get("nome")?.toString() ?? "",
-            cpf: formData.get("cpf")?.toString() ?? "",
-            email: formData.get("email")?.toString() ?? "",
-            senha: formData.get("senha")?.toString() ?? "",
+            nome: nome,
+            cpf: cpf,
+            email: email,
+            senha: senha,
         });
 
         if (dadosRetorno.status == 200){
@@ -49,19 +56,19 @@ export default function Registrar(){
             <form action={handlerRegistrar} className="space-y-5">
                 <div className="space-y-1.5">
                     <label className={labelClasses}>Nome completo</label>
-                    <input name="nome" required placeholder="João da Silva Sauro" className={inputClasses} />
+                    <input name="nome" value={nome} onChange={(e) => setNome(e.target.value)} required placeholder="João da Silva Sauro" className={inputClasses} />
                 </div>
                 <div className="space-y-1.5">
                     <label className={labelClasses}>CPF</label>
-                    <input name="cpf" required placeholder="000.000.000-00" className={inputClasses} />
+                    <input name="cpf" value={cpf} onChange={(e) => setCpf(e.target.value)} required placeholder="000.000.000-00" className={inputClasses} />
                 </div>
                 <div className="space-y-1.5">
                     <label className={labelClasses}>E-mail</label>
-                    <input name="email" type="email" required placeholder="seu@email.com" className={inputClasses} />
+                    <input name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="seu@email.com" className={inputClasses} />
                 </div>
                 <div className="space-y-1.5">
                     <label className={labelClasses}>Senha</label>
-                    <input name="senha" type="password" required placeholder="••••••••" className={inputClasses} />
+                    <input name="senha" type="password" value={senha} onChange={(e) => setSenha(e.target.value)} required placeholder="••••••••" className={inputClasses} />
                 </div>
 
                 <button

@@ -34,7 +34,8 @@ public class SecurityConfiguration {
                                 "/swagger-ui/**",
                                 "/webjars/**",
                                 "/swagger-resources/**",
-                                "/v3/api-docs/**"
+                                "/v3/api-docs/**",
+                                "/error"
                         ).permitAll()
                         // MUDANÇA: liberei só o POST de categorias (o desktop usa)
                         .requestMatchers(HttpMethod.POST, "/categorias").permitAll()
