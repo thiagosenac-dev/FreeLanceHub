@@ -1,6 +1,6 @@
 'use client'
 
-import api from "@/app/services/api";
+import { registrarFreelancer } from "@/app/services/authService";
 import Link from "@/node_modules/next/link";
 import { useRouter } from "@/node_modules/next/navigation";
 
@@ -10,12 +10,12 @@ export default function Registrar(){
 
     // envia os dados para o back, que cria o usuário como freelancer
     const handlerRegistrar = async(formData : FormData) =>{
-        const dadosRetorno = await api.post('/auth/registrar', {
+        const dadosRetorno = await registrarFreelancer({
             nome: formData.get("nome")?.toString() ?? "",
             cpf: formData.get("cpf")?.toString() ?? "",
             email: formData.get("email")?.toString() ?? "",
             senha: formData.get("senha")?.toString() ?? "",
-        }, { validateStatus: () => true });
+        });
 
         if (dadosRetorno.status == 200){
             alert("Cadastro realizado! Agora é só entrar.");

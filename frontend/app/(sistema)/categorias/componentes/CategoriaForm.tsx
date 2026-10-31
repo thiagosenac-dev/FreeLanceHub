@@ -1,7 +1,7 @@
 'use client'
 
 import { Categoria } from "@/app/types/categoria";
-import api from "@/app/services/api";
+import { atualizarCategoria, salvarCategoria } from "@/app/services/categoriaService";
 import Link from "@/node_modules/next/link";
 import { useRouter } from "@/node_modules/next/navigation";
 import { useState } from "react";
@@ -37,8 +37,8 @@ export default function CategoriaForm({ categoriaExistente }: CategoriaFormProps
     const handlerSalvar = async () => {
 
         const dadosRetorno = categoriaExistente
-            ? await api.put('/categorias/' + categoria.id, categoria)
-            : await api.post('/categorias', categoria);
+            ? await atualizarCategoria(categoria)
+            : await salvarCategoria(categoria);
 
         if (dadosRetorno.status == 200) {
             alert("Categoria foi salva com sucesso!");

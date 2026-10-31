@@ -1,9 +1,11 @@
 'use client'
 
 import Link from "@/node_modules/next/link";
-import api from "@/app/services/api";
+import { atualizarStatusProposta, buscarListaPropostas, cancelarProposta as cancelarPropostaBack } from "@/app/services/propostaService";
+import { RootState } from "@/app/redux/store";
 import { Proposta } from "@/app/types/proposta";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 
 // Mostra um nome e uma cor diferente para cada status da proposta
 // MUDANÇA: os status agora são os mesmos do back (ACEITA, RECUSADA, CANCELADA)
@@ -18,19 +20,18 @@ export default function Propostas() {
 
     // Estado com a lista de propostas e o perfil do usuário logado
     const [propostas, setPropostas] = useState<Proposta[]>([])
-    const [role, setRole] = useState("");
+    // perfil do usuário logado, vem do Redux
+    const role = useSelector((state: RootState) => state.auth.usuario?.role) ?? "";
 
     // Carrega a lista assim que a página abre
     useEffect(() => {
-        setRole(localStorage.getItem("role") ?? "");
         carregarDados();
     }, []);
 
     // Busca as propostas na API (o back já filtra pelo perfil)
     const carregarDados = async () => {
         try {
-            const dados = await api.get<Proposta[]>("/propostas")
-            setPropostas(dados.data);
+            setPropostas(await buscarListaPropostas());
         } catch (error) {
             alert("Erro ao carregar dados")
         }
@@ -42,7 +43,7 @@ export default function Propostas() {
             return;
         }
         try {
-            await api.delete('/propostas/' + id + '/excluir');
+            await cancelarPropostaBack(id);
         } catch (error) {
             alert("Erro ao cancelar proposta");
         }
@@ -52,7 +53,7 @@ export default function Propostas() {
     // MUDANÇA: empresa aceita ou recusa a proposta (ao aceitar, as outras do projeto são recusadas)
     const alterarStatus = async (id: number | null, status: string) => {
         try {
-            await api.patch('/propostas/' + id + '/status', { status });
+            await atualizarStatusProposta(id, status);
         } catch (error: any) {
             alert(error.response?.data ?? "Erro ao atualizar status");
         }

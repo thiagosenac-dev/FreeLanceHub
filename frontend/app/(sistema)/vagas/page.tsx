@@ -1,17 +1,23 @@
 'use client'
 
 import Link from "@/node_modules/next/link";
-import api from "@/app/services/api";
+import { buscarVagas } from "@/app/services/freelancerService";
+import { buscarListaCategorias } from "@/app/services/categoriaService";
+import { setCategorias } from "@/app/redux/slices/categoriasSlice";
+import { RootState } from "@/app/redux/store";
 import { Projeto } from "@/app/types/projeto";
 import { Categoria } from "@/app/types/categoria";
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 // MUDANÇA (novo): vagas do freelancer, só projetos abertos das categorias que ele domina
 export default function Vagas() {
 
     // Estados com os projetos e as categorias (para mostrar o nome)
     const [projetos, setProjetos] = useState<Projeto[]>([])
-    const [categorias, setCategorias] = useState<Categoria[]>([])
+    // categorias ficam no Redux (slice compartilhado com as outras telas)
+    const categorias = useSelector((state: RootState) => state.categorias.lista)
+    const dispatch = useDispatch();
 
     // Carrega assim que a página abre
     useEffect(() => {
@@ -20,10 +26,8 @@ export default function Vagas() {
 
     const carregarDados = async () => {
         try {
-            const dados = await api.get<Projeto[]>("/freelancer/projetos")
-            setProjetos(dados.data);
-            const cats = await api.get<Categoria[]>("/categorias")
-            setCategorias(cats.data);
+            setProjetos(await buscarVagas());
+            dispatch(setCategorias(await buscarListaCategorias()));
         } catch (error) {
             alert("Erro ao carregar dados")
         }

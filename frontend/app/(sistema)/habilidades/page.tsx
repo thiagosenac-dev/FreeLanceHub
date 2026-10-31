@@ -1,6 +1,7 @@
 'use client'
 
-import api from "@/app/services/api";
+import { adicionarHabilidade, buscarHabilidades, removerHabilidade } from "@/app/services/freelancerService";
+import { buscarListaCategorias } from "@/app/services/categoriaService";
 import { Categoria } from "@/app/types/categoria";
 import { useEffect, useState } from "react";
 
@@ -17,10 +18,10 @@ export default function Habilidades() {
 
     const carregarDados = async () => {
         try {
-            const cats = await api.get<Categoria[]>("/categorias")
-            setCategorias(cats.data.filter(c => String(c.status).toUpperCase() === "ATIVO"));
-            const habilidades = await api.get<Categoria[]>("/freelancer/habilidades")
-            setMinhas(habilidades.data.map(h => h.id as number));
+            const cats = await buscarListaCategorias()
+            setCategorias(cats.filter(c => String(c.status).toUpperCase() === "ATIVO"));
+            const habilidades = await buscarHabilidades()
+            setMinhas(habilidades.map(h => h.id as number));
         } catch (error) {
             alert("Erro ao carregar dados")
         }
@@ -30,9 +31,9 @@ export default function Habilidades() {
     const handlerAlternar = async (categoria: Categoria) => {
         try {
             if (minhas.includes(categoria.id as number)) {
-                await api.delete('/freelancer/habilidades/' + categoria.id);
+                await removerHabilidade(categoria.id);
             } else {
-                await api.patch('/freelancer/habilidades', { categoria_id: categoria.id });
+                await adicionarHabilidade(categoria.id);
             }
         } catch (error) {
             alert("Erro ao atualizar habilidade");

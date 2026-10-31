@@ -1,7 +1,8 @@
 'use client'
 
 import { Usuario, UsuarioFormProps } from "@/app/types/usuario";
-import api from "@/app/services/api";
+import { atualizarUsuario, salvarUsuario } from "@/app/services/usuarioService";
+import { buscarListaClientes } from "@/app/services/clienteService";
 import Link from "@/node_modules/next/link";
 import { useRouter } from "@/node_modules/next/navigation";
 import { useEffect, useState } from "react";
@@ -24,8 +25,8 @@ export default function UsuarioForm({usuarioExistente}:UsuarioFormProps) {
 
     useEffect(() => {
         if (!usuarioExistente) {
-            api.get<Cliente[]>("/clientes")
-                .then(r => setClientes(r.data.filter(c => String(c.status).toUpperCase() === "ATIVO")));
+            buscarListaClientes()
+                .then(lista => setClientes(lista.filter(c => String(c.status).toUpperCase() === "ATIVO")));
         }
     }, []);
 
@@ -51,8 +52,7 @@ export default function UsuarioForm({usuarioExistente}:UsuarioFormProps) {
 
     if(usuarioExistente){
         // Já existe: atualiza os dados desse usuário
-        var dadosRetorno = await  
-        api.put<number>(`/usuarios/${usuario.id}`, usuario, { validateStatus: () => true });
+        var dadosRetorno = await atualizarUsuario(usuario);
 
         if(dadosRetorno.status==200){
             alert("Usuário foi salvo com sucesso!");
@@ -65,7 +65,7 @@ export default function UsuarioForm({usuarioExistente}:UsuarioFormProps) {
 
     }else{
         // Não existe ainda: cria um usuário novo
-        var dadosRetorno = await  api.post<number>('/usuarios',usuario, { validateStatus: () => true })
+        var dadosRetorno = await salvarUsuario(usuario);
 
         if(dadosRetorno.status==200){
             alert("Usuário foi salvo com sucesso!");

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from "@/node_modules/next/link";
-import api from "@/app/services/api";
+import { atualizarStatusCategoria, buscarListaCategorias, deletarCategoria } from "@/app/services/categoriaService";
 
 import { useEffect, useState } from "react";
 import { Categoria } from "@/app/types/categoria";
@@ -16,8 +16,7 @@ export default function Categorias() {
     // Busca todas as categorias na API
     const carregarDados = async () => {
         try {
-            const dados = await api.get<Categoria[]>("/categorias")
-            setCategorias(dados.data);
+            setCategorias(await buscarListaCategorias());
         } catch (error) {
             alert("Erro ao carregar dados")
         }
@@ -27,7 +26,7 @@ export default function Categorias() {
     const excluirCategoria = async (id: number | null) => {
         if (confirm("Deseja realmente excluir esta categoria?")) {
             try {
-                await api.delete(`/categorias/${id}/excluir`);
+                await deletarCategoria(id);
             } catch (error) {
                 alert("Erro ao excluir categoria");
             }
@@ -38,11 +37,7 @@ export default function Categorias() {
     // Inverte o status da categoria entre ativo e bloqueado
     const handleAlterarStatusCategoria = async (categoria: Categoria) => {
 
-        const novoStatus = String(categoria.status).toUpperCase() === "ATIVO"
-            ? { status: "BLOQUEADO" }
-            : { status: "ATIVO" };
-
-        const dadosRetorno = await api.patch('/categorias/' + categoria.id + '/status', novoStatus);
+        const dadosRetorno = await atualizarStatusCategoria(categoria);
 
         if (dadosRetorno.status == 200) {
             alert("Atualizado status com sucesso!");

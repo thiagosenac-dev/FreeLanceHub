@@ -1,7 +1,7 @@
 "use client"
 
 import { Projeto } from "@/app/types/projeto";
-import api from "@/app/services/api";
+import { consultaProjetoPorId } from "@/app/services/projetoService";
 import Link from "@/node_modules/next/link";
 import { useParams, useRouter } from "@/node_modules/next/navigation";
 import { useEffect, useState } from "react";
@@ -28,11 +28,9 @@ export default function EditarProjeto(){
     // Busca o projeto pelo código na API. Se não achar, volta para a listagem
     const buscarDados = async () => {
 
-        const valorProjetoBack = await api.get<Projeto>('/projetos/' + codigo);
-
-        if(valorProjetoBack.status==200){
-            setProjeto(valorProjetoBack.data);
-        }else{
+        try {
+            setProjeto(await consultaProjetoPorId(codigo));
+        } catch (error) {
             router.push("/projetos")
         }
     }

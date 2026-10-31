@@ -1,7 +1,7 @@
 'use client'
  
 import Link from "@/node_modules/next/link";
-import api from "@/app/services/api";
+import { atualizarStatusCliente, buscarListaClientes, deletarCliente } from "@/app/services/clienteService";
 
 import { useEffect, useState } from "react";
 import { Cliente } from "@/app/types/cliente";
@@ -15,8 +15,7 @@ export default function Clientes() {
  
     const carregarDados = async () => {
         try {
-            const dados = await api.get<Cliente[]>("/clientes")
-            setClientes(dados.data);
+            setClientes(await buscarListaClientes());
         } catch (error) {
             alert("Erro ao carregar dados")
         }
@@ -25,7 +24,7 @@ export default function Clientes() {
     const excluirCliente = async (id: number | null) => {
         if (confirm("Deseja realmente excluir este cliente?")) {
             try {
-                await api.delete(`/clientes/${id}/excluir`);
+                await deletarCliente(id);
                 setClientes(clientes.filter(c => c.id !== id));
             } catch (error) {
                 alert("Erro ao excluir cliente");
@@ -38,15 +37,7 @@ export default function Clientes() {
     // Inverte o status do cliente entre ativo e bloqueado
     const handleAlterarStatusCliente = async (cliente: Cliente) => {
 
-        var novoStatus = {};
-        if (String(cliente.status).toUpperCase() === "ATIVO") {
-            novoStatus = { status: "BLOQUEADO" }
-        } else {
-            novoStatus = { status: "ATIVO" }
-        }
-
-        var dadosRetorno = await
-        api.patch('/clientes/' + cliente.id + '/status', novoStatus);
+        var dadosRetorno = await atualizarStatusCliente(cliente);
 
         if (dadosRetorno.status == 200) {
             alert("Atualizado status com sucesso!");

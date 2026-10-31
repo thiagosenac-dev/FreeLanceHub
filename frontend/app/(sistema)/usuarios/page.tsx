@@ -1,6 +1,6 @@
 "use client"
 import { Usuario } from "@/app/types/usuario";
-import api from "@/app/services/api";
+import { atualizarStatusUsuario, buscarListaUsuarios, deletarUsuario } from "@/app/services/usuarioService";
 import Link from "@/node_modules/next/link";
 import { useEffect, useState } from "react";
 
@@ -18,9 +18,9 @@ export default function Usuarios(){
     const carregarDados = async ()=>{
 
         try {
-            const dados = await api.get<Usuario[]>("/usuarios");
+            const dados = await buscarListaUsuarios();
 
-            setUsuarios( dados.data);
+            setUsuarios( dados);
 
         } catch (error) {
             alert("Erro ao carregar dados!")
@@ -36,8 +36,7 @@ export default function Usuarios(){
             return;
         }
 
-        var dadosRetorno = await  
-        api.delete('/usuarios/'+usuario.id+'/excluir');
+        var dadosRetorno = await  deletarUsuario(usuario.id);
 
         if(dadosRetorno.status==200){
             alert("Excluido com sucesso!");
@@ -55,15 +54,7 @@ export default function Usuarios(){
     const handleAlterarStatusUsuario = async(usuario:Usuario) =>{
 
 
-        var novoStatus = {};
-        if(usuario.status ==="ATIVO"){
-            novoStatus = {status:"BLOQUEADO"}
-        }else{
-            novoStatus = {status:"ATIVO"}
-        }
-
-        var dadosRetorno = await  
-        api.patch('/usuarios/'+usuario.id+'/status',novoStatus);
+        var dadosRetorno = await atualizarStatusUsuario(usuario);
 
         if(dadosRetorno.status==200){
             alert("Atulizado status com sucesso!");

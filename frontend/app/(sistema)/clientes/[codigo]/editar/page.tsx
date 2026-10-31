@@ -1,7 +1,7 @@
 "use client"
 
 import { Cliente } from "@/app/types/cliente";
-import api from "@/app/services/api";
+import { consultaClientePorId } from "@/app/services/clienteService";
 import Link from "@/node_modules/next/link";
 import { useParams, useRouter } from "@/node_modules/next/navigation";
 import { useEffect, useState } from "react";
@@ -28,11 +28,9 @@ export default function EditarCliente(){
     // Busca o cliente pelo código na API. Se não achar, volta para a listagem
     const buscarDados = async () => {
 
-        const valorClienteBack = await api.get<Cliente>('/clientes/' + codigo);
-
-        if(valorClienteBack.status==200){
-            setCliente(valorClienteBack.data);
-        }else{
+        try {
+            setCliente(await consultaClientePorId(codigo));
+        } catch (error) {
             router.push("/clientes")
         }
 

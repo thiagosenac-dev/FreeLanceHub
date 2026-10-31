@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 
 // links do menu lateral (nome, rota, desenho do ícone e quais perfis enxergam)
 // MUDANÇA: cada perfil só vê os links que pode usar
@@ -16,12 +17,8 @@ const links = [
 ];
 
 export default function Sidebar(){
-    // perfil do usuário logado (vem do login)
-    const [role, setRole] = useState("");
-
-    useEffect(() => {
-        setRole(localStorage.getItem("role") ?? "");
-    }, []);
+    // perfil do usuário logado (vem do Redux)
+    const role = useSelector((state: RootState) => state.auth.usuario?.role) ?? "";
 
     const baseClasses = `w-64 h-screen flex flex-col p-6 bg-gradient-to-b from-slate-950/90 via-[#030a1c]/80 to-slate-950/90 backdrop-blur-xl`;
     const linkClasses = "group relative flex items-center gap-3 px-3 py-2.5 rounded-2xl text-[15px] font-medium text-slate-300 bg-white/[0.03] border border-white/[0.06] transition-all duration-300 hover:text-white hover:translate-x-1 hover:border-blue-400/40 hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-cyan-500/10 hover:shadow-[0_8px_30px_-8px_rgba(59,130,246,0.6)]";

@@ -1,7 +1,7 @@
 'use client'
 
 import { Cliente } from "@/app/types/cliente";
-import api from "@/app/services/api";
+import { atualizarCliente, salvarCliente } from "@/app/services/clienteService";
 import Link from "@/node_modules/next/link";
 import { useRouter } from "@/node_modules/next/navigation";
 import { useState } from "react";
@@ -41,7 +41,7 @@ export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
 
         if (clienteExistente) {
             // Já existe: atualiza os dados desse cliente
-            var dadosRetorno = await api.put<number>('/clientes/' + cliente.id, cliente, { validateStatus: () => true });
+            var dadosRetorno = await atualizarCliente(cliente);
 
             if (dadosRetorno.status == 200) {
                 alert("Cliente foi salvo com sucesso!");
@@ -52,7 +52,7 @@ export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
 
         } else {
             // Não existe ainda: cria um cliente novo
-            var dadosRetorno = await api.post<number>('/clientes', cliente, { validateStatus: () => true });
+            var dadosRetorno = await salvarCliente(cliente);
 
             if (dadosRetorno.status == 200) {
                 alert("Cliente foi salvo com sucesso!");

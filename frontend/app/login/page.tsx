@@ -1,40 +1,38 @@
 'use client'
 
-import axios from "@/node_modules/axios/index";
 import { useRouter } from "@/node_modules/next/navigation";
-import { loginResponse } from "../types/auth";
 import Link from "@/node_modules/next/link";
-import { salvarSessao } from "../services/sessao"; // MUDANÇA: guarda token e perfil
+import { useDispatch } from "react-redux";
+import { login } from "../redux/slices/authSlice";
+import { loginBack } from "../services/authService";
+import { Usuario } from "../types/usuario";
 
 export default function Login(){
     const router = useRouter();
-    
+    const dispatch = useDispatch();
+
     const handlerLogin = async(formData : FormData) =>{
         try{
-            debugger;
             const emailTela = formData.get("email")?.toString() ?? "";
             const senhaTela = formData.get("senha")?.toString() ?? "";
-           
-            var loginResposta = await axios.post<loginResponse>("http://localhost:8080/auth/login", 
-            {email: emailTela, senha: senhaTela});
-           
-   
-            if (loginResposta.status == 200){
-                // guarda o token pra mandar nas próximas requisições
-                localStorage.setItem("token", loginResposta.data.token);
-                // MUDANÇA: guarda o token e o perfil, o freelancer vai direto para as vagas
-                salvarSessao(loginResposta.data.token, loginResposta.data.role);
-                router.push(loginResposta.data.role === "ROLE_FREELANCER" ? "/vagas" : "/home")
+
+            const loginResposta = await loginBack(emailTela, senhaTela);
+
+            if (loginResposta != null){
+                // guarda o token e o usuário (com o perfil) no Redux
+                dispatch(login({
+                    token: loginResposta.token,
+                    usuario: new Usuario(null, "", emailTela, "", "ATIVO", "", null, loginResposta.role)
+                }));
+                // o freelancer vai direto para as vagas
+                router.push(loginResposta.role === "ROLE_FREELANCER" ? "/vagas" : "/home")
             }
             else {
                 alert("Usuário e/ou senha inválidos!")
             }
         }catch(e){
             alert("Usuário e/ou senha inválidos!")
- 
         }
-       
- 
     }
 
     return(<>
