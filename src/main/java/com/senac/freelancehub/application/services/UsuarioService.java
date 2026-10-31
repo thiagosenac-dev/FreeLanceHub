@@ -16,9 +16,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import com.senac.freelancehub.application.ports.TokenServicePort;
+import com.senac.freelancehub.application.ports.UsuarioServicePort;
 
 @Service
-public class UsuarioService {
+public class UsuarioService implements UsuarioServicePort {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -30,7 +32,7 @@ public class UsuarioService {
     private CategoriaRepository categoriaRepository;
 
     @Autowired
-    private TokenService tokenService;
+    private TokenServicePort tokenService;
 
     @Value("${spring.secretkey}")
     private String secret;

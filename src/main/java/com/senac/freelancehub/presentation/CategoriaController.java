@@ -3,7 +3,7 @@ package com.senac.freelancehub.presentation;
 import com.senac.freelancehub.application.DTOs.AtualizarStatusRequest;
 import com.senac.freelancehub.application.DTOs.CategoriaRequest;
 import com.senac.freelancehub.application.DTOs.CategoriaResponse;
-import com.senac.freelancehub.application.services.CategoriaService;
+import com.senac.freelancehub.application.ports.CategoriaServicePort;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ import java.util.List;
 public class CategoriaController {
 
     @Autowired
-    private CategoriaService categoriaService;
+    private CategoriaServicePort categoriaService;
 
     @GetMapping
     @Operation(summary = "Método de consulta de lista de categorias!", description = "Método responsável pela consulta de todas as categorias sem filtro")

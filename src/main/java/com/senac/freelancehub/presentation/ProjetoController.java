@@ -3,7 +3,7 @@ package com.senac.freelancehub.presentation;
 import com.senac.freelancehub.application.DTOs.AtualizarStatusProjetoRequest;
 import com.senac.freelancehub.application.DTOs.ProjetoRequest;
 import com.senac.freelancehub.application.DTOs.ProjetoResponse;
-import com.senac.freelancehub.application.services.ProjetoService;
+import com.senac.freelancehub.application.ports.ProjetoServicePort;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class ProjetoController {
 
     @Autowired
-    private ProjetoService projetoService;
+    private ProjetoServicePort projetoService;
 
     @GetMapping
     @Operation(summary = "Método de consulta de lista de usuários!", description = "Método responsável pela colsulta de todos os projetos sem filtro")

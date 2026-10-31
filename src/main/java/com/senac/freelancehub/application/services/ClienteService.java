@@ -9,9 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import com.senac.freelancehub.application.ports.ClienteServicePort;
 
 @Service
-public class ClienteService {
+public class ClienteService implements ClienteServicePort {
 
     @Autowired
     private ClienteRepository clienteRepository;

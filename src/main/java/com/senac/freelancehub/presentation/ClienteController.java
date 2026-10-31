@@ -3,7 +3,7 @@ package com.senac.freelancehub.presentation;
 import com.senac.freelancehub.application.DTOs.AtualizarStatusRequest;
 import com.senac.freelancehub.application.DTOs.ClienteRequest;
 import com.senac.freelancehub.application.DTOs.ClienteResponse;
-import com.senac.freelancehub.application.services.ClienteService;
+import com.senac.freelancehub.application.ports.ClienteServicePort;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ import java.util.List;
 public class ClienteController {
 
     @Autowired
-    private ClienteService clienteService;
+    private ClienteServicePort clienteService;
 
     @GetMapping
     @Operation(summary = "Método de consulta de lista de clientes!", description = "Método responsável pela colsulta de todas os usuários sem filtro")

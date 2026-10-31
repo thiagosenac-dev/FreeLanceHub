@@ -1,8 +1,8 @@
 package com.senac.freelancehub.presentation;
 
 import com.senac.freelancehub.application.DTOs.HabilidadeRequest;
-import com.senac.freelancehub.application.services.ProjetoService;
-import com.senac.freelancehub.application.services.UsuarioService;
+import com.senac.freelancehub.application.ports.ProjetoServicePort;
+import com.senac.freelancehub.application.ports.UsuarioServicePort;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.*;
 public class FreelancerController {
 
     @Autowired
-    private UsuarioService usuarioService;
+    private UsuarioServicePort usuarioService;
 
     @Autowired
-    private ProjetoService projetoService;
+    private ProjetoServicePort projetoService;
 
     // lista as habilidades (categorias) do freelancer
     @GetMapping("/habilidades")

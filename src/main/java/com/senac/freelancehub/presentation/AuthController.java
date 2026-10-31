@@ -7,9 +7,9 @@ import com.senac.freelancehub.application.DTOs.LoginResponse;
 import com.senac.freelancehub.application.DTOs.RedefinirSenhaRequest;
 import com.senac.freelancehub.application.DTOs.UsuarioRequest;
 import com.senac.freelancehub.application.DTOs.UsuarioResponse;
-import com.senac.freelancehub.application.services.UsuarioService;
+import com.senac.freelancehub.application.ports.UsuarioServicePort;
 import com.senac.freelancehub.domain.entities.Usuario;
-import com.senac.freelancehub.application.services.TokenService;
+import com.senac.freelancehub.application.ports.TokenServicePort;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,7 +30,7 @@ import java.net.HttpURLConnection;
 public class AuthController {
 
     @Autowired
-    private UsuarioService usuarioService;
+    private UsuarioServicePort usuarioService;
 
     @PostMapping("/login")
     @Operation(summary = "Autenticação de organizadores", description = "Método de login")

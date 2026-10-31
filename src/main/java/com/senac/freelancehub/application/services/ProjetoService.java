@@ -15,9 +15,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.senac.freelancehub.application.ports.ProjetoServicePort;
+import com.senac.freelancehub.application.ports.UsuarioServicePort;
 
 @Service
-public class ProjetoService {
+public class ProjetoService implements ProjetoServicePort {
 
     @Autowired
     private ProjetoRepository projetoRepository;
@@ -32,7 +34,7 @@ public class ProjetoService {
     private UsuarioRepository usuarioRepository; // MUDANÇA: para buscar o freelancer logado (habilidades)
 
     @Autowired
-    private UsuarioService usuarioService;
+    private UsuarioServicePort usuarioService;
 
     // lista os projetos: admin vê todos, a empresa só os do cliente dela (MUDANÇA: filtro por cliente_id, igual ao empresa_id do professor)
     public List<ProjetoResponse> ListarTodosProjetosGrid() {

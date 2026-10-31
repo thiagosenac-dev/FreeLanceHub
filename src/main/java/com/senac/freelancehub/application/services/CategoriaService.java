@@ -11,9 +11,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.senac.freelancehub.application.ports.CategoriaServicePort;
 
 @Service
-public class CategoriaService {
+public class CategoriaService implements CategoriaServicePort {
 
     @Autowired
     private CategoriaRepository categoriaRepository;

@@ -5,7 +5,7 @@ import com.senac.freelancehub.application.DTOs.CriarAdminRequest;
 import com.senac.freelancehub.application.DTOs.CriarAdminResponse;
 import com.senac.freelancehub.application.DTOs.UsuarioRequest;
 import com.senac.freelancehub.application.DTOs.UsuarioResponse;
-import com.senac.freelancehub.application.services.UsuarioService;
+import com.senac.freelancehub.application.ports.UsuarioServicePort;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import java.util.List;
 public class UsuarioController {
 
     @Autowired
-    private UsuarioService usuarioService;
+    private UsuarioServicePort usuarioService;
 
     // lista todos os usuários
     @GetMapping

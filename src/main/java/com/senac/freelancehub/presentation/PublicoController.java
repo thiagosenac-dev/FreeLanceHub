@@ -1,8 +1,8 @@
 package com.senac.freelancehub.presentation;
 
 import com.senac.freelancehub.application.DTOs.ProjetoResponse;
-import com.senac.freelancehub.application.services.CategoriaService;
-import com.senac.freelancehub.application.services.ProjetoService;
+import com.senac.freelancehub.application.ports.CategoriaServicePort;
+import com.senac.freelancehub.application.ports.ProjetoServicePort;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class PublicoController {
 
     @Autowired
-    private ProjetoService projetoService;
+    private ProjetoServicePort projetoService;
 
     @Autowired
-    private CategoriaService categoriaService;
+    private CategoriaServicePort categoriaService;
 
     // lista os projetos abertos
     @GetMapping("/projetos")

@@ -14,9 +14,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.senac.freelancehub.application.ports.PropostaServicePort;
+import com.senac.freelancehub.application.ports.UsuarioServicePort;
 
 @Service
-public class PropostaService {
+public class PropostaService implements PropostaServicePort {
 
     @Autowired
     private PropostaRepository propostaRepository;
@@ -28,7 +30,7 @@ public class PropostaService {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
-    private UsuarioService usuarioService;
+    private UsuarioServicePort usuarioService;
 
     // lista as propostas: admin vê todas, a empresa as dos projetos dela e o freelancer só as que enviou (MUDANÇA)
     public List<PropostaResponse> ListarTodasPropostasGrid() {

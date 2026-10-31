@@ -18,9 +18,10 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
+import com.senac.freelancehub.application.ports.TokenServicePort;
 
 @Service
-public class TokenService {
+public class TokenService implements TokenServicePort {
 
     @Value("${spring.secretkey}")
     private String secret;

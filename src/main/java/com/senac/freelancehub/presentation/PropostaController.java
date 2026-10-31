@@ -3,7 +3,7 @@ package com.senac.freelancehub.presentation;
 import com.senac.freelancehub.application.DTOs.AtualizarStatusPropostaRequest;
 import com.senac.freelancehub.application.DTOs.PropostaRequest;
 import com.senac.freelancehub.application.DTOs.PropostaResponse;
-import com.senac.freelancehub.application.services.PropostaService;
+import com.senac.freelancehub.application.ports.PropostaServicePort;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class PropostaController {
 
     @Autowired
-    private PropostaService propostaService;
+    private PropostaServicePort propostaService;
 
     @GetMapping
     @Operation(summary = "Método de consulta de lista de propostas!", description = "Método responsável pela colsulta de todas os propostas sem filtro")
