@@ -4,8 +4,9 @@ import { useRouter } from "@/node_modules/next/navigation";
 import Link from "@/node_modules/next/link";
 import { useDispatch } from "react-redux";
 import { login } from "../redux/slices/authSlice";
+import Cookies from "js-cookie";
 import { loginBack } from "../services/authService";
-import { Usuario } from "../types/usuario";
+import { buscarUsuarioLogado } from "../services/usuarioService";
 
 export default function Login(){
     const router = useRouter();
@@ -19,10 +20,15 @@ export default function Login(){
             const loginResposta = await loginBack(emailTela, senhaTela);
 
             if (loginResposta != null){
+                // grava o token antes, o interceptor do axios lê ele do cookie
+                Cookies.set('token', loginResposta.token, { secure: true, expires: 7 });
+
+                var usuarioLogado = await buscarUsuarioLogado();
+
                 // guarda o token e o usuário (com o perfil) no Redux
                 dispatch(login({
                     token: loginResposta.token,
-                    usuario: new Usuario(null, "", emailTela, "", "ATIVO", "", null, loginResposta.role)
+                    usuario: { ...usuarioLogado, role: loginResposta.role }
                 }));
                 // o freelancer vai direto para as vagas
                 router.push(loginResposta.role === "ROLE_FREELANCER" ? "/vagas" : "/home")

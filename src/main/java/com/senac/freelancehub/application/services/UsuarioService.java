@@ -39,11 +39,15 @@ public class UsuarioService {
     public LoginResponse validarUsuarioAutenticadoRetornaToken(LoginRequest request) {
 
         if (usuarioRepository.existsUsuarioByEmailAndSenha(request.email(), request.senha())) {
-            var token = tokenService.gerarToken(request);
             // MUDANÇA: devolve também o perfil (role) para o front saber o que mostrar
             var usuario = usuarioRepository.findAll()
                     .stream().filter(u -> u.getEmail().equals(request.email()))
                     .findFirst().orElse(null);
+            // usuário bloqueado ou excluído não consegue entrar
+            if (usuario.getStatus() == EnumStatus.BLOQUEADO || usuario.getStatus() == EnumStatus.EXCLUIDO) {
+                return null;
+            }
+            var token = tokenService.gerarToken(request);
             return new LoginResponse(token, usuario.getRole());
         }
         return null;
@@ -193,6 +197,19 @@ public class UsuarioService {
         usuarioBanco.getHabilidades().removeIf(c -> c.getId().equals(categoriaId));
         usuarioRepository.save(usuarioBanco);
         return true;
+    }
+
+    // busca os dados do usuário que está logado (vem do token)
+    public UsuarioResponse BuscarUsuarioLogado() {
+        try {
+            var usuarioLogado = getUsuarioLogado();
+            return usuarioRepository.findById(usuarioLogado.id())
+                    .stream()
+                    .map(UsuarioResponse::new).findFirst().orElse(null);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao buscar usuario logado!");
+        }
     }
 
     // MUDANÇA (novo): cadastro público, cria um usuário freelancer

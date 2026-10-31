@@ -9,6 +9,7 @@ import com.senac.freelancehub.domain.repository.CategoriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,6 +28,17 @@ public class CategoriaService {
                 .toList();
     }
 
+    // lista pública: só as categorias ativas (sem login)
+    public List<CategoriaResponse> listarCategoriasPublicas() {
+
+        return categoriaRepository
+                .findByStatus(EnumStatus.ATIVO)
+                .orElse(new ArrayList<>())
+                .stream()
+                .map(CategoriaResponse::new)
+                .toList();
+    }
+
     // busca a categoria pelo id, devolve null se não existir
     public CategoriaResponse buscarPorId(Long id) {
 
@@ -40,6 +52,11 @@ public class CategoriaService {
 
     // id 0 cria uma categoria nova, qualquer outro id atualiza a existente (null se não achar)
     public CategoriaResponse salvarCategoria(CategoriaRequest request, Long id) {
+
+        // o nome é obrigatório
+        if (request.nome() == null || request.nome().isBlank()) {
+            throw new IllegalArgumentException("Nome inválido!");
+        }
 
         Categoria categoria;
 

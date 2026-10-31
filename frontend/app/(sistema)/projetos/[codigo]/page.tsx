@@ -5,7 +5,7 @@ import { consultaProjetoPorId } from "@/app/services/projetoService";
 import Link from "@/node_modules/next/link";
 import { useParams, useRouter } from "@/node_modules/next/navigation";
 import { useEffect, useState } from "react";
-import ProjetoForm from "../componentes/ProjetoForm";
+import ProjetoForm from "../components/ProjetoForm";
 
 export default function EditarProjeto(){
 

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "@/node_modules/next/link";
 import { consultaProjetoPorId } from "@/app/services/projetoService";
 import { useParams } from "@/node_modules/next/navigation";
-import ProjetoForm from "../../componentes/ProjetoForm";
+import ProjetoForm from "../../components/ProjetoForm";
 
 
 // mesma fonte do menu lateral

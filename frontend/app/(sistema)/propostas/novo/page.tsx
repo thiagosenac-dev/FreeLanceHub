@@ -1,5 +1,5 @@
 import Link from "next/link";
-import PropostaForm from "../componentes/PropostaForm";
+import PropostaForm from "../components/PropostaForm";
 
 // Página de cadastro: só mostra o cabeçalho e o formulário de proposta vazio
 export default function CadastroProposta(){

@@ -43,9 +43,15 @@ export default function Propostas() {
             return;
         }
         try {
-            await cancelarPropostaBack(id);
-        } catch (error) {
-            alert("Erro ao cancelar proposta");
+            var dadosRetorno = await cancelarPropostaBack(id || 0);
+
+            if (dadosRetorno == 200) {
+                alert("Proposta cancelada com sucesso!");
+            } else {
+                alert("Erro ao cancelar proposta!");
+            }
+        } catch (erro) {
+            alert((erro as { response?: { data?: string } }).response?.data || "Erro ao cancelar proposta");
         }
         carregarDados();
     }
@@ -54,8 +60,8 @@ export default function Propostas() {
     const alterarStatus = async (id: number | null, status: string) => {
         try {
             await atualizarStatusProposta(id, status);
-        } catch (error: any) {
-            alert(error.response?.data ?? "Erro ao atualizar status");
+        } catch (erro) {
+            alert((erro as { response?: { data?: string } }).response?.data || "Erro ao atualizar status");
         }
         carregarDados();
     }
@@ -149,7 +155,7 @@ export default function Propostas() {
                                                 {Number(proposta.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                                             </td>
 
-                                            <td className="py-4 px-6 text-slate-400">{proposta.prazo}</td>
+                                            <td className="py-4 px-6 text-slate-400">{/^\d{4}-\d{2}-\d{2}$/.test(proposta.prazo) ? proposta.prazo.split('-').reverse().join('/') : proposta.prazo}</td>
 
                                             <td className="py-4 px-6">
                                                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${info.style}`}>

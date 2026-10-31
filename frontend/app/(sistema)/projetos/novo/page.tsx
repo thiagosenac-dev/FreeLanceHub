@@ -1,5 +1,5 @@
 import Link from "next/link";
-import ProjetoForm from "../componentes/ProjetoForm";
+import ProjetoForm from "../components/ProjetoForm";
 
 // Página de cadastro: só mostra o cabeçalho e o formulário de projeto vazio
 export default function CadastroProjeto(){

@@ -1,5 +1,5 @@
 import Link from "@/node_modules/next/link";
-import ClienteForm from "../componentes/ClienteForm";
+import ClienteForm from "../components/ClienteForm";
 
 // Página de cadastro: só mostra o cabeçalho e o formulário de cliente vazio
 export default function CadastroCliente(){

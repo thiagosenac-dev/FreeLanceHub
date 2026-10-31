@@ -26,9 +26,15 @@ export default function Categorias() {
     const excluirCategoria = async (id: number | null) => {
         if (confirm("Deseja realmente excluir esta categoria?")) {
             try {
-                await deletarCategoria(id);
-            } catch (error) {
-                alert("Erro ao excluir categoria");
+                var dadosRetorno = await deletarCategoria(id || 0);
+
+                if (dadosRetorno == 200) {
+                    alert("Excluido com sucesso!");
+                } else {
+                    alert("Erro ao excluir categoria!");
+                }
+            } catch (erro) {
+                alert((erro as { response?: { data?: string } }).response?.data || "Erro ao excluir categoria");
             }
         }
         carregarDados();
@@ -37,12 +43,10 @@ export default function Categorias() {
     // Inverte o status da categoria entre ativo e bloqueado
     const handleAlterarStatusCategoria = async (categoria: Categoria) => {
 
-        const dadosRetorno = await atualizarStatusCategoria(categoria);
-
-        if (dadosRetorno.status == 200) {
-            alert("Atualizado status com sucesso!");
-        } else {
-            alert(dadosRetorno.data);
+        try {
+            await atualizarStatusCategoria(categoria);
+        } catch (erro) {
+            alert((erro as { response?: { data?: string } }).response?.data || "Erro ao atualizar status!");
             return;
         }
 
@@ -149,21 +153,25 @@ export default function Categorias() {
                                                         Editar
                                                     </Link>
 
-                                                    <button
-                                                        onClick={() => excluirCategoria(categoria.id)}
-                                                        className="text-rose-400 hover:text-rose-300 font-medium text-xs transition-colors cursor-pointer"
-                                                    >
-                                                        Excluir
-                                                    </button>
+                                                    {rawStatus !== 'EXCLUIDO' && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => excluirCategoria(categoria.id)}
+                                                                className="text-rose-400 hover:text-rose-300 font-medium text-xs transition-colors cursor-pointer"
+                                                            >
+                                                                Excluir
+                                                            </button>
 
-                                                    <button
-                                                        onClick={() => handleAlterarStatusCategoria(categoria)}
-                                                        className={`font-medium text-xs transition-colors cursor-pointer ${rawStatus === 'BLOQUEADO'
-                                                            ? 'text-orange-400 hover:text-orange-300'
-                                                            : 'text-green-400 hover:text-green-300'}`}
-                                                    >
-                                                        {rawStatus === 'BLOQUEADO' ? 'Ativar' : 'Bloquear'}
-                                                    </button>
+                                                            <button
+                                                                onClick={() => handleAlterarStatusCategoria(categoria)}
+                                                                className={`font-medium text-xs transition-colors cursor-pointer ${rawStatus === 'BLOQUEADO'
+                                                                    ? 'text-orange-400 hover:text-orange-300'
+                                                                    : 'text-green-400 hover:text-green-300'}`}
+                                                            >
+                                                                {rawStatus === 'BLOQUEADO' ? 'Ativar' : 'Bloquear'}
+                                                            </button>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </td>
 

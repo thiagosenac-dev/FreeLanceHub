@@ -46,6 +46,6 @@ public class PublicoController {
     @GetMapping("/categorias")
     @Operation(summary = "Lista pública de categorias", description = "Método responsável pela consulta das categorias, sem login")
     public ResponseEntity<?> listarCategorias() {
-        return ResponseEntity.ok(categoriaService.listarTodasCategoriasGrid());
+        return ResponseEntity.ok(categoriaService.listarCategoriasPublicas());
     }
 }

@@ -100,6 +100,13 @@ public class UsuarioController {
         }
     }
 
+    // devolve os dados do usuário logado
+    @GetMapping("/buscarusuariologado")
+    @Operation(summary = "Usuario Logado", description = "Usuario logado")
+    public ResponseEntity<UsuarioResponse> buscarUsuarioLogado() {
+        return ResponseEntity.ok(usuarioService.BuscarUsuarioLogado());
+    }
+
     // inativa o usuário (status EXCLUIDO)
     @DeleteMapping("/{id}/excluir")
     @Operation(summary = "Método de inativação de cadastro", description = "Método responsável pela inativação do cadastro do usuário")

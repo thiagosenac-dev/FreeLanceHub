@@ -5,7 +5,7 @@ import { consultaPropostaPorId } from "@/app/services/propostaService";
 import Link from "@/node_modules/next/link";
 import { useParams, useRouter } from "@/node_modules/next/navigation";
 import { useEffect, useState } from "react";
-import PropostaForm from "../componentes/PropostaForm";
+import PropostaForm from "../components/PropostaForm";
 
 export default function EditarProposta(){
 

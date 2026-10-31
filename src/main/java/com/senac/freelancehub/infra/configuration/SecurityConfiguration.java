@@ -38,6 +38,8 @@ public class SecurityConfiguration {
                         ).permitAll()
                         // MUDANÇA: liberei só o POST de categorias (o desktop usa)
                         .requestMatchers(HttpMethod.POST, "/categorias").permitAll()
+                        // usuário logado: qualquer perfil (o login usa para guardar o usuário no Redux)
+                        .requestMatchers("/usuarios/buscarusuariologado").authenticated()
                         // usuários e clientes: só admin
                         .requestMatchers("/usuarios/**", "/clientes/**").hasRole("ADMIN")
                         // projetos: só a empresa cria, admin e empresa mexem nos projetos

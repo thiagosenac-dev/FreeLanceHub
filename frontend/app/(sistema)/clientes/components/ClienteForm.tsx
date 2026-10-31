@@ -39,27 +39,32 @@ export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
     // Salva o cliente: se já existir, atualiza; se não, cria um novo. Depois volta para a lista
     const handlerSalvar = async (formData: FormData) => {
 
-        if (clienteExistente) {
-            // Já existe: atualiza os dados desse cliente
-            var dadosRetorno = await atualizarCliente(cliente);
+        try {
+            if (clienteExistente) {
+                // Já existe: atualiza os dados desse cliente
+                var dadosRetorno = await atualizarCliente(cliente);
 
-            if (dadosRetorno.status == 200) {
-                alert("Cliente foi salvo com sucesso!");
+                if (dadosRetorno) {
+                    alert("Cliente foi salvo com sucesso!");
+                } else {
+                    alert("Erro ao atualizar Cliente!");
+                    return;
+                }
+
             } else {
-                alert(dadosRetorno.data);
-                return;
-            }
+                // Não existe ainda: cria um cliente novo
+                var dadosRetorno = await salvarCliente(cliente);
 
-        } else {
-            // Não existe ainda: cria um cliente novo
-            var dadosRetorno = await salvarCliente(cliente);
-
-            if (dadosRetorno.status == 200) {
-                alert("Cliente foi salvo com sucesso!");
-            } else {
-                alert(dadosRetorno.data);
-                return;
+                if (dadosRetorno) {
+                    alert("Cliente foi salvo com sucesso!");
+                } else {
+                    alert("Erro ao salvar Cliente!");
+                    return;
+                }
             }
+        } catch (erro) {
+            alert((erro as { response?: { data?: string } }).response?.data || "Erro ao salvar Cliente!");
+            return;
         }
 
         // Depois de salvar, volta para a listagem de clientes

@@ -1,5 +1,5 @@
 import Link from "@/node_modules/next/link";
-import CategoriaForm from "../componentes/CategoriaForm";
+import CategoriaForm from "../components/CategoriaForm";
 
 // Página de cadastro: mostra o cabeçalho e o formulário vazio
 export default function CadastroCategoria(){

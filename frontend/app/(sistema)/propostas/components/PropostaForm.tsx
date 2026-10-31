@@ -38,29 +38,34 @@ export default function PropostaForm({ propostaExistente }: PropostaFormProps) {
     // Salva a proposta: se já existir, atualiza; se não, cria uma nova. Depois volta para a lista
     const handlerSalvar = async (formData: FormData) => {
 
-        if (propostaExistente) {
-            // Já existe: atualiza os dados dessa proposta
-            var dadosRetorno = await atualizarProposta(proposta);
+        try {
+            if (propostaExistente) {
+                // Já existe: atualiza os dados dessa proposta
+                var dadosRetorno = await atualizarProposta(proposta);
 
-            if (dadosRetorno.status == 200) {
-                alert("Proposta foi salva com sucesso!");
+                if (dadosRetorno) {
+                    alert("Proposta foi salva com sucesso!");
+                } else {
+                    alert("Erro ao atualizar Proposta!");
+                    return;
+                }
+
             } else {
-                alert(dadosRetorno.data);
-                return;
-            }
+                // Não existe ainda: cria uma proposta nova
+                // MUDANÇA: manda também o projeto escolhido nas vagas (vem na URL, ex: /propostas/novo?projetoId=5)
+                const projetoId = Number(new URLSearchParams(window.location.search).get("projetoId"));
+                var dadosRetorno = await salvarProposta(proposta, projetoId);
 
-        } else {
-            // Não existe ainda: cria uma proposta nova
-            // MUDANÇA: manda também o projeto escolhido nas vagas (vem na URL, ex: /propostas/novo?projetoId=5)
-            const projetoId = Number(new URLSearchParams(window.location.search).get("projetoId"));
-            var dadosRetorno = await salvarProposta(proposta, projetoId);
-
-            if (dadosRetorno.status == 200) {
-                alert("Proposta foi salva com sucesso!");
-            } else {
-                alert(dadosRetorno.data);
-                return;
+                if (dadosRetorno) {
+                    alert("Proposta foi salva com sucesso!");
+                } else {
+                    alert("Erro ao salvar Proposta!");
+                    return;
+                }
             }
+        } catch (erro) {
+            alert((erro as { response?: { data?: string } }).response?.data || "Erro ao salvar Proposta!");
+            return;
         }
 
         // Depois de salvar, volta para a listagem de propostas

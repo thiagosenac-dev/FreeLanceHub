@@ -155,6 +155,10 @@ public class PropostaService {
             if (proposta == null || !ehDoUsuario(proposta)) {
                 return null;
             }
+            // só dá para alterar uma proposta que ainda está pendente
+            if (proposta.getStatus() != EnumStatusProposta.PENDENTE) {
+                throw new IllegalArgumentException("Só é possível alterar uma proposta pendente!");
+            }
         }
 
         proposta.setDescricao(request.descricao());
@@ -206,6 +210,11 @@ public class PropostaService {
         Proposta propostaBanco = propostaRepository.findById(id).orElse(null);
         if (propostaBanco == null || !ehDoUsuario(propostaBanco)) { // MUDANÇA: só quem pode ver a proposta
             return false;
+        }
+
+        // só dá para cancelar uma proposta que ainda está pendente
+        if (propostaBanco.getStatus() != EnumStatusProposta.PENDENTE) {
+            throw new IllegalArgumentException("Só é possível cancelar uma proposta pendente!");
         }
 
         propostaBanco.setStatus(EnumStatusProposta.CANCELADA);

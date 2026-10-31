@@ -36,14 +36,19 @@ export default function CategoriaForm({ categoriaExistente }: CategoriaFormProps
     // Salva: se já existir atualiza, se não cria. Depois volta para a lista
     const handlerSalvar = async () => {
 
-        const dadosRetorno = categoriaExistente
-            ? await atualizarCategoria(categoria)
-            : await salvarCategoria(categoria);
+        try {
+            const dadosRetorno = categoriaExistente
+                ? await atualizarCategoria(categoria)
+                : await salvarCategoria(categoria);
 
-        if (dadosRetorno.status == 200) {
-            alert("Categoria foi salva com sucesso!");
-        } else {
-            alert(dadosRetorno.data);
+            if (dadosRetorno) {
+                alert("Categoria foi salva com sucesso!");
+            } else {
+                alert("Erro ao salvar categoria!");
+                return;
+            }
+        } catch (erro) {
+            alert((erro as { response?: { data?: string } }).response?.data || "Erro ao salvar categoria!");
             return;
         }
 

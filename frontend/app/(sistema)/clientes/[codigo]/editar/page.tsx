@@ -5,7 +5,7 @@ import { consultaClientePorId } from "@/app/services/clienteService";
 import Link from "@/node_modules/next/link";
 import { useParams, useRouter } from "@/node_modules/next/navigation";
 import { useEffect, useState } from "react";
-import ClienteForm from "../../componentes/ClienteForm";
+import ClienteForm from "../../components/ClienteForm";
 
 export default function EditarCliente(){
 

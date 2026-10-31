@@ -4,16 +4,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { logout } from "../redux/slices/authSlice";
 
-// nome mostrado na boas-vindas de cada perfil
-const nomes: Record<string, string> = {
-    ROLE_ADMIN: "Administrador",
-    ROLE_EMPRESA: "Empresa",
-    ROLE_FREELANCER: "Freelancer",
-};
-
 export default function Header(){
-    // perfil do usuário logado (vem do Redux)
-    const role = useSelector((state: RootState) => state.auth.usuario?.role) ?? "";
+    // usuário logado (vem do Redux)
+    const usuario = useSelector((state: RootState) => state.auth.usuario);
     const dispatch = useDispatch();
 
     // limpa o login no Redux; o layout do sistema volta sozinho para a tela de login
@@ -35,7 +28,7 @@ export default function Header(){
                             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                         </svg>
                     </div>
-                    <span className="text-sm font-semibold text-slate-200 sm:text-base">Bem-vindo {nomes[role] ?? ""}</span>
+                    <span className="text-sm font-semibold text-slate-200 sm:text-base">{usuario ? usuario.nome.toLocaleUpperCase() : 'Usuário não identificado!'}</span>
                 </div>
                 {/* faz logout no Redux */}
                 <button onClick={handlerSair} className={buttonClasses}>

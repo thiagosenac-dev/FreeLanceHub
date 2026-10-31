@@ -36,12 +36,18 @@ export default function Usuarios(){
             return;
         }
 
-        var dadosRetorno = await  deletarUsuario(usuario.id);
+        try {
+            var dadosRetorno = await  deletarUsuario(usuario.id || 0);
 
-        if(dadosRetorno.status==200){
-            alert("Excluido com sucesso!");
-        }else{
-            alert(dadosRetorno.data);
+            if(dadosRetorno==200){
+                alert("Excluido com sucesso!");
+            }else{
+                alert("Erro ao excluir usuário!");
+
+                return;
+            }
+        } catch (erro) {
+            alert((erro as { response?: { data?: string } }).response?.data || "Erro ao excluir usuário!");
 
             return;
         }
@@ -54,12 +60,10 @@ export default function Usuarios(){
     const handleAlterarStatusUsuario = async(usuario:Usuario) =>{
 
 
-        var dadosRetorno = await atualizarStatusUsuario(usuario);
-
-        if(dadosRetorno.status==200){
-            alert("Atulizado status com sucesso!");
-        }else{
-            alert(dadosRetorno.data);
+        try {
+            await atualizarStatusUsuario(usuario);
+        } catch (erro) {
+            alert((erro as { response?: { data?: string } }).response?.data || "Erro ao atualizar status!");
 
             return;
         }
@@ -135,21 +139,25 @@ export default function Usuarios(){
                                             >
                                                 Editar
                                             </Link>
-                                            <button 
-                                                onClick={()=> handleDeletarUsuario(usuario)}
-                                                className="text-rose-400 hover:text-rose-300 font-medium text-xs transition-colors cursor-pointer"
-                                            >
-                                                Deletar
-                                            </button>
-                                            <button 
-                                                onClick={()=> handleAlterarStatusUsuario(usuario)}
-                                                className={`font-medium text-xs transition-colors cursor-pointer ${usuario.status ==='BLOQUEADO'
-                                                    ?'text-orange-400 hover:text-orange-300' 
-                                                    :'text-green-400 hover:text-green-300' }`
-                                                }
-                                            >
-                                                {usuario.status === 'BLOQUEADO' ? 'Ativar' : 'Bloquear'}
-                                            </button>
+                                            {usuario.status !== 'EXCLUIDO' && (
+                                                <>
+                                                    <button
+                                                        onClick={()=> handleDeletarUsuario(usuario)}
+                                                        className="text-rose-400 hover:text-rose-300 font-medium text-xs transition-colors cursor-pointer"
+                                                    >
+                                                        Deletar
+                                                    </button>
+                                                    <button
+                                                        onClick={()=> handleAlterarStatusUsuario(usuario)}
+                                                        className={`font-medium text-xs transition-colors cursor-pointer ${usuario.status ==='BLOQUEADO'
+                                                            ?'text-orange-400 hover:text-orange-300'
+                                                            :'text-green-400 hover:text-green-300' }`
+                                                        }
+                                                    >
+                                                        {usuario.status === 'BLOQUEADO' ? 'Ativar' : 'Bloquear'}
+                                                    </button>
+                                                </>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>

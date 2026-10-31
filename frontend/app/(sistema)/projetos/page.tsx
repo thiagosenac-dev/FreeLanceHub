@@ -40,10 +40,16 @@ export default function Projetos() {
     const excluirProjeto = async (id: number | null) => {
         if (confirm("Deseja realmente excluir este projeto?")) {
             try {
-                await deletarProjeto(id);
-                setProjetos(projetos.filter(p => p.id !== id));
-            } catch (error) {
-                alert("Erro ao excluir projeto");
+                var dadosRetorno = await deletarProjeto(id || 0);
+
+                if (dadosRetorno == 200) {
+                    alert("Excluido com sucesso!");
+                    setProjetos(projetos.filter(p => p.id !== id));
+                } else {
+                    alert("Erro ao excluir projeto!");
+                }
+            } catch (erro) {
+                alert((erro as { response?: { data?: string } }).response?.data || "Erro ao excluir projeto");
             }
         }
         carregarDados();
@@ -120,7 +126,7 @@ export default function Projetos() {
                                             <td className="py-4 px-6 text-slate-400">
                                                 {Number(projeto.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                                             </td>
-                                            <td className="py-4 px-6 text-slate-400">{projeto.prazo}</td>
+                                            <td className="py-4 px-6 text-slate-400">{/^\d{4}-\d{2}-\d{2}$/.test(projeto.prazo) ? projeto.prazo.split('-').reverse().join('/') : projeto.prazo}</td>
                                             <td className="py-4 px-6">
                                                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${info.style}`}>
                                                     {info.label}

@@ -53,27 +53,32 @@ export default function ProjetoForm({ projetoExistente }: ProjetoFormProps) {
     // Salva o projeto: se já existir, atualiza; se não, cria um novo. Depois volta para a lista
     const handlerSalvar = async (formData: FormData) => {
 
-        if (projetoExistente) {
-            // Já existe: atualiza os dados desse projeto
-            var dadosRetorno = await atualizarProjeto(projeto);
+        try {
+            if (projetoExistente) {
+                // Já existe: atualiza os dados desse projeto
+                var dadosRetorno = await atualizarProjeto(projeto);
 
-            if (dadosRetorno.status == 200) {
-                alert("Projeto foi salvo com sucesso!");
+                if (dadosRetorno) {
+                    alert("Projeto foi salvo com sucesso!");
+                } else {
+                    alert("Erro ao atualizar Projeto!");
+                    return;
+                }
+
             } else {
-                alert(dadosRetorno.data);
-                return;
-            }
+                // Não existe ainda: cria um projeto novo
+                var dadosRetorno = await salvarProjeto(projeto);
 
-        } else {
-            // Não existe ainda: cria um projeto novo
-            var dadosRetorno = await salvarProjeto(projeto);
-
-            if (dadosRetorno.status == 200) {
-                alert("Projeto foi salvo com sucesso!");
-            } else {
-                alert(dadosRetorno.data);
-                return;
+                if (dadosRetorno) {
+                    alert("Projeto foi salvo com sucesso!");
+                } else {
+                    alert("Erro ao salvar Projeto!");
+                    return;
+                }
             }
+        } catch (erro) {
+            alert((erro as { response?: { data?: string } }).response?.data || "Erro ao salvar Projeto!");
+            return;
         }
 
         // Depois de salvar, volta para a listagem de projetos

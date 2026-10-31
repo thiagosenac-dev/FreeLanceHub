@@ -5,7 +5,7 @@ import { consultaCategoriaPorId } from "@/app/services/categoriaService";
 import Link from "@/node_modules/next/link";
 import { useParams, useRouter } from "@/node_modules/next/navigation";
 import { useEffect, useState } from "react";
-import CategoriaForm from "../../componentes/CategoriaForm";
+import CategoriaForm from "../../components/CategoriaForm";
 
 export default function EditarCategoria(){
 

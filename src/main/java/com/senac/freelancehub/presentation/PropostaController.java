@@ -94,11 +94,15 @@ public class PropostaController {
 
     @DeleteMapping("/{id}/excluir")
     @Operation(summary = "Método de inativação de cadastro", description = "Método responsável inativação do cadastro da proposta")
-    public ResponseEntity<Void> excluir(@PathVariable Long id){
+    public ResponseEntity<?> excluir(@PathVariable Long id){
 
-        if (propostaService.excluir(id)) {
-            return ResponseEntity.ok().build();
+        try {
+            if (propostaService.excluir(id)) {
+                return ResponseEntity.ok().build();
+            }
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        return ResponseEntity.notFound().build();
     }
 }

@@ -24,10 +24,16 @@ export default function Clientes() {
     const excluirCliente = async (id: number | null) => {
         if (confirm("Deseja realmente excluir este cliente?")) {
             try {
-                await deletarCliente(id);
-                setClientes(clientes.filter(c => c.id !== id));
-            } catch (error) {
-                alert("Erro ao excluir cliente");
+                var dadosRetorno = await deletarCliente(id || 0);
+
+                if (dadosRetorno == 200) {
+                    alert("Excluido com sucesso!");
+                    setClientes(clientes.filter(c => c.id !== id));
+                } else {
+                    alert("Erro ao excluir cliente!");
+                }
+            } catch (erro) {
+                alert((erro as { response?: { data?: string } }).response?.data || "Erro ao excluir cliente");
             }
         }
         carregarDados();
@@ -37,12 +43,10 @@ export default function Clientes() {
     // Inverte o status do cliente entre ativo e bloqueado
     const handleAlterarStatusCliente = async (cliente: Cliente) => {
 
-        var dadosRetorno = await atualizarStatusCliente(cliente);
-
-        if (dadosRetorno.status == 200) {
-            alert("Atualizado status com sucesso!");
-        } else {
-            alert(dadosRetorno.data);
+        try {
+            await atualizarStatusCliente(cliente);
+        } catch (erro) {
+            alert((erro as { response?: { data?: string } }).response?.data || "Erro ao atualizar status!");
             return;
         }
 
@@ -169,22 +173,26 @@ export default function Clientes() {
                                                         Editar
                                                     </Link>
 
-                                                    <button
-                                                        onClick={() => excluirCliente(cliente.id)}
-                                                        className="text-rose-400 hover:text-rose-300 font-medium text-xs transition-colors cursor-pointer"
-                                                    >
-                                                        Excluir
-                                                    </button>
+                                                    {rawStatus !== 'EXCLUIDO' && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => excluirCliente(cliente.id)}
+                                                                className="text-rose-400 hover:text-rose-300 font-medium text-xs transition-colors cursor-pointer"
+                                                            >
+                                                                Excluir
+                                                            </button>
 
-                                                    <button
-                                                        onClick={() => handleAlterarStatusCliente(cliente)}
-                                                        className={`font-medium text-xs transition-colors cursor-pointer ${rawStatus === 'BLOQUEADO'
-                                                            ? 'text-orange-400 hover:text-orange-300'
-                                                            : 'text-green-400 hover:text-green-300'}`
-                                                        }
-                                                    >
-                                                        {rawStatus === 'BLOQUEADO' ? 'Ativar' : 'Bloquear'}
-                                                    </button>
+                                                            <button
+                                                                onClick={() => handleAlterarStatusCliente(cliente)}
+                                                                className={`font-medium text-xs transition-colors cursor-pointer ${rawStatus === 'BLOQUEADO'
+                                                                    ? 'text-orange-400 hover:text-orange-300'
+                                                                    : 'text-green-400 hover:text-green-300'}`
+                                                                }
+                                                            >
+                                                                {rawStatus === 'BLOQUEADO' ? 'Ativar' : 'Bloquear'}
+                                                            </button>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </td>
 

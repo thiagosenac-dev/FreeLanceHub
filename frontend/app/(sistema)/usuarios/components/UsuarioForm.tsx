@@ -50,31 +50,38 @@ export default function UsuarioForm({usuarioExistente}:UsuarioFormProps) {
     // Salva o usuário: se já existir, atualiza; se não, cria um novo. Depois volta para a lista
     const handlerSalvar = async (formData : FormData) =>{
 
-    if(usuarioExistente){
-        // Já existe: atualiza os dados desse usuário
-        var dadosRetorno = await atualizarUsuario(usuario);
+    try {
+        if(usuarioExistente){
+            // Já existe: atualiza os dados desse usuário
+            var dadosRetorno = await atualizarUsuario(usuario);
 
-        if(dadosRetorno.status==200){
-            alert("Usuário foi salvo com sucesso!");
+            if(dadosRetorno){
+                alert("Usuário foi salvo com sucesso!");
+            }else{
+                alert("Erro ao atualizar Usuário!");
+
+                return;
+            }
+
+
         }else{
-            alert(dadosRetorno.data);
+            // Não existe ainda: cria um usuário novo
+            var dadosRetorno = await salvarUsuario(usuario);
 
-            return;
+            if(dadosRetorno){
+                alert("Usuário foi salvo com sucesso!");
+            }else{
+                alert("Erro ao salvar Usuário!");
+
+                return;
+            }
+
         }
+    } catch (erro) {
+        // mostra a mensagem que o back devolveu (ex: CPF inválido)
+        alert((erro as { response?: { data?: string } }).response?.data || "Erro ao salvar Usuário!");
 
-
-    }else{
-        // Não existe ainda: cria um usuário novo
-        var dadosRetorno = await salvarUsuario(usuario);
-
-        if(dadosRetorno.status==200){
-            alert("Usuário foi salvo com sucesso!");
-        }else{
-            alert(dadosRetorno.data);
-
-            return;
-        }
-    
+        return;
     }
 
     // Depois de salvar, volta para a listagem de usuários

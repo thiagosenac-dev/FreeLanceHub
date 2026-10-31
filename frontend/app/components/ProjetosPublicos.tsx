@@ -55,7 +55,7 @@ export default function ProjetosPublicos() {
                                 <span className="font-semibold text-emerald-400">
                                     {Number(projeto.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                                 </span>
-                                <span className="text-slate-500">Prazo: {projeto.prazo}</span>
+                                <span className="text-slate-500">Prazo: {/^\d{4}-\d{2}-\d{2}$/.test(projeto.prazo) ? projeto.prazo.split('-').reverse().join('/') : projeto.prazo}</span>
                             </div>
                             <Link
                                 href={logado ? "/vagas" : "/login"}

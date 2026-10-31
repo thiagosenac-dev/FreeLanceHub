@@ -3,10 +3,12 @@
 import Link from "@/node_modules/next/link";
 import { buscarVagas } from "@/app/services/freelancerService";
 import { buscarListaCategorias } from "@/app/services/categoriaService";
+import { buscarListaPropostas } from "@/app/services/propostaService";
 import { setCategorias } from "@/app/redux/slices/categoriasSlice";
 import { RootState } from "@/app/redux/store";
 import { Projeto } from "@/app/types/projeto";
 import { Categoria } from "@/app/types/categoria";
+import { Proposta } from "@/app/types/proposta";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -15,6 +17,8 @@ export default function Vagas() {
 
     // Estados com os projetos e as categorias (para mostrar o nome)
     const [projetos, setProjetos] = useState<Projeto[]>([])
+    // propostas do freelancer, para avisar nas vagas onde ele já propôs
+    const [propostas, setPropostas] = useState<Proposta[]>([])
     // categorias ficam no Redux (slice compartilhado com as outras telas)
     const categorias = useSelector((state: RootState) => state.categorias.lista)
     const dispatch = useDispatch();
@@ -27,6 +31,7 @@ export default function Vagas() {
     const carregarDados = async () => {
         try {
             setProjetos(await buscarVagas());
+            setPropostas(await buscarListaPropostas());
             dispatch(setCategorias(await buscarListaCategorias()));
         } catch (error) {
             alert("Erro ao carregar dados")
@@ -71,14 +76,24 @@ export default function Vagas() {
                                 <span className="font-semibold text-emerald-400">
                                     {Number(projeto.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                                 </span>
-                                <span className="text-slate-500">Prazo: {projeto.prazo}</span>
+                                <span className="text-slate-500">Prazo: {/^\d{4}-\d{2}-\d{2}$/.test(projeto.prazo) ? projeto.prazo.split('-').reverse().join('/') : projeto.prazo}</span>
                             </div>
-                            <Link
-                                href={`/propostas/novo?projetoId=${projeto.id}`}
-                                className="inline-flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-sm rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200 active:scale-[0.99] text-center"
-                            >
-                                Enviar proposta
-                            </Link>
+                            {/* já enviou proposta para esse projeto: não mostra o botão, só o aviso (é uma proposta por projeto) */}
+                            {propostas.find(p => p.projetoId === projeto.id) ? (
+                                <Link
+                                    href="/propostas"
+                                    className="inline-flex items-center justify-center px-5 py-2.5 bg-white/[0.03] border border-emerald-500/30 text-emerald-400 font-semibold text-sm rounded-lg hover:bg-emerald-500/10 transition-all duration-200 text-center"
+                                >
+                                    Proposta já enviada ({String(propostas.find(p => p.projetoId === projeto.id)?.status).toLowerCase()}) · Ver
+                                </Link>
+                            ) : (
+                                <Link
+                                    href={`/propostas/novo?projetoId=${projeto.id}`}
+                                    className="inline-flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-sm rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200 active:scale-[0.99] text-center"
+                                >
+                                    Enviar proposta
+                                </Link>
+                            )}
                         </div>
                     ))}
                 </div>
