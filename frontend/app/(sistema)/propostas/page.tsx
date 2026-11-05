@@ -1,6 +1,6 @@
 'use client'
 
-import Link from "@/node_modules/next/link";
+import Link from "next/link";
 import { atualizarStatusProposta, buscarListaPropostas, cancelarProposta as cancelarPropostaBack } from "@/app/services/propostaService";
 import { RootState } from "@/app/redux/store";
 import { Proposta } from "@/app/types/proposta";
@@ -141,7 +141,7 @@ export default function Propostas() {
                                             <td className="py-4 px-6 text-slate-400">#{proposta.id}</td>
 
                                             <td className="py-4 px-6 text-slate-400">
-                                                {role === "ROLE_FREELANCER" ? `#${proposta.projetoId}` : (
+                                                {role === "ROLE_FREELANCER" ? (proposta.projetoNome ?? `#${proposta.projetoId}`) : (
                                                     <div className="leading-tight">
                                                         <p className="text-slate-200 font-medium">{proposta.freelancerNome}</p>
                                                         <p className="text-xs">{proposta.freelancerEmail}</p>

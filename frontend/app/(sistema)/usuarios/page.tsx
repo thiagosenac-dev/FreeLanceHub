@@ -1,7 +1,7 @@
 "use client"
 import { Usuario } from "@/app/types/usuario";
 import { atualizarStatusUsuario, buscarListaUsuarios, deletarUsuario } from "@/app/services/usuarioService";
-import Link from "@/node_modules/next/link";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 
@@ -137,7 +137,7 @@ export default function Usuarios(){
                                                 href={`/usuarios/${usuario.id}/editar`}
                                                 className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors"
                                             >
-                                                Editar
+                                                {usuario.status === 'EXCLUIDO' ? 'Ver' : 'Editar'}
                                             </Link>
                                             {usuario.status !== 'EXCLUIDO' && (
                                                 <>

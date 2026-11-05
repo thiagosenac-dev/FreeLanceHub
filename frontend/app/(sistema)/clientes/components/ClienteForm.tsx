@@ -2,8 +2,8 @@
 
 import { Cliente } from "@/app/types/cliente";
 import { atualizarCliente, salvarCliente } from "@/app/services/clienteService";
-import Link from "@/node_modules/next/link";
-import { useRouter } from "@/node_modules/next/navigation";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 // Dados que esse formulário pode receber: um cliente já existente (modo edição) ou nada (modo cadastro)
@@ -14,6 +14,9 @@ interface ClienteFormProps {
 // Formulário de cliente. Serve tanto para cadastrar um novo quanto para editar um já existente
 export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
     const router = useRouter();
+
+    // cadastro excluído só pode ser visualizado
+    const somenteLeitura = !!clienteExistente && String(clienteExistente.status).toUpperCase() === "EXCLUIDO";
 
     // Se recebeu um cliente existente, começa com os dados dele. Se não, começa em branco (cadastro novo)
     const [cliente, setCliente] = useState<Cliente>(
@@ -75,6 +78,7 @@ export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
     return (
         <form action={handlerSalvar} className="space-y-6">
 
+            <fieldset disabled={somenteLeitura} className="min-w-0 border-0 p-0 m-0">
             {/* Campos do formulário: nome, CPF, e-mail e telefone */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
@@ -131,10 +135,19 @@ export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
                 </div>
             </div>
 
+            </fieldset>
+
+            {/* aviso: cadastro excluído não pode ser alterado */}
+            {somenteLeitura && (
+                <p className="text-sm text-amber-400">Este cadastro de cliente foi excluído e não pode mais ser alterado.</p>
+            )}
+
             {/* Botões: cancelar volta para a lista sem salvar, salvar envia o formulário */}
             <div className="flex items-center justify-end space-x-4 pt-6 border-t border-white/[0.08]">
                 <Link href="/clientes" className="px-5 py-2.5 bg-white/[0.03] hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-cyan-500/10 text-slate-300 hover:text-white font-medium text-sm rounded-xl transition-all duration-300 text-center border border-white/[0.08] hover:border-blue-400/40 hover:shadow-[0_0_18px_rgba(34,211,238,0.3)]"> Cancelar</Link>
-                <button type="submit" className="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-400 hover:to-cyan-300 text-white font-semibold text-sm rounded-xl shadow-[0_0_20px_rgba(56,189,248,0.4)] hover:shadow-[0_0_25px_rgba(34,211,238,0.6)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 hover:-translate-y-0.5 active:translate-y-0"> Salvar</button>
+                {!somenteLeitura && (
+                    <button type="submit" className="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-400 hover:to-cyan-300 text-white font-semibold text-sm rounded-xl shadow-[0_0_20px_rgba(56,189,248,0.4)] hover:shadow-[0_0_25px_rgba(34,211,238,0.6)] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 hover:-translate-y-0.5 active:translate-y-0"> Salvar</button>
+                )}
             </div>
         </form>
     );

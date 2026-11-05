@@ -1,6 +1,6 @@
 'use client'
 
-import Link from "@/node_modules/next/link";
+import Link from "next/link";
 import { buscarListaProjetos, deletarProjeto } from "@/app/services/projetoService";
 import { buscarListaCategorias } from "@/app/services/categoriaService";
 import { setCategorias } from "@/app/redux/slices/categoriasSlice";
@@ -103,14 +103,14 @@ export default function Projetos() {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-slate-800 bg-slate-900/40 text-xs font-semibold uppercase tracking-wider text-slate-300">
-                                    <th className="py-4 px-6">Código</th>
-                                    <th className="py-4 px-6">Projeto</th>
-                                    <th className="py-4 px-6">Descrição</th>
-                                    <th className="py-4 px-6">Categoria</th>
-                                    <th className="py-4 px-6">Valor</th>
-                                    <th className="py-4 px-6">Prazo</th>
-                                    <th className="py-4 px-6">Status</th>
-                                    <th className="py-4 px-6 text-right">Ações</th>
+                                    <th className="py-4 px-2 2xl:px-6">Código</th>
+                                    <th className="py-4 px-2 2xl:px-6">Projeto</th>
+                                    <th className="py-4 px-2 2xl:px-6 hidden 2xl:table-cell">Descrição</th>
+                                    <th className="py-4 px-2 2xl:px-6">Categoria</th>
+                                    <th className="py-4 px-2 2xl:px-6">Valor</th>
+                                    <th className="py-4 px-2 2xl:px-6">Prazo</th>
+                                    <th className="py-4 px-2 2xl:px-6">Status</th>
+                                    <th className="py-4 px-2 2xl:px-6 text-right">Ações</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-800/60 text-sm">
@@ -119,33 +119,35 @@ export default function Projetos() {
 
                                     return (
                                         <tr key={projeto.id} className="hover:bg-slate-900/30 transition-colors">
-                                            <td className="py-4 px-6 text-slate-200 font-medium">#{projeto.id}</td>
-                                            <td className="py-4 px-6 text-slate-200 font-medium">{projeto.nome}</td>
-                                            <td className="py-4 px-6 text-slate-400">{projeto.descricao}</td>
-                                            <td className="py-4 px-6 text-slate-400">{categorias.find(c => c.id === projeto.categoriaId)?.nome ?? "-"}</td>
-                                            <td className="py-4 px-6 text-slate-400">
+                                            <td className="py-4 px-2 2xl:px-6 text-slate-200 font-medium">#{projeto.id}</td>
+                                            <td className="py-4 px-2 2xl:px-6 text-slate-200 font-medium">{projeto.nome}</td>
+                                            <td className="py-4 px-2 2xl:px-6 text-slate-400 hidden 2xl:table-cell">{projeto.descricao}</td>
+                                            <td className="py-4 px-2 2xl:px-6 text-slate-400">{categorias.find(c => c.id === projeto.categoriaId)?.nome ?? "-"}</td>
+                                            <td className="py-4 px-2 2xl:px-6 text-slate-400 whitespace-nowrap">
                                                 {Number(projeto.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                                             </td>
-                                            <td className="py-4 px-6 text-slate-400">{/^\d{4}-\d{2}-\d{2}$/.test(projeto.prazo) ? projeto.prazo.split('-').reverse().join('/') : projeto.prazo}</td>
-                                            <td className="py-4 px-6">
+                                            <td className="py-4 px-2 2xl:px-6 text-slate-400">{/^\d{4}-\d{2}-\d{2}$/.test(projeto.prazo) ? projeto.prazo.split('-').reverse().join('/') : projeto.prazo}</td>
+                                            <td className="py-4 px-2 2xl:px-6">
                                                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${info.style}`}>
                                                     {info.label}
                                                 </span>
                                             </td>
-                                            <td className="py-4 px-6 text-right">
-                                                <div className="flex items-center justify-end gap-3">
+                                            <td className="py-4 px-2 2xl:px-6 text-right whitespace-nowrap">
+                                                <div className="flex flex-col items-end gap-1 2xl:flex-row 2xl:items-center 2xl:justify-end 2xl:gap-3">
                                                     <Link href={`/projetos/${projeto.id}/propostas`} className="text-green-400 hover:text-green-300 font-medium text-xs transition-colors">
                                                         Propostas
                                                     </Link>
                                                     <Link href={`/projetos/${projeto.id}/editar`} className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors">
                                                         {String(projeto.status).toUpperCase() === 'ABERTO' ? 'Editar' : 'Ver'}
                                                     </Link>
-                                                    <button
-                                                        onClick={() => excluirProjeto(projeto.id)}
-                                                        className="text-rose-400 hover:text-rose-300 font-medium text-xs transition-colors cursor-pointer"
-                                                    >
-                                                        Excluir
-                                                    </button>
+                                                    {String(projeto.status).toUpperCase() !== 'CANCELADO' && (
+                                                        <button
+                                                            onClick={() => excluirProjeto(projeto.id)}
+                                                            className="text-rose-400 hover:text-rose-300 font-medium text-xs transition-colors cursor-pointer"
+                                                        >
+                                                            Excluir
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>

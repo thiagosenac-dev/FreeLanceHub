@@ -1,9 +1,9 @@
 'use client'
 
-import Link from "@/node_modules/next/link";
+import Link from "next/link";
 import { atualizarStatusProposta, buscarPropostasDoProjeto } from "@/app/services/propostaService";
 import { Proposta } from "@/app/types/proposta";
-import { useParams } from "@/node_modules/next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 // Mostra um nome e uma cor diferente para cada status da proposta

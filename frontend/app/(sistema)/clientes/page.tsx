@@ -1,6 +1,6 @@
 'use client'
  
-import Link from "@/node_modules/next/link";
+import Link from "next/link";
 import { atualizarStatusCliente, buscarListaClientes, deletarCliente } from "@/app/services/clienteService";
 
 import { useEffect, useState } from "react";
@@ -170,7 +170,7 @@ export default function Clientes() {
                                                         href={`/clientes/${cliente.id}/editar`}
                                                         className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors"
                                                     >
-                                                        Editar
+                                                        {rawStatus === 'EXCLUIDO' ? 'Ver' : 'Editar'}
                                                     </Link>
 
                                                     {rawStatus !== 'EXCLUIDO' && (

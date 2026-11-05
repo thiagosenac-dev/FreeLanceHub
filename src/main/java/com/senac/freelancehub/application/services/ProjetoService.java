@@ -140,6 +140,10 @@ public class ProjetoService implements ProjetoServicePort {
             if (projeto == null || !ehDoUsuario(projeto)) {
                 return null;
             }
+            // só dá para editar um projeto que ainda está aberto
+            if (projeto.getStatus() != EnumStatusProjeto.ABERTO) {
+                throw new IllegalArgumentException("Só é possível editar projetos abertos!");
+            }
         }
 
         projeto.setNome(request.nome());

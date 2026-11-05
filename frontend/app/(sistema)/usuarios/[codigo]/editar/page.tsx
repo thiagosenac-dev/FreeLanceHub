@@ -2,8 +2,8 @@
 
 import { Usuario } from "@/app/types/usuario";
 import { consultaUsuarioPorId } from "@/app/services/usuarioService";
-import Link from "@/node_modules/next/link";
-import { useParams, useRouter } from "@/node_modules/next/navigation";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import UsuarioForm from "../../components/UsuarioForm";
 
@@ -55,10 +55,10 @@ export default function EditarUsuario(){
                     <h1 className="text-2xl font-bold tracking-tight text-white flex items-center space-x-2">
                         <span className="w-2.5 h-2.5 bg-gradient-to-br from-blue-400 to-cyan-300 rounded-full inline-block shadow-[0_0_10px_rgba(34,211,238,0.8)]"></span>
                         <span className="bg-gradient-to-r from-blue-300 via-sky-300 to-cyan-300 bg-clip-text text-transparent">
-                            Editar Usuário {codigo}
+                            {usuario && String(usuario.status).toUpperCase() === "EXCLUIDO" ? "Ver Usuário" : "Editar Usuário"} {codigo}
                         </span>
                     </h1>
-                    <p className="text-sm text-slate-400">Preencha os dados para editar o Usuário</p>
+                    <p className="text-sm text-slate-400">{usuario && String(usuario.status).toUpperCase() === "EXCLUIDO" ? "Cadastro excluído, apenas visualização" : "Preencha os dados para editar o Usuário"}</p>
                 </div>
                 <Link href="/usuarios" className="inline-flex items-center justify-center text-sm font-medium text-slate-300 hover:text-white bg-white/[0.03] hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-cyan-500/10 border border-white/[0.08] hover:border-blue-400/40 px-4 py-2.5 rounded-xl transition-all duration-300 hover:shadow-[0_0_18px_rgba(34,211,238,0.3)] hover:-translate-x-0.5 w-full sm:w-auto">
                     &larr; Voltar para Listagem

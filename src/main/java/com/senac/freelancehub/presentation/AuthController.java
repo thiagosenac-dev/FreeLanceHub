@@ -36,10 +36,15 @@ public class AuthController {
     @Operation(summary = "Autenticação de organizadores", description = "Método de login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
 
-        var resultadoAutenticacaoeRetorno = usuarioService.validarUsuarioAutenticadoRetornaToken(loginRequest);
+        try {
+            var resultadoAutenticacaoeRetorno = usuarioService.validarUsuarioAutenticadoRetornaToken(loginRequest);
 
-        if (resultadoAutenticacaoeRetorno != null) {
-            return ResponseEntity.ok(resultadoAutenticacaoeRetorno);
+            if (resultadoAutenticacaoeRetorno != null) {
+                return ResponseEntity.ok(resultadoAutenticacaoeRetorno);
+            }
+        } catch (IllegalStateException e) {
+            // usuário bloqueado: 403 com a mensagem para o front mostrar
+            return ResponseEntity.status(HttpURLConnection.HTTP_FORBIDDEN).body(e.getMessage());
         }
 
         return ResponseEntity.status(HttpURLConnection.HTTP_UNAUTHORIZED).body("Usuário ou senha inválidos!");

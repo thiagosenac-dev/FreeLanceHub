@@ -2,8 +2,8 @@
 
 import { Proposta } from "@/app/types/proposta";
 import { consultaPropostaPorId } from "@/app/services/propostaService";
-import Link from "@/node_modules/next/link";
-import { useParams, useRouter } from "@/node_modules/next/navigation";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import PropostaForm from "../components/PropostaForm";
 

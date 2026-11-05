@@ -1,6 +1,7 @@
 "use client"
 
 import { useSelector } from "react-redux";
+import Link from "next/link";
 import { RootState } from "../redux/store";
 
 // links do menu lateral (nome, rota, desenho do ícone e quais perfis enxergam)
@@ -34,7 +35,7 @@ export default function Sidebar(){
             {/* menu */}
             <nav className="flex flex-col gap-2.5">
                 {links.filter(link => link.perfis.includes(role)).map(({ nome, href, icone }) => (
-                    <a key={href} href={href} className={linkClasses}>
+                    <Link key={href} href={href} className={linkClasses}>
                         {/* barrinha que acende no hover */}
                         <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-gradient-to-b from-blue-400 to-cyan-300 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></span>
                         <span className={iconClasses}>
@@ -45,7 +46,7 @@ export default function Sidebar(){
                         {nome}
                         {/* setinha que aparece no hover */}
                         <span className="ml-auto -translate-x-2 text-cyan-300 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">→</span>
-                    </a>
+                    </Link>
                 ))}
             </nav>
         </aside>

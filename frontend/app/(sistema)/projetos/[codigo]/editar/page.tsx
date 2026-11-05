@@ -2,9 +2,9 @@
 
 
 import { useEffect, useState } from "react";
-import Link from "@/node_modules/next/link";
+import Link from "next/link";
 import { consultaProjetoPorId } from "@/app/services/projetoService";
-import { useParams } from "@/node_modules/next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import ProjetoForm from "../../components/ProjetoForm";
 
 
@@ -14,9 +14,10 @@ import ProjetoForm from "../../components/ProjetoForm";
 export default function EditarProjeto(){
     // pega o código do projeto que vem na rota
     const codigo = Number(useParams().codigo);
+    const router = useRouter();
     // busca o projeto inteiro pra passar pro form e pra mostrar no título
     const [projeto, setProjeto] = useState<any>(null);
-    useEffect(() => { consultaProjetoPorId(codigo).then(dados => setProjeto(dados)).catch(() => {}); }, [codigo]);
+    useEffect(() => { consultaProjetoPorId(codigo).then(dados => setProjeto(dados)).catch(() => router.push("/projetos")); }, [codigo]);
     const glowClasses = "pointer-events-none absolute -z-10 rounded-full blur-3xl animate-pulse";
     const cardClasses = "relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-950/80 backdrop-blur-xl shadow-2xl shadow-blue-950/30";
 
@@ -30,11 +31,13 @@ export default function EditarProjeto(){
                 {/* cabeçalho com título e botão de voltar */}
                 <div className={`${cardClasses} flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-6`}>
                     <div className="space-y-1.5">
-                        <h1 className="flex items-center gap-3 text-2xl sm:text-3xl font-bold tracking-tight">
+                        <h1 className="flex items-center gap-3 text-xl sm:text-2xl font-bold tracking-tight">
                             <span className="h-3 w-3 shrink-0 animate-pulse rounded-full bg-cyan-400 shadow-[0_0_14px_2px_rgba(34,211,238,0.8)]"></span>
-                            <span className="bg-gradient-to-r from-blue-300 via-sky-300 to-cyan-300 bg-clip-text text-transparent">Editar Projeto: {projeto?.nome}, Codigo: {codigo}</span>
+                            <span className="bg-gradient-to-r from-blue-300 via-sky-300 to-cyan-300 bg-clip-text text-transparent">{projeto && String(projeto.status).toUpperCase() !== "ABERTO" ? "Ver Projeto" : "Editar Projeto"}</span>
+                            <span className="rounded-full border border-cyan-400/30 bg-cyan-500/10 px-2.5 py-0.5 text-xs font-semibold text-cyan-300">#{codigo}</span>
                         </h1>
-                        <p className="text-sm text-slate-400">Preencha os dados para editar o Projeto</p>
+                        <p className="text-sm font-medium text-slate-200">{projeto?.nome}</p>
+                        <p className="text-xs text-slate-400">{projeto && String(projeto.status).toUpperCase() !== "ABERTO" ? `Projeto ${{ CONCLUIDO: "concluído", CANCELADO: "cancelado" }[String(projeto?.status).toUpperCase()] ?? "fechado"}, apenas visualização` : "Preencha os dados para editar o projeto"}</p>
                     </div>
                     <Link href="/projetos" className="group inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-blue-400/20 bg-gradient-to-r from-blue-600/20 to-cyan-500/10 px-5 py-2.5 text-sm font-medium text-blue-100 transition-all duration-300 hover:border-cyan-400/60 hover:from-blue-600 hover:to-cyan-500 hover:text-white hover:shadow-[0_0_25px_-5px_rgba(34,211,238,0.7)]">
                         <span className="transition-transform duration-300 group-hover:-translate-x-1">&larr;</span>

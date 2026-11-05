@@ -7,7 +7,8 @@ export class Proposta{
         public status: string,
         public projetoId?: number | null, // MUDANÇA: projeto que recebeu a proposta
         public freelancerNome?: string | null, // MUDANÇA: contato do freelancer
-        public freelancerEmail?: string | null
+        public freelancerEmail?: string | null,
+        public projetoNome?: string | null // nome do projeto da proposta
 
     ){}
 }

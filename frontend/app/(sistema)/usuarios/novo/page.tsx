@@ -1,4 +1,4 @@
-import Link from "@/node_modules/next/link";
+import Link from "next/link";
 import UsuarioForm from "../components/UsuarioForm";
 
 // Página de cadastro: só mostra o cabeçalho e o formulário de usuário vazio

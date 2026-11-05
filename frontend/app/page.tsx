@@ -1,4 +1,4 @@
-import Link from "@/node_modules/next/link";
+import Link from "next/link";
 import ProjetosPublicos from "./components/ProjetosPublicos"; // MUDANÇA: lista pública de projetos
 
 export default function Home() {

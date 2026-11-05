@@ -4,7 +4,7 @@ import { buscarCategoriasPublicas, buscarProjetosPublicos } from "@/app/services
 import { RootState } from "@/app/redux/store";
 import { Categoria } from "@/app/types/categoria";
 import { Projeto } from "@/app/types/projeto";
-import Link from "@/node_modules/next/link";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 

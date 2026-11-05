@@ -1,6 +1,6 @@
 'use client'
 
-import Link from "@/node_modules/next/link";
+import Link from "next/link";
 import { buscarVagas } from "@/app/services/freelancerService";
 import { buscarListaCategorias } from "@/app/services/categoriaService";
 import { buscarListaPropostas } from "@/app/services/propostaService";

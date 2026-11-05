@@ -6,8 +6,8 @@ import { atualizarProjeto, salvarProjeto } from "@/app/services/projetoService";
 import { buscarListaCategorias } from "@/app/services/categoriaService";
 import { setCategorias } from "@/app/redux/slices/categoriasSlice";
 import { RootState } from "@/app/redux/store";
-import Link from "@/node_modules/next/link";
-import { useRouter } from "@/node_modules/next/navigation";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 

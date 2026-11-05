@@ -1,16 +1,20 @@
 'use client'
 
-import { useRouter } from "@/node_modules/next/navigation";
-import Link from "@/node_modules/next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import Link from "next/link";
 import { useDispatch } from "react-redux";
-import { login } from "../redux/slices/authSlice";
-import Cookies from "js-cookie";
+import { login, logout } from "../redux/slices/authSlice";
 import { loginBack } from "../services/authService";
 import { buscarUsuarioLogado } from "../services/usuarioService";
+import { Usuario } from "../types/usuario";
 
 export default function Login(){
     const router = useRouter();
     const dispatch = useDispatch();
+
+    // guarda o e-mail digitado (assim ele não some quando a senha está errada)
+    const [email, setEmail] = useState("");
 
     const handlerLogin = async(formData : FormData) =>{
         try{
@@ -20,12 +24,22 @@ export default function Login(){
             const loginResposta = await loginBack(emailTela, senhaTela);
 
             if (loginResposta != null){
-                // grava o token antes, o interceptor do axios lê ele do cookie
-                Cookies.set('token', loginResposta.token, { secure: true, expires: 7 });
+                // guarda o token na store antes, o interceptor do axios lê ele de lá
+                dispatch(login({
+                    token: loginResposta.token,
+                    usuario: { id: null, nome: "", email: emailTela, senha: "", status: "ATIVO", cpf: "", clienteId: null, role: loginResposta.role }
+                }));
 
-                var usuarioLogado = await buscarUsuarioLogado();
+                var usuarioLogado: Usuario;
+                try {
+                    usuarioLogado = await buscarUsuarioLogado();
+                } catch (erro) {
+                    // não conseguiu buscar o usuário: desfaz o login
+                    dispatch(logout());
+                    throw erro;
+                }
 
-                // guarda o token e o usuário (com o perfil) no Redux
+                // guarda o usuário completo (com o perfil) no Redux
                 dispatch(login({
                     token: loginResposta.token,
                     usuario: { ...usuarioLogado, role: loginResposta.role }
@@ -37,7 +51,13 @@ export default function Login(){
                 alert("Usuário e/ou senha inválidos!")
             }
         }catch(e){
-            alert("Usuário e/ou senha inválidos!")
+            // usuário bloqueado: o back devolve 403 com a mensagem para contatar o suporte
+            const resposta = (e as { response?: { status?: number, data?: string } }).response;
+            if (resposta?.status === 403 && resposta.data) {
+                alert(resposta.data);
+            } else {
+                alert("Usuário e/ou senha inválidos!")
+            }
         }
     }
 
@@ -71,6 +91,8 @@ export default function Login(){
                     <input
                         name="email"
                         type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         placeholder="seu@email.com"
                         className="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3.5 
                         text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 

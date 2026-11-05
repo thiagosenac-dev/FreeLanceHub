@@ -2,9 +2,10 @@
 
 import { Proposta } from "@/app/types/proposta";
 import { atualizarProposta, salvarProposta } from "@/app/services/propostaService";
-import Link from "@/node_modules/next/link";
-import { useRouter } from "@/node_modules/next/navigation";
-import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { buscarVagas } from "@/app/services/freelancerService";
 
 // Dados que esse formulário pode receber: uma proposta já existente (modo edição) ou nada (modo cadastro)
 interface PropostaFormProps {
@@ -21,6 +22,16 @@ export default function PropostaForm({ propostaExistente }: PropostaFormProps) {
         new Proposta(null, "", 0, "", "PENDENTE")
     );
     
+    // nome do projeto da proposta (na edição vem da proposta; no cadastro vem das vagas, pelo projetoId da URL)
+    const [projetoNome, setProjetoNome] = useState<string | null>(propostaExistente?.projetoNome ?? null);
+
+    useEffect(() => {
+        if (propostaExistente) return;
+        const projetoId = Number(new URLSearchParams(window.location.search).get("projetoId"));
+        buscarVagas()
+            .then(vagas => setProjetoNome(vagas.find(v => v.id === projetoId)?.nome ?? null))
+            .catch(() => setProjetoNome(null));
+    }, []);
 
     // Atualiza um campo específico da proposta conforme a pessoa digita
     const handlerChange = (campo: 'descricao' | 'valor' | 'prazo', valor: string) => {
@@ -75,6 +86,13 @@ export default function PropostaForm({ propostaExistente }: PropostaFormProps) {
 
     return (
         <form action={handlerSalvar} className="space-y-6">
+
+            {/* projeto para o qual a proposta está sendo feita */}
+            {projetoNome && (
+                <p className="text-sm text-slate-300">
+                    Projeto: <span className="font-semibold text-cyan-300">{projetoNome}</span>
+                </p>
+            )}
 
             {/* Campos do formulário: descrição, valor e prazo */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

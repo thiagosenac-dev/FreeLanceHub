@@ -45,15 +45,22 @@ public class UsuarioService implements UsuarioServicePort {
             var usuario = usuarioRepository.findAll()
                     .stream().filter(u -> u.getEmail().equals(request.email()))
                     .findFirst().orElse(null);
-            // usuário bloqueado ou excluído não consegue entrar
-            if (usuario.getStatus() == EnumStatus.BLOQUEADO || usuario.getStatus() == EnumStatus.EXCLUIDO) {
+            // usuário excluído não consegue entrar (para ele é como se não existisse)
+            if (usuario.getStatus() == EnumStatus.EXCLUIDO) {
                 return null;
             }
-            // empresa (cliente) bloqueada ou excluída também não entra
-            if (usuario.getCliente() != null
-                    && (usuario.getCliente().getStatus() == EnumStatus.BLOQUEADO
-                    || usuario.getCliente().getStatus() == EnumStatus.EXCLUIDO)) {
-                return null;
+            // usuário bloqueado não entra, e recebe um aviso para falar com o suporte
+            if (usuario.getStatus() == EnumStatus.BLOQUEADO) {
+                throw new IllegalStateException("Usuário bloqueado, contate o suporte!");
+            }
+            // empresa (cliente) excluída não entra; empresa bloqueada também recebe o aviso
+            if (usuario.getCliente() != null) {
+                if (usuario.getCliente().getStatus() == EnumStatus.EXCLUIDO) {
+                    return null;
+                }
+                if (usuario.getCliente().getStatus() == EnumStatus.BLOQUEADO) {
+                    throw new IllegalStateException("Usuário bloqueado, contate o suporte!");
+                }
             }
             var token = tokenService.gerarToken(request);
             return new LoginResponse(token, usuario.getRole());

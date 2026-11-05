@@ -1,6 +1,6 @@
 'use client'
 
-import Link from "@/node_modules/next/link";
+import Link from "next/link";
 import { atualizarStatusCategoria, buscarListaCategorias, deletarCategoria } from "@/app/services/categoriaService";
 
 import { useEffect, useState } from "react";
@@ -150,7 +150,7 @@ export default function Categorias() {
                                                         href={`/categorias/${categoria.id}/editar`}
                                                         className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors"
                                                     >
-                                                        Editar
+                                                        {rawStatus === 'EXCLUIDO' ? 'Ver' : 'Editar'}
                                                     </Link>
 
                                                     {rawStatus !== 'EXCLUIDO' && (

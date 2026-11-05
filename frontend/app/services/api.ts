@@ -1,7 +1,6 @@
 'use client'
 
 import axios from "axios";
-import Cookies from "js-cookie";
 import { store } from "../redux/store";
 import { logout } from "../redux/slices/authSlice";
 
@@ -10,10 +9,10 @@ const api = axios.create({
     baseURL: 'http://localhost:8080'
 });
 
-// antes de cada requisição, coloca o token no header
+// antes de cada requisição, coloca o token (que está na store do Redux) no header
 api.interceptors.request.use(
     (config) => {
-        const token = Cookies.get('token');
+        const token = store.getState().auth.token;
 
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
@@ -28,8 +27,11 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (resposta) => resposta,
     (erro) => {
-        if (erro.response?.status === 401) {
+        // 401 em qualquer rota (menos o próprio login): faz logout e não repassa o erro,
+        // assim as telas não mostram alertas de erro enquanto voltam para o login
+        if (erro.response?.status === 401 && !String(erro.config?.url).includes('/auth/login')) {
             store.dispatch(logout());
+            return new Promise(() => {});
         }
 
         return Promise.reject(erro);

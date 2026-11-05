@@ -1,8 +1,8 @@
 'use client'
 
 import { registrarFreelancer } from "@/app/services/authService";
-import Link from "@/node_modules/next/link";
-import { useRouter } from "@/node_modules/next/navigation";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 // MUDANÇA (novo): cadastro público de freelancer
