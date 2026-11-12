@@ -63,6 +63,11 @@ public class ClienteService implements ClienteServicePort {
         cliente.setCpf(request.cpf());
         cliente.setEmail(request.email());
         cliente.setTelefone(request.telefone());
+        cliente.setCep(request.cep());
+        cliente.setLogradouro(request.logradouro());
+        cliente.setBairro(request.bairro());
+        cliente.setCidade(request.cidade());
+        cliente.setUf(request.uf());
         if (request.status() != null) {
             cliente.setStatus(request.status());
         }

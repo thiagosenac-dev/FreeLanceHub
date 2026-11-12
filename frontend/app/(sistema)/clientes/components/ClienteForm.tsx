@@ -2,6 +2,7 @@
 
 import { Cliente } from "@/app/types/cliente";
 import { atualizarCliente, salvarCliente } from "@/app/services/clienteService";
+import { buscarEnderecoPorCep } from "@/app/services/enderecoService";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -25,7 +26,7 @@ export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
     );
 
     // Atualiza um campo específico do cliente conforme a pessoa digita
-    const handlerChange = (campo: 'nome' | 'email' | 'status' | 'cpf' | 'telefone', valor: string) => {
+    const handlerChange = (campo: 'nome' | 'email' | 'status' | 'cpf' | 'telefone' | 'cep', valor: string) => {
         setCliente(valorAnterior =>
             new Cliente(
                 valorAnterior.id,
@@ -33,9 +34,43 @@ export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
                 campo === 'email' ? valor : valorAnterior.email,
                 campo === 'status' ? valor : valorAnterior.status,
                 campo === 'cpf' ? valor : valorAnterior.cpf,
-                campo === 'telefone' ? valor : valorAnterior.telefone
+                campo === 'telefone' ? valor : valorAnterior.telefone,
+                campo === 'cep' ? valor : valorAnterior.cep,
+                valorAnterior.logradouro,
+                valorAnterior.bairro,
+                valorAnterior.cidade,
+                valorAnterior.uf
             )
         )
+    }
+
+    // Quando a pessoa sai do campo CEP, busca o endereço no ViaCEP e preenche os outros campos
+    const handlerBuscarCep = async () => {
+        if ((cliente.cep ?? "").replace(/\D/g, "").length !== 8) {
+            return;
+        }
+
+        try {
+            const endereco = await buscarEnderecoPorCep(cliente.cep);
+
+            setCliente(valorAnterior =>
+                new Cliente(
+                    valorAnterior.id,
+                    valorAnterior.nome,
+                    valorAnterior.email,
+                    valorAnterior.status,
+                    valorAnterior.cpf,
+                    valorAnterior.telefone,
+                    valorAnterior.cep,
+                    endereco.logradouro,
+                    endereco.bairro,
+                    endereco.cidade,
+                    endereco.uf
+                )
+            )
+        } catch (erro) {
+            alert((erro as { response?: { data?: string } }).response?.data || "Erro ao buscar CEP!");
+        }
     }
     
 
@@ -79,7 +114,7 @@ export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
         <form action={handlerSalvar} className="space-y-6">
 
             <fieldset disabled={somenteLeitura} className="min-w-0 border-0 p-0 m-0">
-            {/* Campos do formulário: nome, CPF, e-mail e telefone */}
+            {/* Campos do formulário: nome, CPF, e-mail, telefone e endereço (pelo CEP) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                     <label className="block text-sm font-medium text-slate-300">
@@ -130,6 +165,68 @@ export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
                         required
                         placeholder="(00) 00000-0000"
                         onChange={(e) => handlerChange('telefone', e.target.value)}
+                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
+                    </input>
+                </div>
+                <div className="space-y-2">
+                    <label className="block text-sm font-medium text-slate-300">
+                        CEP:
+                    </label>
+                    <input
+                        name="cep"
+                        value={cliente.cep ?? ""}
+                        required
+                        placeholder="00000-000"
+                        onChange={(e) => handlerChange('cep', e.target.value)}
+                        onBlur={handlerBuscarCep}
+                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
+                    </input>
+                </div>
+                <div className="space-y-2">
+                    <label className="block text-sm font-medium text-slate-300">
+                        Logradouro:
+                    </label>
+                    <input
+                        name="logradouro"
+                        value={cliente.logradouro ?? ""}
+                        readOnly
+                        placeholder="Preenchido pelo CEP"
+                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
+                    </input>
+                </div>
+                <div className="space-y-2">
+                    <label className="block text-sm font-medium text-slate-300">
+                        Bairro:
+                    </label>
+                    <input
+                        name="bairro"
+                        value={cliente.bairro ?? ""}
+                        readOnly
+                        placeholder="Preenchido pelo CEP"
+                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
+                    </input>
+                </div>
+                <div className="space-y-2">
+                    <label className="block text-sm font-medium text-slate-300">
+                        Cidade:
+                    </label>
+                    <input
+                        name="cidade"
+                        value={cliente.cidade ?? ""}
+                        readOnly
+                        placeholder="Preenchido pelo CEP"
+                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
+                    </input>
+                </div>
+                <div className="space-y-2">
+                    <label className="block text-sm font-medium text-slate-300">
+                        UF:
+                    </label>
+                    <input
+                        name="uf"
+                        value={cliente.uf ?? ""}
+                        readOnly
+                        placeholder="Preenchido pelo CEP"
                         className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
                     </input>
                 </div>
