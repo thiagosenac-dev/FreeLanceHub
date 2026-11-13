@@ -45,7 +45,7 @@ export default function Login(){
                     usuario: { ...usuarioLogado, role: loginResposta.role }
                 }));
                 // o freelancer vai direto para as vagas
-                router.push(loginResposta.role === "ROLE_FREELANCER" ? "/vagas" : "/home")
+                router.push(loginResposta.role === "ROLE_USUARIO" ? "/vagas" : "/home")
             }
             else {
                 alert("Usuário e/ou senha inválidos!")
@@ -125,6 +125,10 @@ export default function Login(){
             {/* MUDANÇA: link para o cadastro público */}
             <p className="mt-6 text-center text-sm text-slate-400">
                 Ainda não tem conta? <Link href="/registrar" className="text-cyan-400 hover:text-cyan-300 font-medium">Cadastre-se como freelancer</Link>
+            </p>
+            {/* MUDANÇA: o cliente (pessoa ou empresa) também se cadastra sozinho */}
+            <p className="mt-2 text-center text-sm text-slate-400">
+                Quer publicar projetos? <Link href="/registrar-cliente" className="text-cyan-400 hover:text-cyan-300 font-medium">Cadastre-se como cliente</Link>
             </p>
         </div>
     </div>

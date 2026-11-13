@@ -1,7 +1,9 @@
 package com.senac.freelancehub.application.services;
 
 import com.senac.freelancehub.application.DTOs.*;
+import com.senac.freelancehub.domain.entities.Cliente;
 import com.senac.freelancehub.domain.entities.EnumStatus;
+import com.senac.freelancehub.domain.entities.EnumTipoCliente;
 import com.senac.freelancehub.domain.entities.Usuario;
 import com.senac.freelancehub.application.DTOs.CategoriaResponse;
 import com.senac.freelancehub.application.DTOs.HabilidadeRequest;
@@ -9,6 +11,7 @@ import com.senac.freelancehub.domain.entities.Categoria;
 import com.senac.freelancehub.domain.repository.CategoriaRepository;
 import com.senac.freelancehub.domain.repository.ClienteRepository;
 import com.senac.freelancehub.domain.repository.UsuarioRepository;
+import com.senac.freelancehub.domain.valueobject.CNPJ;
 import com.senac.freelancehub.domain.valueobject.CPF;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -99,21 +102,14 @@ public class UsuarioService implements UsuarioServicePort {
 
         var usuarioLogado = getUsuarioLogado();
 
-        // novo usuário (MUDANÇA: criado pelo admin, é do tipo empresa e fica ligado a um cliente)
+        // novo usuário (MUDANÇA: criado pelo admin, agora é sempre outro admin)
         if (id == 0L) {
-            if (request.clienteId() == null) {
-                throw new IllegalArgumentException("Informe o clienteId!");
-            }
-            var cliente = clienteRepository.findById(request.clienteId()).orElse(null);
-            if (cliente == null) {
-                throw new IllegalArgumentException("Cliente não encontrado!");
-            }
             if (usuarioRepository.existsByEmail(request.email())) {
                 throw new IllegalArgumentException("E-mail já cadastrado!");
             }
+            validarCpfDuplicado(request.cpf());
             Usuario usuarioNovo = new Usuario(request);
-            usuarioNovo.setRole("ROLE_EMPRESA");
-            usuarioNovo.setCliente(cliente);
+            usuarioNovo.setRole("ROLE_ADMIN");
             usuarioRepository.save(usuarioNovo);
             return new UsuarioResponse(usuarioNovo);
         }
@@ -129,8 +125,20 @@ public class UsuarioService implements UsuarioServicePort {
         }
 
         usuarioBanco.setNome(request.nome());
-        usuarioBanco.setCpf(new CPF(request.cpf()));
+        // MUDANÇA: usuário do cliente empresa não tem cpf, então só troca o cpf de quem já tem
+        if (usuarioBanco.getCpf() != null) {
+            usuarioBanco.setCpf(new CPF(request.cpf()));
+        }
         usuarioBanco.setEmail(request.email());
+        // MUDANÇA: o admin também edita o endereço do freelancer (admin e cliente não têm endereço aqui)
+        if ("ROLE_USUARIO".equals(usuarioBanco.getRole())) {
+            validarEndereco(request.cep(), request.cidade(), request.uf());
+            usuarioBanco.setCep(request.cep());
+            usuarioBanco.setLogradouro(request.logradouro());
+            usuarioBanco.setBairro(request.bairro());
+            usuarioBanco.setCidade(request.cidade());
+            usuarioBanco.setUf(request.uf());
+        }
         usuarioBanco.setSenha(request.senha());
         usuarioRepository.save(usuarioBanco);
         return new UsuarioResponse(usuarioBanco);
@@ -245,9 +253,107 @@ public class UsuarioService implements UsuarioServicePort {
             throw new IllegalArgumentException("E-mail já cadastrado!");
         }
 
+        validarEndereco(request.cep(), request.cidade(), request.uf());
+        validarCpfDuplicado(request.cpf());
+
         Usuario freelancer = new Usuario(request);
         usuarioRepository.save(freelancer);
 
         return new UsuarioResponse(freelancer);
+    }
+
+    // MUDANÇA (novo): cadastro público do cliente (pessoa ou empresa), salva o Cliente e o Usuario dele (ROLE_CLIENTE)
+    public ClienteResponse registrarCliente(RegistrarClienteRequest request) {
+
+        if (request.tipo() == null) {
+            throw new IllegalArgumentException("Informe se é pessoa ou empresa!");
+        }
+        if (request.email() == null || !request.email().contains("@")) {
+            throw new IllegalArgumentException("Email Invalido!");
+        }
+        if (request.senha() == null || request.senha().isBlank()) {
+            throw new IllegalArgumentException("Informe a senha!");
+        }
+        if (usuarioRepository.existsByEmail(request.email())) {
+            throw new IllegalArgumentException("E-mail já cadastrado!");
+        }
+        validarEndereco(request.cep(), request.cidade(), request.uf());
+
+        Cliente cliente = new Cliente();
+        cliente.setTipo(request.tipo());
+        cliente.setNome(request.nome());
+
+        if (request.tipo() == EnumTipoCliente.EMPRESA) {
+            // empresa: razão social e cnpj (sem cpf)
+            if (request.razaoSocial() == null || request.razaoSocial().isBlank()) {
+                throw new IllegalArgumentException("Informe a razão social!");
+            }
+            if (!CNPJ.isValidCnpj(request.cnpj())) {
+                throw new IllegalArgumentException("CNPJ Invalido!");
+            }
+            validarCnpjDuplicado(request.cnpj());
+            cliente.setRazaoSocial(request.razaoSocial());
+            cliente.setCnpj(request.cnpj());
+        } else {
+            // pessoa: cpf
+            if (!CPF.isValidCpf(request.cpf())) {
+                throw new IllegalArgumentException("CPF Invalido!");
+            }
+            validarCpfDuplicado(request.cpf());
+            cliente.setCpf(request.cpf());
+        }
+
+        cliente.setEmail(request.email());
+        cliente.setTelefone(request.telefone());
+        cliente.setCep(request.cep());
+        cliente.setLogradouro(request.logradouro());
+        cliente.setBairro(request.bairro());
+        cliente.setCidade(request.cidade());
+        cliente.setUf(request.uf());
+        cliente.setStatus(EnumStatus.ATIVO);
+
+        Usuario usuarioCliente = new Usuario(request, cliente);
+
+        clienteRepository.save(cliente);
+        usuarioRepository.save(usuarioCliente);
+
+        return new ClienteResponse(cliente);
+    }
+
+    // MUDANÇA (novo): o endereço vem do ViaCEP, então o cep, a cidade e a uf precisam estar preenchidos
+    // (logradouro e bairro podem vir vazios em CEP de cidade pequena)
+    private void validarEndereco(String cep, String cidade, String uf) {
+
+        if (cep == null || cep.isBlank() || cidade == null || cidade.isBlank() || uf == null || uf.isBlank()) {
+            throw new IllegalArgumentException("Informe um CEP válido e aguarde o endereço ser preenchido!");
+        }
+    }
+
+    // MUDANÇA (novo): impede cpf repetido (compara só os números, em usuários e clientes)
+    private void validarCpfDuplicado(String cpf) {
+
+        String numeros = cpf == null ? "" : cpf.replaceAll("\\D", "");
+
+        boolean repetidoUsuario = usuarioRepository.findAll().stream()
+                .anyMatch(u -> u.getCpf() != null && u.getCpf().toString().replaceAll("\\D", "").equals(numeros));
+        boolean repetidoCliente = clienteRepository.findAll().stream()
+                .anyMatch(c -> c.getCpf() != null && c.getCpf().replaceAll("\\D", "").equals(numeros));
+
+        if (repetidoUsuario || repetidoCliente) {
+            throw new IllegalArgumentException("CPF já cadastrado!");
+        }
+    }
+
+    // MUDANÇA (novo): impede cnpj repetido (compara só os números)
+    private void validarCnpjDuplicado(String cnpj) {
+
+        String numeros = cnpj == null ? "" : cnpj.replaceAll("\\D", "");
+
+        boolean repetido = clienteRepository.findAll().stream()
+                .anyMatch(c -> c.getCnpj() != null && c.getCnpj().replaceAll("\\D", "").equals(numeros));
+
+        if (repetido) {
+            throw new IllegalArgumentException("CNPJ já cadastrado!");
+        }
     }
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { Cliente } from "@/app/types/cliente";
-import { atualizarCliente, salvarCliente } from "@/app/services/clienteService";
+import { atualizarCliente } from "@/app/services/clienteService";
 import { buscarEnderecoPorCep } from "@/app/services/enderecoService";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -25,8 +25,11 @@ export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
         new Cliente(null, "", "", "ATIVO", "", "")
     );
 
+    // MUDANÇA: cliente empresa mostra razão social e CNPJ no lugar do CPF
+    const ehEmpresa = cliente.tipo === "EMPRESA";
+
     // Atualiza um campo específico do cliente conforme a pessoa digita
-    const handlerChange = (campo: 'nome' | 'email' | 'status' | 'cpf' | 'telefone' | 'cep', valor: string) => {
+    const handlerChange = (campo: 'nome' | 'email' | 'status' | 'cpf' | 'telefone' | 'cep' | 'razaoSocial' | 'cnpj', valor: string) => {
         setCliente(valorAnterior =>
             new Cliente(
                 valorAnterior.id,
@@ -36,13 +39,20 @@ export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
                 campo === 'cpf' ? valor : valorAnterior.cpf,
                 campo === 'telefone' ? valor : valorAnterior.telefone,
                 campo === 'cep' ? valor : valorAnterior.cep,
-                valorAnterior.logradouro,
-                valorAnterior.bairro,
-                valorAnterior.cidade,
-                valorAnterior.uf
+                // ao trocar o CEP, limpa o endereço antigo (só volta a preencher quando o ViaCEP responder)
+                campo === 'cep' ? "" : valorAnterior.logradouro,
+                campo === 'cep' ? "" : valorAnterior.bairro,
+                campo === 'cep' ? "" : valorAnterior.cidade,
+                campo === 'cep' ? "" : valorAnterior.uf,
+                valorAnterior.tipo,
+                campo === 'razaoSocial' ? valor : valorAnterior.razaoSocial,
+                campo === 'cnpj' ? valor : valorAnterior.cnpj
             )
         )
     }
+
+    // true enquanto o ViaCEP responde (nesse tempo não deixa salvar)
+    const [buscandoCep, setBuscandoCep] = useState(false);
 
     // Quando a pessoa sai do campo CEP, busca o endereço no ViaCEP e preenche os outros campos
     const handlerBuscarCep = async () => {
@@ -50,6 +60,7 @@ export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
             return;
         }
 
+        setBuscandoCep(true);
         try {
             const endereco = await buscarEnderecoPorCep(cliente.cep);
 
@@ -65,40 +76,37 @@ export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
                     endereco.logradouro,
                     endereco.bairro,
                     endereco.cidade,
-                    endereco.uf
+                    endereco.uf,
+                    valorAnterior.tipo,
+                    valorAnterior.razaoSocial,
+                    valorAnterior.cnpj
                 )
             )
         } catch (erro) {
             alert((erro as { response?: { data?: string } }).response?.data || "Erro ao buscar CEP!");
+        } finally {
+            setBuscandoCep(false);
         }
     }
     
 
-    // Salva o cliente: se já existir, atualiza; se não, cria um novo. Depois volta para a lista
+    // Salva o cliente (MUDANÇA: só edita, o cliente se cadastra sozinho na tela de cadastro). Depois volta para a lista
     const handlerSalvar = async (formData: FormData) => {
 
+        // o endereço precisa ter vindo do CEP (cidade e UF preenchidas) antes de salvar
+        if (buscandoCep || !cliente.cidade || !cliente.uf) {
+            alert("Informe um CEP válido e aguarde o endereço ser preenchido!");
+            return;
+        }
+
         try {
-            if (clienteExistente) {
-                // Já existe: atualiza os dados desse cliente
-                var dadosRetorno = await atualizarCliente(cliente);
+            var dadosRetorno = await atualizarCliente(cliente);
 
-                if (dadosRetorno) {
-                    alert("Cliente foi salvo com sucesso!");
-                } else {
-                    alert("Erro ao atualizar Cliente!");
-                    return;
-                }
-
+            if (dadosRetorno) {
+                alert("Cliente foi salvo com sucesso!");
             } else {
-                // Não existe ainda: cria um cliente novo
-                var dadosRetorno = await salvarCliente(cliente);
-
-                if (dadosRetorno) {
-                    alert("Cliente foi salvo com sucesso!");
-                } else {
-                    alert("Erro ao salvar Cliente!");
-                    return;
-                }
+                alert("Erro ao atualizar Cliente!");
+                return;
             }
         } catch (erro) {
             alert((erro as { response?: { data?: string } }).response?.data || "Erro ao salvar Cliente!");
@@ -114,31 +122,46 @@ export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
         <form action={handlerSalvar} className="space-y-6">
 
             <fieldset disabled={somenteLeitura} className="min-w-0 border-0 p-0 m-0">
-            {/* Campos do formulário: nome, CPF, e-mail, telefone e endereço (pelo CEP) */}
+            {/* Campos do formulário: nome, CPF (ou razão social e CNPJ), e-mail, telefone e endereço (pelo CEP) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                     <label className="block text-sm font-medium text-slate-300">
-                        Nome completo:
+                        {ehEmpresa ? "Nome da empresa:" : "Nome completo:"}
                     </label>
                     <input
                         name="nome"
                         value={cliente.nome}
                         required
                         onChange={(e) => handlerChange('nome', e.target.value)}
-                        placeholder="João da Silva Sauro"
+                        placeholder={ehEmpresa ? "Nome da empresa (nome fantasia)" : "João da Silva Sauro"}
                         className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
                     </input>
                 </div>
+                {ehEmpresa && (
+                    <div className="space-y-2">
+                        <label className="block text-sm font-medium text-slate-300">
+                            Razão social:
+                        </label>
+                        <input
+                            name="razaoSocial"
+                            value={cliente.razaoSocial ?? ""}
+                            required
+                            placeholder="Razão social da empresa"
+                            onChange={(e) => handlerChange('razaoSocial', e.target.value)}
+                            className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
+                        </input>
+                    </div>
+                )}
                 <div className="space-y-2">
                     <label className="block text-sm font-medium text-slate-300">
-                        CPF/CNPJ:
+                        {ehEmpresa ? "CNPJ:" : "CPF:"}
                     </label>
                     <input
-                        name="cpf"
-                        value={cliente.cpf}
+                        name={ehEmpresa ? "cnpj" : "cpf"}
+                        value={(ehEmpresa ? cliente.cnpj : cliente.cpf) ?? ""}
                         required
-                        placeholder="000.000.000-00"
-                        onChange={(e) => handlerChange('cpf', e.target.value)}
+                        placeholder={ehEmpresa ? "00.000.000/0000-00" : "000.000.000-00"}
+                        onChange={(e) => handlerChange(ehEmpresa ? 'cnpj' : 'cpf', e.target.value)}
                         className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
                     </input>
                 </div>

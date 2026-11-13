@@ -106,7 +106,7 @@ export default function Home() {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
-                <Link href="/registrar" className="px-8 py-4 rounded-full bg-gradient-to-r from-[#3b82f6] to-[#06b6d4] text-white font-heading font-semibold text-lg hover:scale-105 transition-transform duration-300 shadow-[0_0_20px_rgba(59,130,246,0.3)] text-center">
+                <Link href="/login" className="px-8 py-4 rounded-full bg-gradient-to-r from-[#3b82f6] to-[#06b6d4] text-white font-heading font-semibold text-lg hover:scale-105 transition-transform duration-300 shadow-[0_0_20px_rgba(59,130,246,0.3)] text-center">
                   Sou Freelancer
                 </Link>
                 <Link href="/login" className="px-8 py-4 rounded-full bg-transparent border border-gray-600 text-white font-heading font-semibold text-lg hover:border-[#06b6d4] hover:text-[#06b6d4] transition-all duration-300 text-center">

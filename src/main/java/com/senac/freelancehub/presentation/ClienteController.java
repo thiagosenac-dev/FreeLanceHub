@@ -39,19 +39,6 @@ public class ClienteController {
         return ResponseEntity.notFound().build();
     }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Método criar novos usuários!", description = "Método responsável pela colsulta de todas os usuários sem filtro")
-    public ResponseEntity<?> criar(@RequestBody ClienteRequest cliente) {
-
-        try {
-            ClienteResponse clienteBanco = clienteService.salvarCliente(cliente, 0L);
-            return ResponseEntity.ok(clienteBanco);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
     @PatchMapping("/{id}/status")
     @Operation(summary = "Método de aletrar Status", description = "Método responsável aletração dos status dos clientes")
     public ResponseEntity<Void> atualizarStatus(@PathVariable Long id, @RequestBody AtualizarStatusRequest statusRequest){

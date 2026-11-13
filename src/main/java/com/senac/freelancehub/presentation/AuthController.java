@@ -1,5 +1,7 @@
 package com.senac.freelancehub.presentation;
 
+import com.senac.freelancehub.application.DTOs.ClienteResponse;
+import com.senac.freelancehub.application.DTOs.RegistrarClienteRequest;
 import com.senac.freelancehub.application.DTOs.EsqueciSenhaRequest;
 import com.senac.freelancehub.application.DTOs.EsqueciSenhaResponse;
 import com.senac.freelancehub.application.DTOs.LoginRequest;
@@ -57,6 +59,18 @@ public class AuthController {
         try {
             UsuarioResponse freelancerBanco = usuarioService.registrarFreelancer(usuarioRequest);
             return ResponseEntity.ok(freelancerBanco);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // MUDANÇA (novo): cadastro público do cliente (pessoa ou empresa), cria o cliente e o usuário dele (ROLE_CLIENTE)
+    @PostMapping("/registrar-cliente")
+    @Operation(summary = "Cadastro de clientes", description = "Método de cadastro aberto, cria um cliente (pessoa ou empresa) e o usuário de acesso dele")
+    public ResponseEntity<?> registrarCliente(@RequestBody RegistrarClienteRequest clienteRequest) {
+        try {
+            ClienteResponse clienteBanco = usuarioService.registrarCliente(clienteRequest);
+            return ResponseEntity.ok(clienteBanco);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

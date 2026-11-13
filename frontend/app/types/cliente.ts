@@ -10,7 +10,10 @@ export class Cliente{
         public logradouro:string = "",
         public bairro:string = "",
         public cidade:string = "",
-        public uf:string = ""
+        public uf:string = "",
+        public tipo:string = "PESSOA", // PESSOA ou EMPRESA (na empresa o "nome" é o nome fantasia)
+        public razaoSocial:string = "",
+        public cnpj:string = ""
 
     ){}
 }

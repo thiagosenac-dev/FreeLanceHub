@@ -3,7 +3,11 @@ package com.senac.freelancehub.application.services;
 import com.senac.freelancehub.application.DTOs.*;
 import com.senac.freelancehub.domain.entities.Cliente;
 import com.senac.freelancehub.domain.entities.EnumStatus;
+import com.senac.freelancehub.domain.entities.Usuario;
 import com.senac.freelancehub.domain.repository.ClienteRepository;
+import com.senac.freelancehub.domain.repository.UsuarioRepository;
+import com.senac.freelancehub.domain.entities.EnumTipoCliente;
+import com.senac.freelancehub.domain.valueobject.CNPJ;
 import com.senac.freelancehub.domain.valueobject.CPF;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +20,9 @@ public class ClienteService implements ClienteServicePort {
 
     @Autowired
     private ClienteRepository clienteRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     // busca todos os clientes, devolve vazio se não existir
     public List<ClienteResponse> ListarTodosClientesGrid() {
@@ -55,12 +62,24 @@ public class ClienteService implements ClienteServicePort {
             }
         }
 
-        // valida cpf e email antes de salvar
-        if (!CPF.isValidCpf(request.cpf())) throw new IllegalArgumentException("CPF Invalido!");
+        // MUDANÇA: o tipo do cliente não muda, usa o que já está salvo (cliente antigo sem tipo é pessoa)
+        boolean empresa = cliente.getTipo() == EnumTipoCliente.EMPRESA;
+
+        // valida cpf (pessoa) ou cnpj (empresa) e email antes de salvar
+        if (empresa) {
+            if (!CNPJ.isValidCnpj(request.cnpj())) throw new IllegalArgumentException("CNPJ Invalido!");
+        } else {
+            if (!CPF.isValidCpf(request.cpf())) throw new IllegalArgumentException("CPF Invalido!");
+        }
         if (request.email() == null || !request.email().contains("@")) throw new IllegalArgumentException("Email Invalido!");
 
         cliente.setNome(request.nome());
-        cliente.setCpf(request.cpf());
+        if (empresa) {
+            cliente.setRazaoSocial(request.razaoSocial());
+            cliente.setCnpj(request.cnpj());
+        } else {
+            cliente.setCpf(request.cpf());
+        }
         cliente.setEmail(request.email());
         cliente.setTelefone(request.telefone());
         cliente.setCep(request.cep());
@@ -73,6 +92,13 @@ public class ClienteService implements ClienteServicePort {
         }
 
         clienteRepository.save(cliente);
+
+        // MUDANÇA: o nome do login do cliente (mostrado no cabeçalho) acompanha o nome do cliente
+        for (Usuario usuarioCliente : usuarioRepository.findByCliente_Id(cliente.getId())) {
+            usuarioCliente.setNome(cliente.getNome());
+            usuarioRepository.save(usuarioCliente);
+        }
+
         return new ClienteResponse(cliente);
     }
 

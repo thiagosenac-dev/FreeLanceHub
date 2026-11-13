@@ -15,4 +15,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario,Long> {
     boolean existsByEmail(String email);
 
     Optional<List<Usuario>> findByStatusNot(EnumStatus status);
+
+    // MUDANÇA: usuários (logins) de um cliente, para manter o nome igual quando o admin edita o cliente
+    List<Usuario> findByCliente_Id(Long clienteId);
 }

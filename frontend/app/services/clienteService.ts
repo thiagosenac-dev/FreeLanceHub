@@ -49,9 +49,3 @@ export async function atualizarCliente(cliente: Cliente): Promise<number> {
         api.put<number>('/clientes/' + cliente.id, cliente);
     return dadosRetorno.data;
 }
-
-export async function salvarCliente(cliente: Cliente): Promise<number> {
-    var dadosRetorno = await
-        api.post<number>('/clientes', cliente);
-    return dadosRetorno.data;
-}

@@ -74,7 +74,7 @@ export default function Projetos() {
                         <p className="text-sm text-slate-400 mt-1">Acompanhe e gerencie o progresso dos projetos da plataforma</p>
                     </div>
 
-                    {role === "ROLE_EMPRESA" && (
+                    {role === "ROLE_CLIENTE" && (
                         <Link className="inline-flex items-center justify-center py-3 px-5 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200 transform active:scale-[0.99] cursor-pointer text-sm tracking-wide w-full sm:w-auto text-center" href="/projetos/novo">
                         + Novo Projeto
                     </Link>

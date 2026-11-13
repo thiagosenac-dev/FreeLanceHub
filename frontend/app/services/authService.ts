@@ -8,7 +8,19 @@ export async function loginBack(email: string, senha: string): Promise<loginResp
     return loginResposta.data;
 }
 
-// cadastro público de freelancer
-export async function registrarFreelancer(dados: { nome: string, cpf: string, email: string, senha: string }) {
+// cadastro público de freelancer (com o endereço vindo do CEP)
+export async function registrarFreelancer(dados: {
+    nome: string, cpf: string, email: string, senha: string,
+    cep: string, logradouro: string, bairro: string, cidade: string, uf: string
+}) {
     return await api.post('/auth/registrar', dados, { validateStatus: () => true });
+}
+
+// cadastro público de cliente (pessoa ou empresa). Pessoa usa o cpf, empresa usa razaoSocial e cnpj
+export async function registrarCliente(dados: {
+    tipo: string, nome: string, razaoSocial: string, cpf: string, cnpj: string,
+    email: string, telefone: string, senha: string,
+    cep: string, logradouro: string, bairro: string, cidade: string, uf: string
+}) {
+    return await api.post('/auth/registrar-cliente', dados, { validateStatus: () => true });
 }

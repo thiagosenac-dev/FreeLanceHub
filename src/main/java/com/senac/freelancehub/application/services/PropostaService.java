@@ -3,6 +3,7 @@ package com.senac.freelancehub.application.services;
 import com.senac.freelancehub.application.DTOs.AtualizarStatusPropostaRequest;
 import com.senac.freelancehub.application.DTOs.PropostaRequest;
 import com.senac.freelancehub.application.DTOs.PropostaResponse;
+import com.senac.freelancehub.domain.entities.EnumStatus;
 import com.senac.freelancehub.domain.entities.EnumStatusProjeto;
 import com.senac.freelancehub.domain.entities.EnumStatusProposta;
 import com.senac.freelancehub.domain.entities.Proposta;
@@ -146,7 +147,9 @@ public class PropostaService implements PropostaServicePort {
             var freelancer = proposta.getUsuario();
             boolean temHabilidade = freelancer.getHabilidades().stream()
                     .anyMatch(c -> projeto.getCategoria() != null && c.getId().equals(projeto.getCategoria().getId()));
-            if (projeto.getStatus() != EnumStatusProjeto.ABERTO || !temHabilidade) {
+            boolean clienteAtivo = projeto.getCliente() == null || projeto.getCliente().getStatus() == null
+                    || projeto.getCliente().getStatus() == EnumStatus.ATIVO;
+            if (projeto.getStatus() != EnumStatusProjeto.ABERTO || !temHabilidade || !clienteAtivo) {
                 throw new IllegalArgumentException("Projeto indisponível para as suas habilidades!");
             }
 

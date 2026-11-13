@@ -2,11 +2,10 @@
 
 import { Usuario, UsuarioFormProps } from "@/app/types/usuario";
 import { atualizarUsuario, salvarUsuario } from "@/app/services/usuarioService";
-import { buscarListaClientes } from "@/app/services/clienteService";
+import { buscarEnderecoPorCep } from "@/app/services/enderecoService";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Cliente } from "@/app/types/cliente";
+import { useState } from "react";
 
 
 
@@ -23,35 +22,54 @@ export default function UsuarioForm({usuarioExistente}:UsuarioFormProps) {
         new Usuario(null,"","","","ATIVO","",null)
     );
 
-    // MUDANÇA: lista de clientes (empresas) para o admin ligar o novo usuário a uma empresa
-    const [clientes, setClientes] = useState<Cliente[]>([]);
-
-    useEffect(() => {
-        if (!usuarioExistente) {
-            buscarListaClientes()
-                .then(lista => setClientes(lista.filter(c => String(c.status).toUpperCase() === "ATIVO")));
-        }
-    }, []);
-
     // Atualiza um campo específico do usuário conforme a pessoa digita
-    const handlerChange = ( campo: 'nome'|  'email' |'cpf'| 'senha', valor:string) =>{
-        setUsuario(valorAnterior => 
-            new Usuario(
-                valorAnterior.id,
-                campo === 'nome' ? valor : valorAnterior.nome,
-                campo === 'email' ? valor : valorAnterior.email,
-                campo === 'senha' ? valor : valorAnterior.senha,
-                valorAnterior.status,
-                campo === 'cpf' ? valor : valorAnterior.cpf,
-                valorAnterior.clienteId
-                
-            )
-        )
+    const handlerChange = ( campo: 'nome'|  'email' |'cpf'| 'senha' | 'cep', valor:string) =>{
+        // ao trocar o CEP, limpa o endereço antigo (só volta a preencher quando o ViaCEP responder)
+        setUsuario(valorAnterior => ({
+            ...valorAnterior,
+            [campo]: valor,
+            ...(campo === 'cep' ? { logradouro: "", bairro: "", cidade: "", uf: "" } : {})
+        }))
+    }
+
+    // MUDANÇA: o admin edita o endereço do freelancer (cliente e admin não têm endereço aqui)
+    const temEndereco = !!usuarioExistente && usuarioExistente.role === "ROLE_USUARIO";
+
+    // true enquanto o ViaCEP responde (nesse tempo não deixa salvar)
+    const [buscandoCep, setBuscandoCep] = useState(false);
+
+    // Quando a pessoa sai do campo CEP, busca o endereço no ViaCEP e preenche os outros campos
+    const handlerBuscarCep = async () => {
+        if ((usuario.cep ?? "").replace(/\D/g, "").length !== 8) {
+            return;
+        }
+
+        setBuscandoCep(true);
+        try {
+            const endereco = await buscarEnderecoPorCep(usuario.cep ?? "");
+            setUsuario(valorAnterior => ({
+                ...valorAnterior,
+                logradouro: endereco.logradouro,
+                bairro: endereco.bairro,
+                cidade: endereco.cidade,
+                uf: endereco.uf
+            }))
+        } catch (erro) {
+            alert((erro as { response?: { data?: string } }).response?.data || "Erro ao buscar CEP!");
+        } finally {
+            setBuscandoCep(false);
+        }
     }
 
 
     // Salva o usuário: se já existir, atualiza; se não, cria um novo. Depois volta para a lista
     const handlerSalvar = async (formData : FormData) =>{
+
+    // freelancer: o endereço precisa ter vindo do CEP (cidade e UF preenchidas) antes de salvar
+    if (temEndereco && (buscandoCep || !usuario.cidade || !usuario.uf)) {
+        alert("Informe um CEP válido e aguarde o endereço ser preenchido!");
+        return;
+    }
 
     try {
         if(usuarioExistente){
@@ -117,10 +135,10 @@ export default function UsuarioForm({usuarioExistente}:UsuarioFormProps) {
                     <label className="block text-sm font-medium text-slate-300">
                         CPF:
                     </label>
-                    <input 
-                    name="CPF" 
-                    value={usuario.cpf}
-                    required
+                    <input
+                    name="CPF"
+                    value={usuario.cpf ?? ""}
+                    required={!usuarioExistente || !!usuarioExistente.cpf}
                     autoComplete="off"
                     placeholder="000.000.000-00"
                     onChange={(e)=> handlerChange('cpf',e.target.value)}
@@ -155,23 +173,72 @@ export default function UsuarioForm({usuarioExistente}:UsuarioFormProps) {
                     type="password" className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
                     </input>
                 </div>
-            {/* MUDANÇA: no cadastro novo o admin escolhe a empresa (cliente) do usuário */}
-                {!usuarioExistente && (
-                    <div className="space-y-2 md:col-span-2">
-                        <label className="block text-sm font-medium text-slate-300">
-                            Cliente (empresa):
-                        </label>
-                        <select
-                            value={usuario.clienteId ?? ""}
-                            required
-                            onChange={(e) => setUsuario({ ...usuario, clienteId: Number(e.target.value) })}
-                            className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-400/20 transition-all duration-300">
-                            <option value="" className="bg-slate-950">Selecione uma empresa</option>
-                            {clientes.map(c => (
-                                <option key={c.id} value={c.id ?? ""} className="bg-slate-950">{c.nome}</option>
-                            ))}
-                        </select>
-                    </div>
+                {temEndereco && (
+                    <>
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-slate-300">
+                                CEP:
+                            </label>
+                            <input
+                                name="cep"
+                                value={usuario.cep ?? ""}
+                                required
+                                autoComplete="off"
+                                placeholder="00000-000"
+                                onChange={(e) => handlerChange('cep', e.target.value)}
+                                onBlur={handlerBuscarCep}
+                                className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
+                            </input>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-slate-300">
+                                Logradouro:
+                            </label>
+                            <input
+                                name="logradouro"
+                                value={usuario.logradouro ?? ""}
+                                readOnly
+                                placeholder="Preenchido pelo CEP"
+                                className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
+                            </input>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-slate-300">
+                                Bairro:
+                            </label>
+                            <input
+                                name="bairro"
+                                value={usuario.bairro ?? ""}
+                                readOnly
+                                placeholder="Preenchido pelo CEP"
+                                className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
+                            </input>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-slate-300">
+                                Cidade:
+                            </label>
+                            <input
+                                name="cidade"
+                                value={usuario.cidade ?? ""}
+                                readOnly
+                                placeholder="Preenchido pelo CEP"
+                                className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
+                            </input>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-slate-300">
+                                UF:
+                            </label>
+                            <input
+                                name="uf"
+                                value={usuario.uf ?? ""}
+                                readOnly
+                                placeholder="Preenchido pelo CEP"
+                                className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
+                            </input>
+                        </div>
+                    </>
                 )}
             </div>
 

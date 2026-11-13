@@ -84,13 +84,6 @@ export default function Clientes() {
                         </h1>
                         <p className="text-sm text-slate-400 mt-1">Acompanhe e gerencie a carteira de clientes cadastrados</p>
                     </div>
- 
-                    <Link
-                        href="/clientes/novo"
-                        className="inline-flex items-center justify-center py-3 px-5 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200 transform active:scale-[0.99] cursor-pointer text-sm tracking-wide w-full sm:w-auto text-center"
-                    >
-                        + Novo Cliente
-                    </Link>
                 </div>
  
                 {/* Barra de cima que mostra relação dos clientes */}
@@ -147,7 +140,7 @@ export default function Clientes() {
                                             </td>
 
                                             <td className="py-4 px-6 text-slate-400">
-                                                {cliente.cpf}
+                                                {cliente.tipo === "EMPRESA" ? cliente.cnpj : cliente.cpf}
                                             </td>
 
                                             <td className="py-4 px-6 text-slate-400">

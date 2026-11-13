@@ -81,13 +81,13 @@ export default function Propostas() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-2xl shadow-blue-950/20">
                     <div>
                         <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                            {role === "ROLE_FREELANCER" ? "Minhas Propostas" : "Gestão de Propostas"}
+                            {role === "ROLE_USUARIO" ? "Minhas Propostas" : "Gestão de Propostas"}
                         </h1>
                         <p className="text-sm text-slate-400 mt-1">Acompanhe e gerencie as propostas</p>
                     </div>
 
                     {/* MUDANÇA: só o freelancer envia proposta, escolhendo uma vaga */}
-                    {role === "ROLE_FREELANCER" && (
+                    {role === "ROLE_USUARIO" && (
                         <Link
                             href="/vagas"
                             className="inline-flex items-center justify-center py-3 px-5 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200 transform active:scale-[0.99] cursor-pointer text-sm tracking-wide w-full sm:w-auto text-center"
@@ -121,7 +121,7 @@ export default function Propostas() {
                             <thead>
                                 <tr className="border-b border-slate-800 bg-slate-900/40 text-xs font-semibold uppercase tracking-wider text-slate-300">
                                     <th className="py-4 px-6">Código</th>
-                                    <th className="py-4 px-6">{role === "ROLE_FREELANCER" ? "Projeto" : "Contato do Freelancer"}</th>
+                                    <th className="py-4 px-6">{role === "ROLE_USUARIO" ? "Projeto" : "Contato do Freelancer"}</th>
                                     <th className="py-4 px-6">Descrição</th>
                                     <th className="py-4 px-6">Valor</th>
                                     <th className="py-4 px-6">Prazo</th>
@@ -141,7 +141,7 @@ export default function Propostas() {
                                             <td className="py-4 px-6 text-slate-400">#{proposta.id}</td>
 
                                             <td className="py-4 px-6 text-slate-400">
-                                                {role === "ROLE_FREELANCER" ? (proposta.projetoNome ?? `#${proposta.projetoId}`) : (
+                                                {role === "ROLE_USUARIO" ? (proposta.projetoNome ?? `#${proposta.projetoId}`) : (
                                                     <div className="leading-tight">
                                                         <p className="text-slate-200 font-medium">{proposta.freelancerNome}</p>
                                                         <p className="text-xs">{proposta.freelancerEmail}</p>
@@ -166,7 +166,7 @@ export default function Propostas() {
                                             {/* Ações: o freelancer edita e cancela, a empresa aceita e recusa (só pendentes) */}
                                             <td className="py-4 px-6 text-right">
                                                 <div className="flex items-center justify-end gap-3">
-                                                    {pendente && role === "ROLE_FREELANCER" && (
+                                                    {pendente && role === "ROLE_USUARIO" && (
                                                         <>
                                                             <Link
                                                                 href={`/propostas/${proposta.id}`}
@@ -182,7 +182,7 @@ export default function Propostas() {
                                                             </button>
                                                         </>
                                                     )}
-                                                    {pendente && role !== "ROLE_FREELANCER" && (
+                                                    {pendente && role !== "ROLE_USUARIO" && (
                                                         <>
                                                             <button
                                                                 onClick={() => alterarStatus(proposta.id, "ACEITA")}

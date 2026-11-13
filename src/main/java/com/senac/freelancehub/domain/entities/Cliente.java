@@ -18,8 +18,13 @@ public class Cliente {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
     public Long id;
+    // MUDANÇA: pessoa ou empresa (no cliente empresa o "nome" é o nome fantasia)
+    public EnumTipoCliente tipo;
     public String nome;
+    // MUDANÇA: razão social e cnpj só o cliente empresa tem, o cpf só o cliente pessoa
+    public String razaoSocial;
     public String cpf;
+    public String cnpj;
     public String email;
     public String telefone;
     // endereço (preenchido pelo CEP, via ViaCEP)

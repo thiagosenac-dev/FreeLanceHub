@@ -14,13 +14,13 @@ const cores: Record<string, { card: string, blob: string, icone: string, titulo:
 
 // cards da home (MUDANÇA: cada perfil só vê os cards que pode usar)
 const cards = [
-    { href: "/usuarios", sigla: "US", titulo: "Usuários", texto: "Cadastro dos donos das empresas e acessos", cor: "blue", perfis: ["ROLE_ADMIN"] },
-    { href: "/clientes", sigla: "CL", titulo: "Clientes", texto: "Empresas cadastradas na plataforma", cor: "cyan", perfis: ["ROLE_ADMIN"] },
-    { href: "/projetos", sigla: "PJ", titulo: "Projetos", texto: "Seus projetos, prazos e propostas recebidas", cor: "teal", perfis: ["ROLE_ADMIN", "ROLE_EMPRESA"] },
+    { href: "/usuarios", sigla: "US", titulo: "Usuários", texto: "Gestão dos usuários e acessos da plataforma", cor: "blue", perfis: ["ROLE_ADMIN"] },
+    { href: "/clientes", sigla: "CL", titulo: "Clientes", texto: "Empresas e pessoas cadastradas na plataforma", cor: "cyan", perfis: ["ROLE_ADMIN"] },
+    { href: "/projetos", sigla: "PJ", titulo: "Projetos", texto: "Seus projetos, prazos e propostas recebidas", cor: "teal", perfis: ["ROLE_ADMIN", "ROLE_CLIENTE"] },
     { href: "/categorias", sigla: "CT", titulo: "Categorias", texto: "Organização dos projetos por área de atuação", cor: "indigo", perfis: ["ROLE_ADMIN"] },
-    { href: "/vagas", sigla: "VG", titulo: "Vagas", texto: "Projetos abertos que combinam com as suas habilidades", cor: "teal", perfis: ["ROLE_FREELANCER"] },
-    { href: "/habilidades", sigla: "HB", titulo: "Habilidades", texto: "Escolha as categorias em que você atua", cor: "indigo", perfis: ["ROLE_FREELANCER"] },
-    { href: "/propostas", sigla: "PR", titulo: "Propostas", texto: "Orçamentos, status e negociações ativas", cor: "blue", perfis: ["ROLE_ADMIN", "ROLE_EMPRESA", "ROLE_FREELANCER"] },
+    { href: "/vagas", sigla: "VG", titulo: "Vagas", texto: "Projetos abertos que combinam com as suas habilidades", cor: "teal", perfis: ["ROLE_USUARIO"] },
+    { href: "/habilidades", sigla: "HB", titulo: "Habilidades", texto: "Escolha as categorias em que você atua", cor: "indigo", perfis: ["ROLE_USUARIO"] },
+    { href: "/propostas", sigla: "PR", titulo: "Propostas", texto: "Orçamentos, status e negociações ativas", cor: "blue", perfis: ["ROLE_ADMIN", "ROLE_CLIENTE", "ROLE_USUARIO"] },
 ];
 
 export default function Home(){

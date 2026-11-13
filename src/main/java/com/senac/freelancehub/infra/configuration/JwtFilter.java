@@ -32,6 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 || uri.startsWith("webjars")
                 || uri.startsWith("/auth/login")
                 || uri.startsWith("/auth/registrar") // MUDANÇA: cadastro público
+                || uri.startsWith("/endereco") // MUDANÇA: ViaCEP usado no cadastro público
                 || uri.startsWith("/publico") // MUDANÇA: área pública de projetos
                 || uri.startsWith("/usuarios/admin") // Liberação do ADMIN pelo desktop
                 || (uri.equals("/categorias") && request.getMethod().equals("POST")) // MUDANÇA: só o POST de categorias (desktop)

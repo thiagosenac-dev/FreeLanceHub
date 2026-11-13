@@ -3,6 +3,7 @@ package com.senac.freelancehub.application.services;
 import com.senac.freelancehub.application.DTOs.AtualizarStatusProjetoRequest;
 import com.senac.freelancehub.application.DTOs.ProjetoRequest;
 import com.senac.freelancehub.application.DTOs.ProjetoResponse;
+import com.senac.freelancehub.domain.entities.EnumStatus;
 import com.senac.freelancehub.domain.entities.EnumStatusProjeto;
 import com.senac.freelancehub.domain.entities.Projeto;
 import com.senac.freelancehub.domain.repository.ProjetoRepository;
@@ -63,8 +64,16 @@ public class ProjetoService implements ProjetoServicePort {
                 .findByStatus(EnumStatusProjeto.ABERTO)
                 .orElse(new ArrayList<>())
                 .stream()
+                .filter(this::clienteAtivo)
                 .map(ProjetoResponse::new)
                 .toList();
+    }
+
+    // MUDANÇA (novo): projeto de cliente bloqueado ou excluído não aparece nas vagas (e não recebe proposta)
+    public boolean clienteAtivo(Projeto projeto) {
+        return projeto.getCliente() == null
+                || projeto.getCliente().getStatus() == null
+                || projeto.getCliente().getStatus() == EnumStatus.ATIVO;
     }
 
     // MUDANÇA (novo): admin vê todos, a empresa só os projetos do cliente dela
@@ -81,7 +90,7 @@ public class ProjetoService implements ProjetoServicePort {
     public ProjetoResponse buscarPublicoPorId(Long id) {
 
         var projeto = projetoRepository.findById(id).orElse(null);
-        if (projeto == null || projeto.getStatus() != EnumStatusProjeto.ABERTO) {
+        if (projeto == null || projeto.getStatus() != EnumStatusProjeto.ABERTO || !clienteAtivo(projeto)) {
             return null;
         }
 
@@ -106,6 +115,7 @@ public class ProjetoService implements ProjetoServicePort {
         return projetoRepository
                 .getProjetosByStatusAndCategoria_IdIn(EnumStatusProjeto.ABERTO, categorias)
                 .stream()
+                .filter(this::clienteAtivo)
                 .map(ProjetoResponse::new)
                 .toList();
     }

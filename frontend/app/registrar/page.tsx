@@ -1,6 +1,7 @@
 'use client'
 
 import { registrarFreelancer } from "@/app/services/authService";
+import { buscarEnderecoPorCep } from "@/app/services/enderecoService";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -14,14 +15,57 @@ export default function Registrar(){
     const [cpf, setCpf] = useState("");
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
+    const [cep, setCep] = useState("");
+    const [logradouro, setLogradouro] = useState("");
+    const [bairro, setBairro] = useState("");
+    const [cidade, setCidade] = useState("");
+    const [uf, setUf] = useState("");
+
+    // true enquanto o ViaCEP responde (nesse tempo não deixa cadastrar)
+    const [buscandoCep, setBuscandoCep] = useState(false);
+
+    // CEP sem logradouro ou bairro (cidade pequena): libera esses dois campos para a pessoa digitar
+    const [enderecoManual, setEnderecoManual] = useState(false);
+
+    // Quando a pessoa sai do campo CEP, busca o endereço no ViaCEP e preenche os outros campos
+    const handlerBuscarCep = async () => {
+        if (cep.replace(/\D/g, "").length !== 8) {
+            return;
+        }
+
+        setBuscandoCep(true);
+        try {
+            const endereco = await buscarEnderecoPorCep(cep);
+            setLogradouro(endereco.logradouro);
+            setBairro(endereco.bairro);
+            setCidade(endereco.cidade);
+            setUf(endereco.uf);
+            setEnderecoManual(!endereco.logradouro || !endereco.bairro);
+        } catch (erro) {
+            alert((erro as { response?: { data?: string } }).response?.data || "Erro ao buscar CEP!");
+        } finally {
+            setBuscandoCep(false);
+        }
+    }
 
     // envia os dados para o back, que cria o usuário como freelancer
     const handlerRegistrar = async(formData : FormData) =>{
+        // o endereço precisa ter vindo do CEP (cidade e UF preenchidas) antes de cadastrar
+        if (buscandoCep || !logradouro || !bairro || !cidade || !uf) {
+            alert("Informe um CEP válido, aguarde o endereço ser preenchido e preencha todos os campos!");
+            return;
+        }
+
         const dadosRetorno = await registrarFreelancer({
             nome: nome,
             cpf: cpf,
             email: email,
             senha: senha,
+            cep: cep,
+            logradouro: logradouro,
+            bairro: bairro,
+            cidade: cidade,
+            uf: uf,
         });
 
         if (dadosRetorno.status == 200){
@@ -46,7 +90,7 @@ export default function Registrar(){
             &larr; Voltar à página inicial
         </Link>
 
-        <div className="w-full max-w-md bg-slate-950/70 backdrop-blur-2xl border border-slate-800/80 rounded-3xl p-8 md:p-10 shadow-2xl shadow-blue-950/30 relative z-10">
+        <div className="w-full max-w-2xl bg-slate-950/70 backdrop-blur-2xl border border-slate-800/80 rounded-3xl p-8 md:p-10 shadow-2xl shadow-blue-950/30 relative z-10">
             <div className="text-center mb-8 space-y-2">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold tracking-wide uppercase mb-1">
                     <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping"></span>
@@ -58,7 +102,7 @@ export default function Registrar(){
                 <p className="text-sm text-slate-400">Cadastre-se para enviar propostas aos projetos</p>
             </div>
 
-            <form action={handlerRegistrar} className="space-y-5">
+            <form action={handlerRegistrar} className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-1.5">
                     <label className={labelClasses}>Nome completo</label>
                     <input name="nome" value={nome} onChange={(e) => setNome(e.target.value)} required placeholder="João da Silva Sauro" className={inputClasses} />
@@ -76,9 +120,32 @@ export default function Registrar(){
                     <input name="senha" type="password" value={senha} onChange={(e) => setSenha(e.target.value)} required placeholder="••••••••" className={inputClasses} />
                 </div>
 
+                {/* endereço: o CEP preenche o resto pelo ViaCEP */}
+                <div className="space-y-1.5">
+                    <label className={labelClasses}>CEP</label>
+                    <input name="cep" value={cep} onChange={(e) => { setCep(e.target.value); setLogradouro(""); setBairro(""); setCidade(""); setUf(""); setEnderecoManual(false); }} onBlur={handlerBuscarCep} required placeholder="00000-000" className={inputClasses} />
+                </div>
+                <div className="space-y-1.5">
+                    <label className={labelClasses}>Logradouro</label>
+                    <input name="logradouro" value={logradouro} readOnly={!enderecoManual} onChange={(e) => setLogradouro(e.target.value)} required placeholder="Preenchido pelo CEP" className={inputClasses} />
+                </div>
+                <div className="space-y-1.5">
+                    <label className={labelClasses}>Bairro</label>
+                    <input name="bairro" value={bairro} readOnly={!enderecoManual} onChange={(e) => setBairro(e.target.value)} required placeholder="Preenchido pelo CEP" className={inputClasses} />
+                </div>
+                <div className="space-y-1.5">
+                    <label className={labelClasses}>Cidade</label>
+                    <input name="cidade" value={cidade} readOnly required placeholder="Preenchido pelo CEP" className={inputClasses} />
+                </div>
+                <div className="space-y-1.5">
+                    <label className={labelClasses}>UF</label>
+                    <input name="uf" value={uf} readOnly required placeholder="Preenchido pelo CEP" className={inputClasses} />
+                </div>
+
                 <button
                     type="submit"
-                    className="w-full mt-2 py-3.5 px-4 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-200 transform active:scale-[0.99] cursor-pointer text-sm tracking-wide"
+                    disabled={buscandoCep}
+                    className="md:col-span-2 w-full mt-2 py-3.5 px-4 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-200 transform active:scale-[0.99] cursor-pointer text-sm tracking-wide disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     CADASTRAR
                 </button>

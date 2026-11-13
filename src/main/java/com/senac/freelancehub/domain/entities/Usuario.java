@@ -1,6 +1,7 @@
 package com.senac.freelancehub.domain.entities;
 
 import com.senac.freelancehub.application.DTOs.CriarAdminRequest;
+import com.senac.freelancehub.application.DTOs.RegistrarClienteRequest;
 import com.senac.freelancehub.application.DTOs.UsuarioLogado;
 import com.senac.freelancehub.application.DTOs.UsuarioRequest;
 import com.senac.freelancehub.domain.valueobject.CPF;
@@ -41,12 +42,19 @@ public class Usuario implements UserDetails {
 
     private String email;
 
-    private String role = "ROLE_FREELANCER"; // MUDANÇA: antes era ROLE_USER
+    private String role = "ROLE_USUARIO"; // MUDANÇA: antes era ROLE_FREELANCER (e antes disso ROLE_USER)
 
     // status do usuário, começa ativo
     private EnumStatus status = EnumStatus.ATIVO;
 
-    // MUDANÇA: cliente (empresa) do usuário, só os usuários do tipo empresa têm
+    // MUDANÇA: endereço do freelancer (preenchido pelo CEP, via ViaCEP). O do cliente fica no Cliente
+    private String cep;
+    private String logradouro;
+    private String bairro;
+    private String cidade;
+    private String uf;
+
+    // MUDANÇA: cliente (pessoa ou empresa) do usuário, só os usuários com ROLE_CLIENTE têm
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cliente_id", referencedColumnName = "id")
     private Cliente cliente;
@@ -87,7 +95,25 @@ public class Usuario implements UserDetails {
         this.setNome(usuario.nome());
         this.setSenha(usuario.senha());
         this.setEmail(usuario.email());
-        this.setRole("ROLE_FREELANCER");
+        this.setCep(usuario.cep());
+        this.setLogradouro(usuario.logradouro());
+        this.setBairro(usuario.bairro());
+        this.setCidade(usuario.cidade());
+        this.setUf(usuario.uf());
+        this.setRole("ROLE_USUARIO");
+    }
+
+    // MUDANÇA (novo): cria o usuário de um cliente (pessoa ou empresa), ligado ao cliente já salvo
+    public Usuario(RegistrarClienteRequest request, Cliente cliente) {
+        // só o cliente pessoa tem cpf, a empresa tem cnpj (que fica no Cliente)
+        if (request.tipo() == EnumTipoCliente.PESSOA) {
+            this.setCpf(new CPF(request.cpf()));
+        }
+        this.setNome(request.nome());
+        this.setSenha(request.senha());
+        this.setEmail(request.email());
+        this.setRole("ROLE_CLIENTE");
+        this.setCliente(cliente);
     }
 
     public UsuarioLogado getUsuarioLogado(){

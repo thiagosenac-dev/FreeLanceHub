@@ -2,6 +2,8 @@ package com.senac.freelancehub.application.ports;
 
 import com.senac.freelancehub.application.DTOs.AtualizarStatusRequest;
 import com.senac.freelancehub.application.DTOs.CategoriaResponse;
+import com.senac.freelancehub.application.DTOs.ClienteResponse;
+import com.senac.freelancehub.application.DTOs.RegistrarClienteRequest;
 import com.senac.freelancehub.application.DTOs.CriarAdminRequest;
 import com.senac.freelancehub.application.DTOs.CriarAdminResponse;
 import com.senac.freelancehub.application.DTOs.HabilidadeRequest;
@@ -40,4 +42,6 @@ public interface UsuarioServicePort {
     UsuarioResponse BuscarUsuarioLogado();
 
     UsuarioResponse registrarFreelancer(UsuarioRequest request);
+
+    ClienteResponse registrarCliente(RegistrarClienteRequest request);
 }
