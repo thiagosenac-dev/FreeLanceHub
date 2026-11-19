@@ -6,6 +6,8 @@ COPY . .
 
 RUN mvn clean package -DskipTests
 
+FROM eclipse-temurin:21-jre-jammy
+
 WORKDIR /app
 
 COPY --from=builder /app/target/spring-boot-starter-parent-4.1.0-SNAPSHOT.jar .
