@@ -10,8 +10,8 @@ FROM eclipse-temurin:21-jre-jammy
 
 WORKDIR /app
 
-COPY --from=builder /app/target/spring-boot-starter-parent-4.1.0-SNAPSHOT.jar .
+COPY --from=builder /app/target/FreeLanceHub-0.0.1-SNAPSHOT.jar .
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar","spring-boot-starter-parent-4.1.0-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar","FreeLanceHub-0.0.1-SNAPSHOT.jar"]
