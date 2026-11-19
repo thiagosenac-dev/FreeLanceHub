@@ -183,6 +183,12 @@ public class PropostaService implements PropostaServicePort {
             return false;
         }
 
+        // MUDANÇA: não aceita nem recusa proposta de projeto que não está mais aberto ou de empresa bloqueada/excluída
+        if ((statusRequest.status() == EnumStatusProposta.ACEITA || statusRequest.status() == EnumStatusProposta.RECUSADA)
+                && !new PropostaResponse(propostaBanco).projetoAberto()) {
+            throw new IllegalArgumentException("Esse projeto não está mais aberto!");
+        }
+
         // MUDANÇA: ao aceitar uma proposta, as outras pendentes do mesmo projeto são recusadas automaticamente
         if (statusRequest.status() == EnumStatusProposta.ACEITA) {
 

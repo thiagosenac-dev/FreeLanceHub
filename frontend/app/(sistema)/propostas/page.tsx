@@ -182,7 +182,7 @@ export default function Propostas() {
                                                             </button>
                                                         </>
                                                     )}
-                                                    {pendente && role !== "ROLE_USUARIO" && (
+                                                    {pendente && role !== "ROLE_USUARIO" && proposta.projetoAberto !== false && (
                                                         <>
                                                             <button
                                                                 onClick={() => alterarStatus(proposta.id, "ACEITA")}

@@ -15,7 +15,11 @@ public record UsuarioResponse(Long id, String nome, String cpf, String email, En
                 // MUDANÇA: usuário do cliente empresa não tem cpf
                 usuarioEntidade.getCpf() != null ? usuarioEntidade.getCpf().toString() : "",
                 usuarioEntidade.getEmail(),
-                usuarioEntidade.getStatus(),
+                // MUDANÇA: se o cliente (empresa/pessoa) dele está bloqueado ou excluído, mostra esse status
+                usuarioEntidade.getCliente() != null && usuarioEntidade.getCliente().getStatus() != null
+                        && usuarioEntidade.getCliente().getStatus() != EnumStatus.ATIVO
+                        ? usuarioEntidade.getCliente().getStatus()
+                        : usuarioEntidade.getStatus(),
                 usuarioEntidade.getRole(),
                 usuarioEntidade.getCep(),
                 usuarioEntidade.getLogradouro(),
