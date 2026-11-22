@@ -15,7 +15,7 @@ public class FreeLanceHubApplication {
         System.out.println("______PROGRAMA RODOU______");
     }
 
-    // ao iniciar, apaga os tokens do banco (reiniciar o back derruba os logins)
+    // ao iniciar, apaga os tokens do banco (reiniciar o back é pra derruba os logins)
     @Bean
     CommandLineRunner limpaTokens(TokenRepository tokenRepository) {
         return args -> tokenRepository.deleteAll();
