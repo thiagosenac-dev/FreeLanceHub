@@ -19,6 +19,7 @@ import java.util.List;
 import com.senac.freelancehub.application.ports.ProjetoServicePort;
 import com.senac.freelancehub.application.ports.UsuarioServicePort;
 
+// regras de negócio dos projetos (cada cliente só vê os dele)
 @Service
 public class ProjetoService implements ProjetoServicePort {
 

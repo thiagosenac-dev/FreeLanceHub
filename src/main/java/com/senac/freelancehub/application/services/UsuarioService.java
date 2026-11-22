@@ -22,6 +22,7 @@ import java.util.List;
 import com.senac.freelancehub.application.ports.TokenServicePort;
 import com.senac.freelancehub.application.ports.UsuarioServicePort;
 
+// regras de usuários: login, cadastros, habilidades e gestão do admin
 @Service
 public class UsuarioService implements UsuarioServicePort {
 

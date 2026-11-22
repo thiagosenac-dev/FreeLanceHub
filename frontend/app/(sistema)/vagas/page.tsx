@@ -21,6 +21,7 @@ export default function Vagas() {
     const [propostas, setPropostas] = useState<Proposta[]>([])
     // categorias ficam no Redux (slice compartilhado com as outras telas)
     const categorias = useSelector((state: RootState) => state.categorias.lista)
+    // para enviar ações ao Redux
     const dispatch = useDispatch();
 
     // Carrega assim que a página abre
@@ -28,6 +29,7 @@ export default function Vagas() {
         carregarDados();
     }, []);
 
+    // busca as vagas do freelancer e as propostas que ele já enviou
     const carregarDados = async () => {
         try {
             setProjetos(await buscarVagas());
@@ -49,9 +51,7 @@ export default function Vagas() {
                 {/* Cabeçalho */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-2xl shadow-blue-950/20">
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                            Vagas para Você
-                        </h1>
+                        <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Vagas para Você</h1>
                         <p className="text-sm text-slate-400 mt-1">Projetos abertos das categorias que você cadastrou como habilidade</p>
                     </div>
 
@@ -67,15 +67,11 @@ export default function Vagas() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {projetos.map((projeto) => (
                         <div key={projeto.id} className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 hover:border-blue-500/50 rounded-2xl p-6 shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col gap-4">
-                            <span className="self-start inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                                {categorias.find(c => c.id === projeto.categoriaId)?.nome ?? "-"}
-                            </span>
+                            <span className="self-start inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">{categorias.find(c => c.id === projeto.categoriaId)?.nome ?? "-"}</span>
                             <h2 className="text-lg font-bold text-slate-100">{projeto.nome}</h2>
                             <p className="text-sm text-slate-400 leading-relaxed">{projeto.descricao}</p>
                             <div className="flex items-center justify-between text-sm mt-auto">
-                                <span className="font-semibold text-emerald-400">
-                                    {Number(projeto.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                                </span>
+                                <span className="font-semibold text-emerald-400">{Number(projeto.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
                                 <span className="text-slate-500">Prazo: {/^\d{4}-\d{2}-\d{2}$/.test(projeto.prazo) ? projeto.prazo.split('-').reverse().join('/') : projeto.prazo}</span>
                             </div>
                             {/* já enviou proposta para esse projeto: não mostra o botão, só o aviso (é uma proposta por projeto) */}
@@ -100,9 +96,7 @@ export default function Vagas() {
 
                 {/* Mensagem se não tem vaga */}
                 {projetos.length === 0 && (
-                    <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-12 text-center text-slate-500 italic">
-                        Nenhuma vaga para as suas habilidades. Cadastre suas habilidades para ver projetos.
-                    </div>
+                    <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-12 text-center text-slate-500 italic">Nenhuma vaga para as suas habilidades. Cadastre suas habilidades para ver projetos.</div>
                 )}
             </div>
         </div>

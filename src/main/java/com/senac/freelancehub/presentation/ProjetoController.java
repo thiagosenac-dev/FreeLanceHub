@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+// endpoints REST dos projetos (/projetos)
 @RestController
 @RequestMapping("/projetos")
 @Tag(name = "Projetos", description = "grupo de API responsável por controlar a estrutura dos projetos do sistema")
@@ -19,6 +20,7 @@ public class ProjetoController {
     @Autowired
     private ProjetoServicePort projetoService;
 
+    // lista os projetos (admin vê todos, o cliente só os dele)
     @GetMapping
     @Operation(summary = "Método de consulta de lista de usuários!", description = "Método responsável pela colsulta de todos os projetos sem filtro")
     public ResponseEntity<?> ListarTodos() {
@@ -26,6 +28,7 @@ public class ProjetoController {
         return ResponseEntity.ok(projetoService.ListarTodosProjetosGrid());
     }
 
+    // busca o projeto pelo id (404 se não existir ou não for do usuário)
     @GetMapping("/{id}")
     @Operation(summary = "Método de consulta de lista de usuários POR ID", description = "Método responsável pela colsulta dos projetos por ID")
     public ResponseEntity<ProjetoResponse> BuscarPorId(@PathVariable Long id){
@@ -37,6 +40,7 @@ public class ProjetoController {
         return ResponseEntity.notFound().build();
     }
 
+    // cria um projeto (só o cliente)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Método de consulta de lista de usuários!", description = "Método responsável pela colsulta de todos os projetos sem filtro")
@@ -50,6 +54,7 @@ public class ProjetoController {
         }
     }
 
+    // altera só o status do projeto
     @PatchMapping("/{id}/status")
     @Operation(summary = "Método de aletrar Status", description = "Método responsável aletração dos status dos projetos")
     public ResponseEntity<Void> atualizarStatus(@PathVariable Long id, @RequestBody AtualizarStatusProjetoRequest statusRequest){
@@ -60,6 +65,7 @@ public class ProjetoController {
         return ResponseEntity.notFound().build();
     }
 
+    // atualiza os dados do projeto
     @PutMapping("/{id}")
     @Operation(summary = "Método de alterar iformações do usuário", description = "Método responsável pela alteração de projetos")
     public ResponseEntity<?> atualizarProjeto(@PathVariable Long id, @RequestBody ProjetoRequest projeto){
@@ -75,6 +81,7 @@ public class ProjetoController {
         }
     }
 
+    // exclusão lógica do projeto
     @DeleteMapping("/{id}/excluir")
     @Operation(summary = "Método de inativação de cadastro", description = "Método responsável inativação do cadastro do projeto")
     public ResponseEntity<Void> excluir(@PathVariable Long id){

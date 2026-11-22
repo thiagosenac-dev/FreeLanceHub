@@ -12,10 +12,12 @@ export default function Habilidades() {
     const [categorias, setCategorias] = useState<Categoria[]>([])
     const [minhas, setMinhas] = useState<number[]>([])
 
+    // ao abrir a página, carrega as categorias e as habilidades
     useEffect(() => {
         carregarDados();
     }, []);
 
+    // busca as categorias ativas e as habilidades do freelancer
     const carregarDados = async () => {
         try {
             const cats = await buscarListaCategorias()
@@ -51,9 +53,7 @@ export default function Habilidades() {
 
                 {/* Cabeçalho */}
                 <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-2xl shadow-blue-950/20">
-                    <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                        Minhas Habilidades
-                    </h1>
+                    <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Minhas Habilidades</h1>
                     <p className="text-sm text-slate-400 mt-1">Clique nas categorias em que você atua. Você só vê as vagas dessas categorias.</p>
                 </div>
 

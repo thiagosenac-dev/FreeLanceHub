@@ -8,6 +8,7 @@ import { useState } from "react";
 
 // MUDANÇA (novo): cadastro público de cliente (quem publica projetos), pessoa ou empresa
 export default function RegistrarCliente(){
+    // para ir ao login depois do cadastro
     const router = useRouter();
 
     // escolhe se o cliente é pessoa ou empresa (muda os campos da tela)
@@ -100,9 +101,7 @@ export default function RegistrarCliente(){
         <div className="absolute w-[500px] h-[500px] bg-gradient-to-r from-indigo-600/20 to-blue-500/20 rounded-full blur-[100px] z-0 pointer-events-none bottom-[-10%] right-[-10%] animate-pulse"></div>
 
         {/* botão para voltar à página inicial */}
-        <Link href="/" className="absolute top-5 left-5 z-10 inline-flex items-center justify-center text-sm font-medium text-slate-300 hover:text-white bg-white/[0.03] hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-cyan-500/10 border border-white/[0.08] hover:border-blue-400/40 px-4 py-2.5 rounded-xl transition-all duration-300 hover:shadow-[0_0_18px_rgba(34,211,238,0.3)]">
-            &larr; Voltar à página inicial
-        </Link>
+        <Link href="/" className="absolute top-5 left-5 z-10 inline-flex items-center justify-center text-sm font-medium text-slate-300 hover:text-white bg-white/[0.03] hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-cyan-500/10 border border-white/[0.08] hover:border-blue-400/40 px-4 py-2.5 rounded-xl transition-all duration-300 hover:shadow-[0_0_18px_rgba(34,211,238,0.3)]">&larr; Voltar à página inicial</Link>
 
         <div className="w-full max-w-2xl bg-slate-950/70 backdrop-blur-2xl border border-slate-800/80 rounded-3xl p-8 md:p-10 shadow-2xl shadow-blue-950/30 relative z-10">
             <div className="text-center mb-8 space-y-2">
@@ -110,9 +109,7 @@ export default function RegistrarCliente(){
                     <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping"></span>
                     Novo Cliente
                 </div>
-                <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 bg-clip-text text-transparent">
-                    Criar Conta
-                </h1>
+                <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 bg-clip-text text-transparent">Criar Conta</h1>
                 <p className="text-sm text-slate-400">Cadastre-se para publicar projetos e receber propostas</p>
             </div>
 

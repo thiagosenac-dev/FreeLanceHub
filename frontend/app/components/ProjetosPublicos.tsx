@@ -10,20 +10,25 @@ import { useSelector } from "react-redux";
 
 // MUDANÇA (novo): lista pública de projetos abertos na landing page (sem login)
 export default function ProjetosPublicos() {
+    // projetos abertos e categorias mostrados na página inicial
     const [projetos, setProjetos] = useState<Projeto[]>([]);
     const [categorias, setCategorias] = useState<Categoria[]>([]);
     // se já tem login (token no Redux), o botão leva direto para as vagas
     const token = useSelector((state: RootState) => state.auth.token);
+    // true quando já existe token no Redux
     const [logado, setLogado] = useState(false);
 
+    // atualiza o 'logado' quando o token do Redux muda
     useEffect(() => {
         setLogado(!!token);
     }, [token]);
 
+    // ao abrir, carrega os projetos e as categorias públicas
     useEffect(() => {
         carregarDados();
     }, []);
 
+    // busca os projetos abertos e as categorias, sem login
     const carregarDados = async () => {
         try {
             setProjetos(await buscarProjetosPublicos());
@@ -46,15 +51,11 @@ export default function ProjetosPublicos() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {projetos.map((projeto) => (
                         <div key={projeto.id} className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 hover:border-blue-500/50 rounded-2xl p-6 shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col gap-4">
-                            <span className="self-start inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                                {categorias.find(c => c.id === projeto.categoriaId)?.nome ?? "Geral"}
-                            </span>
+                            <span className="self-start inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20">{categorias.find(c => c.id === projeto.categoriaId)?.nome ?? "Geral"}</span>
                             <h4 className="text-lg font-bold text-slate-100">{projeto.nome}</h4>
                             <p className="text-sm text-slate-400 leading-relaxed line-clamp-3">{projeto.descricao}</p>
                             <div className="flex items-center justify-between text-sm mt-auto">
-                                <span className="font-semibold text-emerald-400">
-                                    {Number(projeto.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                                </span>
+                                <span className="font-semibold text-emerald-400">{Number(projeto.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
                                 <span className="text-slate-500">Prazo: {/^\d{4}-\d{2}-\d{2}$/.test(projeto.prazo) ? projeto.prazo.split('-').reverse().join('/') : projeto.prazo}</span>
                             </div>
                             <Link

@@ -4,6 +4,7 @@ import com.senac.freelancehub.domain.entities.Cliente;
 import com.senac.freelancehub.domain.entities.EnumStatus;
 import com.senac.freelancehub.domain.entities.EnumTipoCliente;
 
+// dados do cliente devolvidos pela API
 public record ClienteResponse (long id, String nome, String cpf, String email, String telefone, EnumStatus status,
                               String cep, String logradouro, String bairro, String cidade, String uf,
                               EnumTipoCliente tipo, String razaoSocial, String cnpj) {

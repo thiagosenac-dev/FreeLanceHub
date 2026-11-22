@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// endpoints REST dos usuários (/usuarios), só o admin
 @RestController
 @RequestMapping("/usuarios")
 @Tag(name = "Usuarios", description = "grupo de API responsável por controlar a estrutura de criação e consulta de usuários do sistema")

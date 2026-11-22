@@ -4,7 +4,7 @@ import { atualizarStatusUsuario, buscarListaUsuarios, deletarUsuario } from "@/a
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-
+// listagem de usuários (admin): tabela com as ações de editar, excluir e bloquear
 export default function Usuarios(){
 
     // Lista de usuários que vem da API
@@ -15,6 +15,7 @@ export default function Usuarios(){
         carregarDados();
     },[]);
 
+    // busca todos os usuários na API
     const carregarDados = async ()=>{
 
         try {
@@ -59,7 +60,6 @@ export default function Usuarios(){
     // Inverte o status do usuário entre ativo e bloqueado
     const handleAlterarStatusUsuario = async(usuario:Usuario) =>{
 
-
         try {
             await atualizarStatusUsuario(usuario);
         } catch (erro) {
@@ -84,9 +84,7 @@ export default function Usuarios(){
 
                 {/* Cabeçalho com título e botão de novo usuário */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-2xl shadow-blue-950/20">
-                    <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                        Gestão de usuários
-                    </h1>
+                    <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Gestão de usuários</h1>
                     <Link 
                         href="/usuarios/novo"
                         className="inline-flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-sm rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200 active:scale-[0.99] w-full sm:w-auto text-center"
@@ -167,9 +165,7 @@ export default function Usuarios(){
                                 { usuarios.length === 0 &&
                                 (
                                     <tr>
-                                        <td colSpan={6} className="py-12 text-center text-slate-500 italic">
-                                            Nenhum usuário encontrado
-                                        </td>
+                                        <td colSpan={6} className="py-12 text-center text-slate-500 italic">Nenhum usuário encontrado</td>
                                     </tr>
                                 )
                                 }

@@ -7,6 +7,7 @@ import com.senac.freelancehub.application.DTOs.UsuarioLogado;
 // Porta (interface) do serviço de token JWT: quem usa (controllers, filtro) depende desta interface, não da classe
 public interface TokenServicePort {
 
+    // gera o token JWT do login
     String gerarToken(LoginRequest loginResquestDto);
 
     UsuarioLogado verificarToken(String token) throws JWTVerificationException;

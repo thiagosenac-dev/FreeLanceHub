@@ -1,3 +1,4 @@
+// projeto publicado por um cliente
 export class Projeto{
     constructor(
         public id: number | null,

@@ -8,9 +8,11 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+// configuração do Swagger (OpenAPI) com o botão de token Bearer
 @Configuration
 public class SwaggerConfiguration {
 
+    // monta a documentação da API
     @Bean
     public OpenAPI customOpenAPI() {
 

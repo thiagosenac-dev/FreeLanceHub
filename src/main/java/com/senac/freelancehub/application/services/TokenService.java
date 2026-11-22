@@ -20,6 +20,7 @@ import java.time.ZoneOffset;
 import java.util.UUID;
 import com.senac.freelancehub.application.ports.TokenServicePort;
 
+// gera e valida os tokens JWT (que ficam salvos no banco)
 @Service
 public class TokenService implements TokenServicePort {
 
@@ -38,6 +39,7 @@ public class TokenService implements TokenServicePort {
     private TokenRepository tokenRepository;
 
 
+    // cria o token JWT com validade, salva no banco e devolve
     public String gerarToken(LoginRequest loginResquestDto){
 
         Algorithm algorithm = Algorithm.HMAC256(secret);
@@ -60,6 +62,7 @@ public class TokenService implements TokenServicePort {
         return token;
     }
 
+    // confere a assinatura, a validade e se o token está no banco; devolve o usuário logado
     public UsuarioLogado verificarToken(String token) throws JWTVerificationException {
         Algorithm algorithm = Algorithm.HMAC256(secret);
 

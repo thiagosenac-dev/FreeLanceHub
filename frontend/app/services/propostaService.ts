@@ -1,6 +1,7 @@
 import { Proposta } from "../types/proposta";
 import api from "./api";
 
+// busca as propostas (o que vem depende do perfil do usuário)
 export async function buscarListaPropostas(): Promise<Proposta[]> {
 
     const dados = await api.get<Proposta[]>("/propostas");
@@ -46,17 +47,20 @@ export async function atualizarStatusProposta(id: number | null, status: string)
     }
 }
 
+// busca a proposta pelo id
 export async function consultaPropostaPorId(id: number): Promise<Proposta> {
     const valorPropostaBack = await api.get<Proposta>('/propostas/' + id);
     return valorPropostaBack.data;
 }
 
+// atualiza os dados da proposta
 export async function atualizarProposta(proposta: Proposta): Promise<number> {
     var dadosRetorno = await
         api.put<number>('/propostas/' + proposta.id, proposta);
     return dadosRetorno.data;
 }
 
+// cria a proposta do freelancer para um projeto
 export async function salvarProposta(proposta: Proposta, projetoId: number): Promise<number> {
     var dadosRetorno = await
         api.post<number>('/propostas', { ...proposta, projetoId });

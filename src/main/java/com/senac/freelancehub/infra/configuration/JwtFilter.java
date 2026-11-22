@@ -13,12 +13,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
+// filtro que lê o token JWT de cada requisição e coloca o usuário logado no contexto de segurança
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
     @Autowired
     private TokenServicePort tokenService;
 
+    // roda em toda requisição: libera as rotas públicas, senão valida o Bearer token (401 se for inválido)
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 

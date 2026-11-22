@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import com.senac.freelancehub.application.ports.ClienteServicePort;
 
+// regras de negócio dos clientes (consulta, edição, status e exclusão)
 @Service
 public class ClienteService implements ClienteServicePort {
 

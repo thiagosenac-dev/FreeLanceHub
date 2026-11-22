@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.util.HashSet;
 import java.util.Set;
 
+// categoria (ramo) dos projetos, também é a habilidade do freelancer
 @Entity
 @Data
 @AllArgsConstructor

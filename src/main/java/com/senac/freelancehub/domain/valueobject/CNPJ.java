@@ -18,6 +18,7 @@ public class CNPJ {
         this.cnpj = cnpj;
     }
 
+    // confere o tamanho e os dígitos verificadores do CNPJ
     public static boolean isValidCnpj(String cnpj) {
         if (cnpj == null) {
             return false;
@@ -64,6 +65,7 @@ public class CNPJ {
         }
     }
 
+    // devolve o CNPJ formatado (00.000.000/0000-00)
     @Override
     public String toString(){
         return cnpj.replaceAll("\\D","")

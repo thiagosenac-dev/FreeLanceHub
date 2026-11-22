@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+// token JWT salvo no banco, ligado ao usuário que fez login
 @Entity
 @Data
 @NoArgsConstructor

@@ -11,6 +11,10 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+// classes iguais para todos os campos e rótulos do formulário
+const inputClasses = "w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]";
+const labelClasses = "block text-sm font-medium text-slate-300";
+
 // Dados que esse formulário pode receber: um projeto já existente (modo edição) ou nada (modo cadastro)
 interface ProjetoFormProps {
     projetoExistente?: Projeto;
@@ -18,6 +22,7 @@ interface ProjetoFormProps {
 
 // Formulário de projeto. Serve tanto para cadastrar um novo quanto para editar um já existente
 export default function ProjetoForm({ projetoExistente }: ProjetoFormProps) {
+    // para trocar de página
     const router = useRouter();
 
     // Se recebeu um projeto existente, começa com os dados dele. Se não, começa em branco (cadastro novo)
@@ -32,8 +37,10 @@ export default function ProjetoForm({ projetoExistente }: ProjetoFormProps) {
     // Lista de categorias ativas para o select (vem do Redux)
     const todasCategorias = useSelector((state: RootState) => state.categorias.lista);
     const categorias = todasCategorias.filter(c => String(c.status).toUpperCase() === "ATIVO");
+    // para enviar ações ao Redux
     const dispatch = useDispatch();
 
+    // ao abrir o formulário, carrega as categorias e guarda no Redux
     useEffect(() => {
         buscarListaCategorias().then(lista => dispatch(setCategorias(lista)));
     }, []);
@@ -96,22 +103,11 @@ export default function ProjetoForm({ projetoExistente }: ProjetoFormProps) {
             <fieldset disabled={somenteLeitura} className="min-w-0 border-0 p-0 m-0">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2 md:col-span-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        Nome do projeto:
-                    </label>
-                    <input
-                        name="nome"
-                        value={projeto.nome}
-                        required
-                        onChange={(e) => handlerChange('nome', e.target.value)}
-                        placeholder="Site institucional"
-                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                    </input>
+                    <label className={labelClasses}>Nome do projeto:</label>
+                    <input name="nome" value={projeto.nome} required onChange={(e) => handlerChange('nome', e.target.value)} placeholder="Site institucional" className={inputClasses} />
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        Descrição:
-                    </label>
+                    <label className={labelClasses}>Descrição:</label>
                     <textarea
                         name="descricao"
                         value={projeto.descricao}
@@ -123,37 +119,15 @@ export default function ProjetoForm({ projetoExistente }: ProjetoFormProps) {
                     </textarea>
                 </div>
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        Valor:
-                    </label>
-                    <input
-                        name="valor"
-                        type="number"
-                        step="0.01"
-                        value={projeto.valor}
-                        required
-                        placeholder="0,00"
-                        onChange={(e) => handlerChange('valor', e.target.value)}
-                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                    </input>
+                    <label className={labelClasses}>Valor:</label>
+                    <input name="valor" type="number" step="0.01" value={projeto.valor} required placeholder="0,00" onChange={(e) => handlerChange('valor', e.target.value)} className={inputClasses} />
                 </div>
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        Prazo:
-                    </label>
-                    <input
-                        name="prazo"
-                        type="date"
-                        value={projeto.prazo}
-                        required
-                        onChange={(e) => handlerChange('prazo', e.target.value)}
-                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                    </input>
+                    <label className={labelClasses}>Prazo:</label>
+                    <input name="prazo" type="date" value={projeto.prazo} required onChange={(e) => handlerChange('prazo', e.target.value)} className={inputClasses} />
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        Categoria:
-                    </label>
+                    <label className={labelClasses}>Categoria:</label>
                     <select
                         value={projeto.categoriaId ?? ""}
                         required
@@ -170,9 +144,7 @@ export default function ProjetoForm({ projetoExistente }: ProjetoFormProps) {
 
             {/* Aviso: projeto que não está aberto não pode ser alterado */}
             {somenteLeitura && (
-                <p className="text-sm text-amber-400">
-                    Este projeto está {String(projetoExistente?.status).toLowerCase()} e não pode mais ser alterado.
-                </p>
+                <p className="text-sm text-amber-400">Este projeto está {String(projetoExistente?.status).toLowerCase()} e não pode mais ser alterado.</p>
             )}
 
             {/* Botões: cancelar volta para a lista sem salvar, salvar envia o formulário */}

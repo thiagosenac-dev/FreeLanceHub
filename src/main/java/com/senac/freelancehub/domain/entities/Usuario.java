@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+// usuário do sistema (admin, freelancer ou cliente), também é o usuário do Spring Security
 @Entity
 @Data
 @NoArgsConstructor
@@ -116,10 +117,12 @@ public class Usuario implements UserDetails {
         this.setCliente(cliente);
     }
 
+    // pega o usuário logado que o JwtFilter colocou no contexto
     public UsuarioLogado getUsuarioLogado(){
         return (UsuarioLogado) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
+    // perfil (role) do usuário para o Spring Security
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(this.role));
@@ -130,6 +133,7 @@ public class Usuario implements UserDetails {
         return "";
     }
 
+    // não é usado: o login é feito pelo e-mail no UsuarioService
     @Override
     public String getUsername() {
         return "";

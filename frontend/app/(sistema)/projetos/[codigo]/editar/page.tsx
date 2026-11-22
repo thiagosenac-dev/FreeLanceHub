@@ -1,22 +1,21 @@
 "use client"
 
-
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { consultaProjetoPorId } from "@/app/services/projetoService";
 import { useParams, useRouter } from "next/navigation";
 import ProjetoForm from "../../components/ProjetoForm";
 
-
 // mesma fonte do menu lateral
-
 
 export default function EditarProjeto(){
     // pega o código do projeto que vem na rota
     const codigo = Number(useParams().codigo);
+    // para trocar de página
     const router = useRouter();
     // busca o projeto inteiro pra passar pro form e pra mostrar no título
     const [projeto, setProjeto] = useState<any>(null);
+    // ao abrir a página, busca o projeto (se não achar, volta para a lista)
     useEffect(() => { consultaProjetoPorId(codigo).then(dados => setProjeto(dados)).catch(() => router.push("/projetos")); }, [codigo]);
     const glowClasses = "pointer-events-none absolute -z-10 rounded-full blur-3xl animate-pulse";
     const cardClasses = "relative overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-950/80 backdrop-blur-xl shadow-2xl shadow-blue-950/30";

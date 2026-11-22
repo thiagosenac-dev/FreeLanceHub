@@ -11,6 +11,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 
+// chama a API externa do ViaCEP para buscar o endereço
 @Component
 public class ViaCepExternalRepository implements IViaCepExternalRepository {
 

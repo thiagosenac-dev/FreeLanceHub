@@ -10,24 +10,30 @@ import { Categoria } from "@/app/types/categoria";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+// texto e cor de cada status do projeto
 const statusInfo: Record<string, { label: string; style: string }> = {
     ABERTO: { label: "Aberto", style: "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" }, // MUDANÇA: status novo do projeto
     CONCLUIDO: { label: "Concluído", style: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" },
     CANCELADO: { label: "Cancelado", style: "bg-rose-500/10 text-rose-400 border border-rose-500/20" },
 };
 
+// listagem de projetos (admin vê todos, a empresa só os dela)
 export default function Projetos() {
+    // projetos mostrados na tabela
     const [projetos, setProjetos] = useState<Projeto[]>([])
     // categorias ficam no Redux (slice compartilhado com as outras telas)
     const categorias = useSelector((state: RootState) => state.categorias.lista)
     // perfil do usuário logado, vem do Redux (só a empresa cria projeto)
     const role = useSelector((state: RootState) => state.auth.usuario?.role) ?? "";
+    // para enviar ações ao Redux
     const dispatch = useDispatch();
 
+    // ao abrir a página, carrega os projetos e as categorias
     useEffect(() => {
         carregarDados();
     }, []);
 
+    // busca os projetos e as categorias (as categorias vão para o Redux)
     const carregarDados = async () => {
         try {
             setProjetos(await buscarListaProjetos());
@@ -37,6 +43,7 @@ export default function Projetos() {
         }
     }
 
+    // exclui (cancela) o projeto e recarrega a lista
     const excluirProjeto = async (id: number | null) => {
         if (confirm("Deseja realmente excluir este projeto?")) {
             try {
@@ -55,6 +62,7 @@ export default function Projetos() {
         carregarDados();
     }
 
+    // conta quantos projetos têm o status informado (cartões do topo)
     const contar = (status: string) => projetos.filter(p => String(p.status).toUpperCase() === status).length;
 
     return (
@@ -68,16 +76,12 @@ export default function Projetos() {
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-2xl shadow-blue-950/20">
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                            Gestão de Projetos
-                        </h1>
+                        <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Gestão de Projetos</h1>
                         <p className="text-sm text-slate-400 mt-1">Acompanhe e gerencie o progresso dos projetos da plataforma</p>
                     </div>
 
                     {role === "ROLE_CLIENTE" && (
-                        <Link className="inline-flex items-center justify-center py-3 px-5 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200 transform active:scale-[0.99] cursor-pointer text-sm tracking-wide w-full sm:w-auto text-center" href="/projetos/novo">
-                        + Novo Projeto
-                    </Link>
+                        <Link className="inline-flex items-center justify-center py-3 px-5 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold rounded-lg shadow-lg shadow-blue-500/25 transition-all duration-200 transform active:scale-[0.99] cursor-pointer text-sm tracking-wide w-full sm:w-auto text-center" href="/projetos/novo">+ Novo Projeto</Link>
                     )}
                 </div>
 
@@ -123,23 +127,15 @@ export default function Projetos() {
                                             <td className="py-4 px-2 2xl:px-6 text-slate-200 font-medium">{projeto.nome}</td>
                                             <td className="py-4 px-2 2xl:px-6 text-slate-400 hidden 2xl:table-cell">{projeto.descricao}</td>
                                             <td className="py-4 px-2 2xl:px-6 text-slate-400">{categorias.find(c => c.id === projeto.categoriaId)?.nome ?? "-"}</td>
-                                            <td className="py-4 px-2 2xl:px-6 text-slate-400 whitespace-nowrap">
-                                                {Number(projeto.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                                            </td>
+                                            <td className="py-4 px-2 2xl:px-6 text-slate-400 whitespace-nowrap">{Number(projeto.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
                                             <td className="py-4 px-2 2xl:px-6 text-slate-400">{/^\d{4}-\d{2}-\d{2}$/.test(projeto.prazo) ? projeto.prazo.split('-').reverse().join('/') : projeto.prazo}</td>
                                             <td className="py-4 px-2 2xl:px-6">
-                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${info.style}`}>
-                                                    {info.label}
-                                                </span>
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${info.style}`}>{info.label}</span>
                                             </td>
                                             <td className="py-4 px-2 2xl:px-6 text-right whitespace-nowrap">
                                                 <div className="flex flex-col items-end gap-1 2xl:flex-row 2xl:items-center 2xl:justify-end 2xl:gap-3">
-                                                    <Link href={`/projetos/${projeto.id}/propostas`} className="text-green-400 hover:text-green-300 font-medium text-xs transition-colors">
-                                                        Propostas
-                                                    </Link>
-                                                    <Link href={`/projetos/${projeto.id}/editar`} className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors">
-                                                        {String(projeto.status).toUpperCase() === 'ABERTO' ? 'Editar' : 'Ver'}
-                                                    </Link>
+                                                    <Link href={`/projetos/${projeto.id}/propostas`} className="text-green-400 hover:text-green-300 font-medium text-xs transition-colors">Propostas</Link>
+                                                    <Link href={`/projetos/${projeto.id}/editar`} className="text-blue-400 hover:text-blue-300 font-medium text-xs transition-colors">{String(projeto.status).toUpperCase() === 'ABERTO' ? 'Editar' : 'Ver'}</Link>
                                                     {String(projeto.status).toUpperCase() !== 'CANCELADO' && (
                                                         <button
                                                             onClick={() => excluirProjeto(projeto.id)}
@@ -156,9 +152,7 @@ export default function Projetos() {
 
                                 {projetos.length === 0 && (
                                     <tr>
-                                        <td colSpan={8} className="py-12 text-center text-slate-500 italic">
-                                            Nenhum projeto encontrado
-                                        </td>
+                                        <td colSpan={8} className="py-12 text-center text-slate-500 italic">Nenhum projeto encontrado</td>
                                     </tr>
                                 )}
                             </tbody>

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+// cliente (pessoa ou empresa) que publica projetos
 @Entity
 @Data
 @AllArgsConstructor

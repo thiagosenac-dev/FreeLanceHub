@@ -18,6 +18,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+// tela do desktop que cria o admin (chama /usuarios/admin)
 public class UsuarioController {
 
     @FXML
@@ -32,6 +33,7 @@ public class UsuarioController {
     @FXML
     private PasswordField txtSenha;
 
+    // monta o JSON do admin com a secretKey e envia para a API
     @FXML
     public void salvarUsuario(ActionEvent event) throws Exception {
 
@@ -67,6 +69,7 @@ public class UsuarioController {
     }
 
 
+    // volta para o menu
     @FXML
     public void voltar(ActionEvent event) throws IOException {
         FXMLLoader loader =

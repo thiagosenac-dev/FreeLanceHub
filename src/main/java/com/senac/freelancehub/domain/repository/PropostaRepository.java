@@ -7,9 +7,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+// acesso ao banco das propostas
 @Repository
 public interface PropostaRepository extends JpaRepository<Proposta, Long> {
 
+    // busca as propostas por status
     Optional<List<Proposta>> findByStatus(EnumStatusProposta status);
 
     // propostas enviadas por um usuário (freelancer)

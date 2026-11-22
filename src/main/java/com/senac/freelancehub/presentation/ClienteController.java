@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// endpoints REST dos clientes (/clientes), só o admin
 @RestController
 @RequestMapping("/clientes")
 @Tag(name = "Clientes", description = "grupo de API responsável por controlar a estrutura de criação e consulta de usuários do sistema")
@@ -21,6 +22,7 @@ public class ClienteController {
     @Autowired
     private ClienteServicePort clienteService;
 
+    // lista todos os clientes
     @GetMapping
     @Operation(summary = "Método de consulta de lista de clientes!", description = "Método responsável pela colsulta de todas os usuários sem filtro")
     public ResponseEntity<List<ClienteResponse>> ListarTodos() {
@@ -28,6 +30,7 @@ public class ClienteController {
         return ResponseEntity.ok(clienteService.ListarTodosClientesGrid());
     }
 
+    // busca o cliente pelo id (404 se não existir)
     @GetMapping("/{id}")
     @Operation(summary = "Método de consulta de lista de usuários POR ID", description = "Método responsável pela colsulta de usuários por ID")
     public ResponseEntity<ClienteResponse> BuscarPorId(@PathVariable Long id){
@@ -39,6 +42,7 @@ public class ClienteController {
         return ResponseEntity.notFound().build();
     }
 
+    // altera só o status do cliente
     @PatchMapping("/{id}/status")
     @Operation(summary = "Método de aletrar Status", description = "Método responsável aletração dos status dos clientes")
     public ResponseEntity<Void> atualizarStatus(@PathVariable Long id, @RequestBody AtualizarStatusRequest statusRequest){
@@ -49,6 +53,7 @@ public class ClienteController {
         return ResponseEntity.notFound().build();
     }
 
+    // atualiza os dados do cliente
     @PutMapping("/{id}")
     @Operation(summary = "Método de alterar iformações do usuário", description = "Método responsável pela alteração de usuários")
     public ResponseEntity<?> atualizarCliente(@PathVariable Long id, @RequestBody ClienteRequest cliente){
@@ -64,6 +69,7 @@ public class ClienteController {
         }
     }
 
+    // exclusão lógica do cliente
     @DeleteMapping("/{id}/excluir")
     @Operation(summary = "Método de inativação de cadastro", description = "Método responsável inativação do cadastro do cliente")
     public ResponseEntity<Void> excluir(@PathVariable Long id){

@@ -14,6 +14,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+// tela do desktop que cadastra categoria (chama a API)
 public class CategoriaController {
 
     @FXML
@@ -22,6 +23,7 @@ public class CategoriaController {
     @FXML
     private TextField txtDescricao;
 
+    // monta o JSON da categoria e envia para a API
     @FXML
     public void salvarCategoria(ActionEvent event) throws Exception {
 

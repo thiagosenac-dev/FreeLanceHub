@@ -17,6 +17,7 @@ const links = [
     { nome: "Propostas", href: "/propostas", icone: "M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2ZM14 3v5h5M9 13h6M9 17h4", perfis: ["ROLE_ADMIN", "ROLE_CLIENTE", "ROLE_USUARIO"] },
 ];
 
+// menu lateral: mostra só os links do perfil do usuário logado
 export default function Sidebar(){
     // perfil do usuário logado (vem do Redux)
     const role = useSelector((state: RootState) => state.auth.usuario?.role) ?? "";

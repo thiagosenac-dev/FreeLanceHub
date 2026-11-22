@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+// configuração do Spring Security: rotas livres, permissões por perfil e o filtro JWT
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
@@ -18,6 +19,7 @@ public class SecurityConfiguration {
     @Autowired
     private JwtFilter jwtFilter;
 
+    // define quem pode acessar cada rota
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 

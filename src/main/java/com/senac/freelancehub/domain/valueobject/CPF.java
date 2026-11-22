@@ -1,5 +1,6 @@
 package com.senac.freelancehub.domain.valueobject;
 
+// value object do CPF: só aceita um CPF válido
 public class CPF {
 
     private String cpf;
@@ -19,6 +20,7 @@ public class CPF {
 
 
 
+    // confere o tamanho e os dígitos verificadores do CPF
     public static boolean isValidCpf(String cpf) {
         if (cpf == null) {
             return false;
@@ -72,6 +74,7 @@ public class CPF {
 
 
 
+    // devolve o CPF formatado (000.000.000-00)
     @Override
     public String toString(){
         return cpf.replaceAll("\\D","")

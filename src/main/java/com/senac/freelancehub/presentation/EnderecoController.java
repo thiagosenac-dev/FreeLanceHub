@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+// endpoint de consulta de CEP (ViaCEP)
 @RestController
 @RequestMapping("/endereco")
 @Tag(name = "Endereço", description = "grupo de API responsável pela consulta de endereço por CEP (ViaCEP)")
@@ -19,6 +20,7 @@ public class EnderecoController {
     @Autowired
     private EnderecoServicePort enderecoService;
 
+    // devolve o endereço do CEP (400 se o CEP for inválido, 502 se o ViaCEP falhar)
     @GetMapping("/{cep}")
     @Operation(summary = "Método de consulta de endereço POR CEP", description = "Método responsável por consultar o endereço de um CEP no ViaCEP")
     public ResponseEntity<?> buscarEndereco(@PathVariable String cep) {

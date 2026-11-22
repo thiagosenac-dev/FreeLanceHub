@@ -8,6 +8,7 @@ interface CategoriasState {
     lista: Categoria[]
 }
 
+// estado inicial: lista de categorias vazia
 const initialState: CategoriasState = {
     lista: []
 }

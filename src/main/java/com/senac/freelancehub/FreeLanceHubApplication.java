@@ -6,9 +6,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+// classe principal: inicia a aplicação Spring Boot
 @SpringBootApplication
 public class FreeLanceHubApplication {
 
+    // liga o Spring e mostra a mensagem no console
     public static void main(String[] args) {
         SpringApplication.run(FreeLanceHubApplication.class, args);
 

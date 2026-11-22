@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+// proposta de um freelancer para um projeto
 @Entity
 @Data
 @AllArgsConstructor

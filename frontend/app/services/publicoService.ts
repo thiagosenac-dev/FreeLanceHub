@@ -14,6 +14,7 @@ export async function buscarProjetosPublicos(): Promise<Projeto[]> {
     return [];
 }
 
+// busca as categorias sem login
 export async function buscarCategoriasPublicas(): Promise<Categoria[]> {
 
     const dados = await api.get<Categoria[]>("/publico/categorias");

@@ -1,3 +1,4 @@
+// proposta de um freelancer para um projeto
 export class Proposta{
     constructor(
         public id: number | null,

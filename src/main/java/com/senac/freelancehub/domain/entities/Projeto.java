@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+// projeto publicado por um cliente, de uma categoria
 @Entity
 @Data
 @AllArgsConstructor

@@ -1,6 +1,7 @@
 // links do rodapé (os mesmos da landing page)
 const links = ["Privacidade", "Termos"];
 
+// rodapé com a logo, o copyright e os links
 export default function Footer(){
     const anoAtual = new Date().getFullYear();
     const footerClasses = `relative flex items-center justify-center px-6 py-6 md:h-24 md:py-0 bg-gradient-to-r from-slate-950/80 via-[#030a1c]/70 to-slate-950/80 backdrop-blur-xl`;

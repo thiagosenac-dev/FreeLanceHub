@@ -7,6 +7,10 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { buscarVagas } from "@/app/services/freelancerService";
 
+// classes iguais para todos os campos e rótulos do formulário
+const inputClasses = "w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]";
+const labelClasses = "block text-sm font-medium text-slate-300";
+
 // Dados que esse formulário pode receber: uma proposta já existente (modo edição) ou nada (modo cadastro)
 interface PropostaFormProps {
     propostaExistente?: Proposta;
@@ -14,6 +18,7 @@ interface PropostaFormProps {
 
 // Formulário de proposta. Serve tanto para cadastrar uma nova quanto para editar uma já existente
 export default function PropostaForm({ propostaExistente }: PropostaFormProps) {
+    // para trocar de página
     const router = useRouter();
 
     // Se recebeu uma proposta existente, começa com os dados dela. Se não, começa em branco (cadastro novo)
@@ -25,6 +30,7 @@ export default function PropostaForm({ propostaExistente }: PropostaFormProps) {
     // nome do projeto da proposta (na edição vem da proposta; no cadastro vem das vagas, pelo projetoId da URL)
     const [projetoNome, setProjetoNome] = useState<string | null>(propostaExistente?.projetoNome ?? null);
 
+    // no cadastro novo, lê o projeto da URL (?projetoId=) e busca o nome dele nas vagas
     useEffect(() => {
         if (propostaExistente) return;
         const projetoId = Number(new URLSearchParams(window.location.search).get("projetoId"));
@@ -97,9 +103,7 @@ export default function PropostaForm({ propostaExistente }: PropostaFormProps) {
             {/* Campos do formulário: descrição, valor e prazo */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2 md:col-span-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        Descrição:
-                    </label>
+                    <label className={labelClasses}>Descrição:</label>
                     <textarea
                         name="descricao"
                         value={proposta.descricao}
@@ -111,32 +115,12 @@ export default function PropostaForm({ propostaExistente }: PropostaFormProps) {
                     </textarea>
                 </div>
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        Valor:
-                    </label>
-                    <input
-                        name="valor"
-                        type="number"
-                        step="0.01"
-                        value={proposta.valor}
-                        required
-                        placeholder="0,00"
-                        onChange={(e) => handlerChange('valor', e.target.value)}
-                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                    </input>
+                    <label className={labelClasses}>Valor:</label>
+                    <input name="valor" type="number" step="0.01" value={proposta.valor} required placeholder="0,00" onChange={(e) => handlerChange('valor', e.target.value)} className={inputClasses} />
                 </div>
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        Prazo:
-                    </label>
-                    <input
-                        name="prazo"
-                        type="date"
-                        value={proposta.prazo}
-                        required
-                        onChange={(e) => handlerChange('prazo', e.target.value)}
-                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                    </input>
+                    <label className={labelClasses}>Prazo:</label>
+                    <input name="prazo" type="date" value={proposta.prazo} required onChange={(e) => handlerChange('prazo', e.target.value)} className={inputClasses} />
                 </div>
             </div>
 

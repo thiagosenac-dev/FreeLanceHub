@@ -7,6 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import UsuarioForm from "../../components/UsuarioForm";
 
+// página de editar usuário: busca o usuário pela URL e mostra o formulário
 export default function EditarUsuario(){
 
     // Pega o código do usuário que veio na URL (ex: /usuarios/5/editar)
@@ -16,6 +17,7 @@ export default function EditarUsuario(){
 
     // Guarda os dados do usuário carregado. Começa vazio (null) até a busca terminar
     const [usuario,setUsuario] = useState<Usuario|null>(null)
+    // para trocar de página
     const router = useRouter();
 
     // Assim que a página abre, busca os dados desse usuário
@@ -45,7 +47,6 @@ export default function EditarUsuario(){
         </div>
     )
 
-
     return(
         <div className="space-y-6">
 
@@ -54,15 +55,11 @@ export default function EditarUsuario(){
                 <div className="space-y-1">
                     <h1 className="text-2xl font-bold tracking-tight text-white flex items-center space-x-2">
                         <span className="w-2.5 h-2.5 bg-gradient-to-br from-blue-400 to-cyan-300 rounded-full inline-block shadow-[0_0_10px_rgba(34,211,238,0.8)]"></span>
-                        <span className="bg-gradient-to-r from-blue-300 via-sky-300 to-cyan-300 bg-clip-text text-transparent">
-                            {usuario && String(usuario.status).toUpperCase() === "EXCLUIDO" ? "Ver Usuário" : "Editar Usuário"} {codigo}
-                        </span>
+                        <span className="bg-gradient-to-r from-blue-300 via-sky-300 to-cyan-300 bg-clip-text text-transparent">{usuario && String(usuario.status).toUpperCase() === "EXCLUIDO" ? "Ver Usuário" : "Editar Usuário"} {codigo}</span>
                     </h1>
                     <p className="text-sm text-slate-400">{usuario && String(usuario.status).toUpperCase() === "EXCLUIDO" ? "Cadastro excluído, apenas visualização" : "Preencha os dados para editar o Usuário"}</p>
                 </div>
-                <Link href="/usuarios" className="inline-flex items-center justify-center text-sm font-medium text-slate-300 hover:text-white bg-white/[0.03] hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-cyan-500/10 border border-white/[0.08] hover:border-blue-400/40 px-4 py-2.5 rounded-xl transition-all duration-300 hover:shadow-[0_0_18px_rgba(34,211,238,0.3)] hover:-translate-x-0.5 w-full sm:w-auto">
-                    &larr; Voltar para Listagem
-                </Link>
+                <Link href="/usuarios" className="inline-flex items-center justify-center text-sm font-medium text-slate-300 hover:text-white bg-white/[0.03] hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-cyan-500/10 border border-white/[0.08] hover:border-blue-400/40 px-4 py-2.5 rounded-xl transition-all duration-300 hover:shadow-[0_0_18px_rgba(34,211,238,0.3)] hover:-translate-x-0.5 w-full sm:w-auto">&larr; Voltar para Listagem</Link>
             </div>
 
             {/* Card com o formulário já preenchido com os dados do usuário buscado acima */}

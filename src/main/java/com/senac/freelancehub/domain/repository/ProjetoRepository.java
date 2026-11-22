@@ -7,9 +7,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+// acesso ao banco dos projetos
 @Repository
 public interface ProjetoRepository extends JpaRepository<Projeto, Long> {
 
+    // busca os projetos por status
     Optional<List<Projeto>> findByStatus(EnumStatusProjeto status);
 
     // MUDANÇA: projetos de um cliente (empresa)

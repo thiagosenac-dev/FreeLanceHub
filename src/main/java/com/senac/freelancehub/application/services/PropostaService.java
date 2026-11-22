@@ -18,6 +18,7 @@ import java.util.List;
 import com.senac.freelancehub.application.ports.PropostaServicePort;
 import com.senac.freelancehub.application.ports.UsuarioServicePort;
 
+// regras de negócio das propostas (uma por projeto, aceitar recusa as outras)
 @Service
 public class PropostaService implements PropostaServicePort {
 

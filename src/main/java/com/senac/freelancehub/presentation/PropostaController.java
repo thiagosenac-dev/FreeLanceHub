@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+// endpoints REST das propostas (/propostas)
 @RestController
 @RequestMapping("/propostas")
 @Tag(name = "Propostas", description = "grupo de API responsável por controlar a estrutura de criação e edição das propostas para os propostas")
@@ -19,6 +20,7 @@ public class PropostaController {
     @Autowired
     private PropostaServicePort propostaService;
 
+    // lista as propostas (admin todas, cliente as dos projetos dele, freelancer as que enviou)
     @GetMapping
     @Operation(summary = "Método de consulta de lista de propostas!", description = "Método responsável pela colsulta de todas os propostas sem filtro")
     public ResponseEntity<?> ListarTodos() {
@@ -26,6 +28,7 @@ public class PropostaController {
         return ResponseEntity.ok(propostaService.ListarTodasPropostasGrid());
     }
 
+    // busca a proposta pelo id (404 se não existir ou não for do usuário)
     @GetMapping("/{id}")
     @Operation(summary = "Método de consulta de lista de propostas POR ID", description = "Método responsável pela colsulta de propostas por ID")
     public ResponseEntity<PropostaResponse> BuscarPorId(@PathVariable Long id){
@@ -49,6 +52,7 @@ public class PropostaController {
         return ResponseEntity.ok(propostas);
     }
 
+    // cria a proposta (só o freelancer)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Método de consulta de lista de propostas!", description = "Método responsável pela colsulta de todas os propostas sem filtro")
@@ -62,6 +66,7 @@ public class PropostaController {
         }
     }
 
+    // aceita ou recusa a proposta (cliente ou admin)
     @PatchMapping("/{id}/status")
     @Operation(summary = "Método de aletrar Status", description = "Método responsável aletração dos status das propostas (aceitar ou recusar)")
     public ResponseEntity<?> atualizarStatus(@PathVariable Long id, @RequestBody AtualizarStatusPropostaRequest statusRequest){
@@ -77,6 +82,7 @@ public class PropostaController {
         }
     }
 
+    // o freelancer edita a proposta dele
     @PutMapping("/{id}")
     @Operation(summary = "Método de alterar iformações do propostas", description = "Método responsável pela alteração de propostas")
     public ResponseEntity<?> atualizarProposta(@PathVariable Long id, @RequestBody PropostaRequest proposta){
@@ -92,6 +98,7 @@ public class PropostaController {
         }
     }
 
+    // cancela a proposta
     @DeleteMapping("/{id}/excluir")
     @Operation(summary = "Método de inativação de cadastro", description = "Método responsável inativação do cadastro da proposta")
     public ResponseEntity<?> excluir(@PathVariable Long id){

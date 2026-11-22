@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import com.senac.freelancehub.application.ports.CategoriaServicePort;
 
+// regras de negócio das categorias
 @Service
 public class CategoriaService implements CategoriaServicePort {
 

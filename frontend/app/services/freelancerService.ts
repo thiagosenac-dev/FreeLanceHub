@@ -14,6 +14,7 @@ export async function buscarVagas(): Promise<Projeto[]> {
     return [];
 }
 
+// busca as habilidades do freelancer logado
 export async function buscarHabilidades(): Promise<Categoria[]> {
 
     const dados = await api.get<Categoria[]>("/freelancer/habilidades");
@@ -25,12 +26,14 @@ export async function buscarHabilidades(): Promise<Categoria[]> {
     return [];
 }
 
+// adiciona uma categoria como habilidade do freelancer
 export async function adicionarHabilidade(categoriaId: number | null): Promise<number> {
 
     var dados = await api.patch('/freelancer/habilidades', { categoria_id: categoriaId });
     return dados.status;
 }
 
+// remove uma categoria das habilidades do freelancer
 export async function removerHabilidade(categoriaId: number | null): Promise<number> {
 
     var dados = await api.delete('/freelancer/habilidades/' + categoriaId);

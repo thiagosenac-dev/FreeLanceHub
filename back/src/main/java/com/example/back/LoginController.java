@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+// tela de login do desktop (uma chave simples para entrar no menu)
 public class LoginController {
 
     private String key = "oi";
@@ -19,6 +20,7 @@ public class LoginController {
     @FXML
     private TextField txtKey;
 
+    // confere a chave digitada e abre o menu
     @FXML
     protected void onLoginButtonClick(ActionEvent event)throws IOException {
 

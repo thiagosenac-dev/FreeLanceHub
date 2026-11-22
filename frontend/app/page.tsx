@@ -1,6 +1,7 @@
 import Link from "next/link";
 import ProjetosPublicos from "./components/ProjetosPublicos"; // MUDANÇA: lista pública de projetos
 
+// landing page: apresentação do sistema, projetos abertos e botões de entrar
 export default function Home() {
   return (
     <>
@@ -93,25 +94,17 @@ export default function Home() {
             
             {/* Hero Text */}
             <div className="text-center lg:text-left space-y-8">
-              <div className="inline-block px-4 py-1.5 rounded-full border border-[#3b82f6]/30 bg-[#3b82f6]/10 text-[#06b6d4] text-sm font-medium mb-4 backdrop-blur-sm">
-                🚀 Nascida em Criciúma para o mundo
-              </div>
+              <div className="inline-block px-4 py-1.5 rounded-full border border-[#3b82f6]/30 bg-[#3b82f6]/10 text-[#06b6d4] text-sm font-medium mb-4 backdrop-blur-sm">🚀 Nascida em Criciúma para o mundo</div>
               
               <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight">
                 Trabalho flexível e contratação rápida em <span className="text-gradient">um só lugar.</span>
               </h1>
               
-              <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto lg:mx-0 font-light leading-relaxed">
-                Conectando talentos às oportunidades que fazem a diferença.
-              </p>
+              <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto lg:mx-0 font-light leading-relaxed">Conectando talentos às oportunidades que fazem a diferença.</p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
-                <Link href="/login" className="px-8 py-4 rounded-full bg-gradient-to-r from-[#3b82f6] to-[#06b6d4] text-white font-heading font-semibold text-lg hover:scale-105 transition-transform duration-300 shadow-[0_0_20px_rgba(59,130,246,0.3)] text-center">
-                  Sou Freelancer
-                </Link>
-                <Link href="/login" className="px-8 py-4 rounded-full bg-transparent border border-gray-600 text-white font-heading font-semibold text-lg hover:border-[#06b6d4] hover:text-[#06b6d4] transition-all duration-300 text-center">
-                  Sou Empresa
-                </Link>
+                <Link href="/login" className="px-8 py-4 rounded-full bg-gradient-to-r from-[#3b82f6] to-[#06b6d4] text-white font-heading font-semibold text-lg hover:scale-105 transition-transform duration-300 shadow-[0_0_20px_rgba(59,130,246,0.3)] text-center">Sou Freelancer</Link>
+                <Link href="/login" className="px-8 py-4 rounded-full bg-transparent border border-gray-600 text-white font-heading font-semibold text-lg hover:border-[#06b6d4] hover:text-[#06b6d4] transition-all duration-300 text-center">Sou Empresa</Link>
               </div>
             </div>
 
@@ -145,9 +138,7 @@ export default function Home() {
                       <p className="text-xs text-gray-400">Buscando Dev Urgente</p>
                     </div>
                   </div>
-                  <button className="w-full py-2 mt-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-medium border border-white/10 transition-colors">
-                    Match Realizado ⚡
-                  </button>
+                  <button className="w-full py-2 mt-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-medium border border-white/10 transition-colors">Match Realizado ⚡</button>
                 </div>
               </div>
             </div>
@@ -208,12 +199,8 @@ export default function Home() {
                 <p>
                   Nascemos em Criciúma com um propósito claro: <strong className="text-white font-medium">revolucionar a forma como profissionais e empresas se conectam.</strong> 
                 </p>
-                <p>
-                  Somos uma startup focada em democratizar o acesso a oportunidades de trabalho flexíveis. Se você busca uma renda extra, quer fazer o seu próprio horário, ou tem rotinas não convencionais, o FreeLanceHub é o seu lugar.
-                </p>
-                <p>
-                  Para as empresas, sabemos que o tempo é valioso. Por isso, oferecemos a agilidade necessária para encontrar o talento certo, exatamente no momento em que precisam de reforço para projetos de curto prazo ou demandas urgentes.
-                </p>
+                <p>Somos uma startup focada em democratizar o acesso a oportunidades de trabalho flexíveis. Se você busca uma renda extra, quer fazer o seu próprio horário, ou tem rotinas não convencionais, o FreeLanceHub é o seu lugar.</p>
+                <p>Para as empresas, sabemos que o tempo é valioso. Por isso, oferecemos a agilidade necessária para encontrar o talento certo, exatamente no momento em que precisam de reforço para projetos de curto prazo ou demandas urgentes.</p>
               </div>
             </div>
             
@@ -229,9 +216,7 @@ export default function Home() {
               FreeLance<span className="text-[#3b82f6]">Hub</span>
             </span>
           </div>
-          <p className="text-gray-500 text-sm">
-            &copy; 2026 FreeLanceHub. Orgulhosamente de Criciúma/SC.
-          </p>
+          <p className="text-gray-500 text-sm">&copy; 2026 FreeLanceHub. Orgulhosamente de Criciúma/SC.</p>
           <div className="flex space-x-6 text-sm text-gray-400">
             <a href="#" className="hover:text-[#06b6d4] transition-colors">Privacidade</a>
             <a href="#" className="hover:text-[#06b6d4] transition-colors">Termos</a>

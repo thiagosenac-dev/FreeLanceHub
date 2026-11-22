@@ -16,6 +16,7 @@ const statusInfo: Record<string, { label: string; style: string }> = {
     CANCELADA: { label: "Cancelada", style: "bg-slate-500/10 text-slate-400 border border-slate-500/20" },
 };
 
+// listagem de propostas: o freelancer vê as dele, o cliente e o admin veem as recebidas e aceitam ou recusam
 export default function Propostas() {
 
     // Estado com a lista de propostas e o perfil do usuário logado
@@ -80,9 +81,7 @@ export default function Propostas() {
                 {/* Cabeçalho */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-2xl shadow-blue-950/20">
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                            {role === "ROLE_USUARIO" ? "Minhas Propostas" : "Gestão de Propostas"}
-                        </h1>
+                        <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">{role === "ROLE_USUARIO" ? "Minhas Propostas" : "Gestão de Propostas"}</h1>
                         <p className="text-sm text-slate-400 mt-1">Acompanhe e gerencie as propostas</p>
                     </div>
 
@@ -151,16 +150,12 @@ export default function Propostas() {
 
                                             <td className="py-4 px-6 text-slate-200 font-medium">{proposta.descricao}</td>
 
-                                            <td className="py-4 px-6 text-slate-400">
-                                                {Number(proposta.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                                            </td>
+                                            <td className="py-4 px-6 text-slate-400">{Number(proposta.valor).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
 
                                             <td className="py-4 px-6 text-slate-400">{/^\d{4}-\d{2}-\d{2}$/.test(proposta.prazo) ? proposta.prazo.split('-').reverse().join('/') : proposta.prazo}</td>
 
                                             <td className="py-4 px-6">
-                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${info.style}`}>
-                                                    {info.label}
-                                                </span>
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${info.style}`}>{info.label}</span>
                                             </td>
 
                                             {/* Ações: o freelancer edita e cancela, a empresa aceita e recusa (só pendentes) */}
@@ -208,9 +203,7 @@ export default function Propostas() {
                                 {/* Mensagem se a lista estiver vazia */}
                                 {propostas.length === 0 && (
                                     <tr>
-                                        <td colSpan={7} className="py-12 text-center text-slate-500 italic">
-                                            Nenhuma proposta encontrada
-                                        </td>
+                                        <td colSpan={7} className="py-12 text-center text-slate-500 italic">Nenhuma proposta encontrada</td>
                                     </tr>
                                 )}
                             </tbody>

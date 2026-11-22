@@ -1,3 +1,4 @@
+// usuário do sistema (admin, freelancer ou cliente)
 export class Usuario{
     constructor(
         public id: number | null,
@@ -17,6 +18,7 @@ export class Usuario{
 
     }
 }
+// dado que o formulário de usuário recebe (usuário existente = modo edição)
 export interface UsuarioFormProps {
     usuarioExistente ?: Usuario;
 }

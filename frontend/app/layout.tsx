@@ -18,15 +18,14 @@ export const metadata: Metadata = {
   description: "Plataforma que conecta empresas e freelancers",
 };
 
+// layout raiz: envolve toda a aplicação com o Redux (StoreProvider)
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="pt-BR"
       className="h-full">
       <body>
-        <StoreProvider>
-          {children}
-        </StoreProvider>
+        <StoreProvider>{children}</StoreProvider>
       </body>
     </html>
   );

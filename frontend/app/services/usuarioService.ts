@@ -1,6 +1,7 @@
 import { Usuario } from "../types/usuario";
 import api from "./api";
 
+// busca todos os usuários
 export async function buscarListaUsuarios(): Promise<Usuario[]> {
 
     const dados = await api.get<Usuario[]>("/usuarios");
@@ -12,12 +13,14 @@ export async function buscarListaUsuarios(): Promise<Usuario[]> {
     return [];
 }
 
+// exclui (inativa) o usuário
 export async function deletarUsuario(id: number): Promise<number> {
 
     var dados = await api.delete('/usuarios/' + id + '/excluir');
     return dados.status;
 }
 
+// alterna o status do usuário entre ativo e bloqueado
 export async function atualizarStatusUsuario(usuario: Usuario): Promise<void> {
 
     var novoStatus = {};
@@ -39,17 +42,20 @@ export async function atualizarStatusUsuario(usuario: Usuario): Promise<void> {
     }
 }
 
+// busca o usuário pelo id
 export async function consultaUsuarioPorId(id: number): Promise<Usuario> {
     const valorUsuarioBack = await api.get<Usuario>('/usuarios/' + id);
     return valorUsuarioBack.data;
 }
 
+// atualiza os dados do usuário
 export async function atualizarUsuario(usuario: Usuario): Promise<number> {
     var dadosRetorno = await
         api.put<number>('/usuarios/' + usuario.id, usuario);
     return dadosRetorno.data;
 }
 
+// cria um usuário (admin) novo
 export async function salvarUsuario(usuario: Usuario): Promise<number> {
     var dadosRetorno = await
         api.post<number>('/usuarios', usuario);

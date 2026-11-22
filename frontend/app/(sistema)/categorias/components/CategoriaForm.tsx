@@ -6,6 +6,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+// classes iguais para todos os campos e rótulos do formulário
+const labelClasses = "block text-sm font-medium text-slate-300";
+
 // Recebe uma categoria existente (modo edição) ou nada (modo cadastro)
 interface CategoriaFormProps {
     categoriaExistente?: Categoria;
@@ -13,6 +16,7 @@ interface CategoriaFormProps {
 
 // Formulário de categoria. Serve tanto para cadastrar quanto para editar
 export default function CategoriaForm({ categoriaExistente }: CategoriaFormProps) {
+    // para trocar de página
     const router = useRouter();
 
     // cadastro excluído só pode ser visualizado
@@ -67,22 +71,11 @@ export default function CategoriaForm({ categoriaExistente }: CategoriaFormProps
             {/* Campos do formulário: nome e descrição */}
             <div className="grid grid-cols-1 gap-6">
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        Nome da categoria:
-                    </label>
-                    <input
-                        name="nome"
-                        value={categoria.nome}
-                        required
-                        onChange={(e) => handlerChange('nome', e.target.value)}
-                        placeholder="Desenvolvimento Web"
-                        className={inputClasses}
-                    />
+                    <label className={labelClasses}>Nome da categoria:</label>
+                    <input name="nome" value={categoria.nome} required onChange={(e) => handlerChange('nome', e.target.value)} placeholder="Desenvolvimento Web" className={inputClasses} />
                 </div>
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        Descrição:
-                    </label>
+                    <label className={labelClasses}>Descrição:</label>
                     <textarea
                         name="descricao"
                         value={categoria.descricao}

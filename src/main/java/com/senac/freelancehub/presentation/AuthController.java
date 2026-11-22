@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.HttpURLConnection;
 
 
+// endpoints de login e dos cadastros públicos (/auth)
 @RestController
 @RequestMapping("/auth")
 @Tag(name = "Authenticador Controler 'Login'", description = "grupo de API responsável por controlar a estrutura de criação e consulta de usuários do sistema")
@@ -34,6 +35,7 @@ public class AuthController {
     @Autowired
     private UsuarioServicePort usuarioService;
 
+    // valida e-mail e senha e devolve o token (403 se bloqueado, 401 se errado)
     @PostMapping("/login")
     @Operation(summary = "Autenticação de organizadores", description = "Método de login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {

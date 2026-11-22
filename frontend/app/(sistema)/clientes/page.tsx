@@ -6,13 +6,17 @@ import { atualizarStatusCliente, buscarListaClientes, deletarCliente } from "@/a
 import { useEffect, useState } from "react";
 import { Cliente } from "@/app/types/cliente";
  
+// listagem de clientes (admin): tabela com as ações de editar, excluir e bloquear
 export default function Clientes() {
+    // clientes mostrados na tabela
     const [clientes, setClientes] = useState<Cliente[]>([])
  
+    // ao abrir a página, carrega os clientes
     useEffect(() => {
         carregarDados();
     }, []); 
  
+    // busca todos os clientes na API
     const carregarDados = async () => {
         try {
             setClientes(await buscarListaClientes());
@@ -21,6 +25,7 @@ export default function Clientes() {
         }
     }
  
+    // exclui (inativa) o cliente e recarrega a lista
     const excluirCliente = async (id: number | null) => {
         if (confirm("Deseja realmente excluir este cliente?")) {
             try {
@@ -79,9 +84,7 @@ export default function Clientes() {
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-2xl shadow-blue-950/20">
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                            Gestão de Clientes
-                        </h1>
+                        <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Gestão de Clientes</h1>
                         <p className="text-sm text-slate-400 mt-1">Acompanhe e gerencie a carteira de clientes cadastrados</p>
                     </div>
                 </div>
@@ -94,15 +97,11 @@ export default function Clientes() {
                     </div>
                     <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-xl p-4 shadow-xl">
                         <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Clientes Ativos</span>
-                        <p className="text-2xl font-bold text-emerald-400 mt-1">
-                            {clientes.filter(c => String(c.status).toUpperCase() === 'ATIVO').length}
-                        </p>
+                        <p className="text-2xl font-bold text-emerald-400 mt-1">{clientes.filter(c => String(c.status).toUpperCase() === 'ATIVO').length}</p>
                     </div>
                     <div className="bg-slate-950/80 backdrop-blur-xl border border-slate-800/80 rounded-xl p-4 shadow-xl">
                         <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Inativos</span>
-                        <p className="text-2xl font-bold text-slate-400 mt-1">
-                            {clientes.filter(c => String(c.status).toUpperCase() !== 'ATIVO').length}
-                        </p>
+                        <p className="text-2xl font-bold text-slate-400 mt-1">{clientes.filter(c => String(c.status).toUpperCase() !== 'ATIVO').length}</p>
                     </div>
                 </div>
  
@@ -132,29 +131,19 @@ export default function Clientes() {
 
                                             <td className="py-4 px-6 text-slate-200 font-medium">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold text-xs uppercase">
-                                                        {cliente.nome ? cliente.nome.charAt(0) : 'C'}
-                                                    </div>
+                                                    <div className="w-8 h-8 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold text-xs uppercase">{cliente.nome ? cliente.nome.charAt(0) : 'C'}</div>
                                                     {cliente.nome}
                                                 </div>
                                             </td>
 
-                                            <td className="py-4 px-6 text-slate-400">
-                                                {cliente.tipo === "EMPRESA" ? cliente.cnpj : cliente.cpf}
-                                            </td>
+                                            <td className="py-4 px-6 text-slate-400">{cliente.tipo === "EMPRESA" ? cliente.cnpj : cliente.cpf}</td>
 
-                                            <td className="py-4 px-6 text-slate-400">
-                                                {cliente.email}
-                                            </td>
+                                            <td className="py-4 px-6 text-slate-400">{cliente.email}</td>
 
-                                            <td className="py-4 px-6 text-slate-400">
-                                                {cliente.telefone}
-                                            </td>
+                                            <td className="py-4 px-6 text-slate-400">{cliente.telefone}</td>
 
                                             <td className="py-4 px-6">
-                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${badgeClass}`}>
-                                                    {labelText}
-                                                </span>
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${badgeClass}`}>{labelText}</span>
                                             </td>
 
                                             <td className="py-4 px-6 text-right">
@@ -195,9 +184,7 @@ export default function Clientes() {
  
                                 {clientes.length === 0 && (
                                     <tr>
-                                        <td colSpan={6} className="py-12 text-center text-slate-500 italic">
-                                            Nenhum cliente encontrado
-                                        </td>
+                                        <td colSpan={6} className="py-12 text-center text-slate-500 italic">Nenhum cliente encontrado</td>
                                     </tr>
                                 )}
                             </tbody>

@@ -7,6 +7,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+// classes iguais para todos os campos e rótulos do formulário
+const inputClasses = "w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]";
+const labelClasses = "block text-sm font-medium text-slate-300";
+
 // Dados que esse formulário pode receber: um cliente já existente (modo edição) ou nada (modo cadastro)
 interface ClienteFormProps {
     clienteExistente?: Cliente;
@@ -14,6 +18,7 @@ interface ClienteFormProps {
 
 // Formulário de cliente. Serve tanto para cadastrar um novo quanto para editar um já existente
 export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
+    // para trocar de página
     const router = useRouter();
 
     // cadastro excluído só pode ser visualizado
@@ -125,133 +130,46 @@ export default function ClienteForm({ clienteExistente }: ClienteFormProps) {
             {/* Campos do formulário: nome, CPF (ou razão social e CNPJ), e-mail, telefone e endereço (pelo CEP) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        {ehEmpresa ? "Nome da empresa:" : "Nome completo:"}
-                    </label>
-                    <input
-                        name="nome"
-                        value={cliente.nome}
-                        required
-                        onChange={(e) => handlerChange('nome', e.target.value)}
-                        placeholder={ehEmpresa ? "Nome da empresa (nome fantasia)" : "João da Silva Sauro"}
-                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                    </input>
+                    <label className={labelClasses}>{ehEmpresa ? "Nome da empresa:" : "Nome completo:"}</label>
+                    <input name="nome" value={cliente.nome} required onChange={(e) => handlerChange('nome', e.target.value)} placeholder={ehEmpresa ? "Nome da empresa (nome fantasia)" : "João da Silva Sauro"} className={inputClasses} />
                 </div>
                 {ehEmpresa && (
                     <div className="space-y-2">
-                        <label className="block text-sm font-medium text-slate-300">
-                            Razão social:
-                        </label>
-                        <input
-                            name="razaoSocial"
-                            value={cliente.razaoSocial ?? ""}
-                            required
-                            placeholder="Razão social da empresa"
-                            onChange={(e) => handlerChange('razaoSocial', e.target.value)}
-                            className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                        </input>
+                        <label className={labelClasses}>Razão social:</label>
+                        <input name="razaoSocial" value={cliente.razaoSocial ?? ""} required placeholder="Razão social da empresa" onChange={(e) => handlerChange('razaoSocial', e.target.value)} className={inputClasses} />
                     </div>
                 )}
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        {ehEmpresa ? "CNPJ:" : "CPF:"}
-                    </label>
-                    <input
-                        name={ehEmpresa ? "cnpj" : "cpf"}
-                        value={(ehEmpresa ? cliente.cnpj : cliente.cpf) ?? ""}
-                        required
-                        placeholder={ehEmpresa ? "00.000.000/0000-00" : "000.000.000-00"}
-                        onChange={(e) => handlerChange(ehEmpresa ? 'cnpj' : 'cpf', e.target.value)}
-                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                    </input>
+                    <label className={labelClasses}>{ehEmpresa ? "CNPJ:" : "CPF:"}</label>
+                    <input name={ehEmpresa ? "cnpj" : "cpf"} value={(ehEmpresa ? cliente.cnpj : cliente.cpf) ?? ""} required placeholder={ehEmpresa ? "00.000.000/0000-00" : "000.000.000-00"} onChange={(e) => handlerChange(ehEmpresa ? 'cnpj' : 'cpf', e.target.value)} className={inputClasses} />
                 </div>
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        E-mail:
-                    </label>
-                    <input
-                        name="email"
-                        value={cliente.email}
-                        required
-                        placeholder="cliente@empresa.com.br"
-                        onChange={(e) => handlerChange('email', e.target.value)}
-                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                    </input>
+                    <label className={labelClasses}>E-mail:</label>
+                    <input name="email" value={cliente.email} required placeholder="cliente@empresa.com.br" onChange={(e) => handlerChange('email', e.target.value)} className={inputClasses} />
                 </div>
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        Telefone:
-                    </label>
-                    <input
-                        name="telefone"
-                        value={cliente.telefone}
-                        required
-                        placeholder="(00) 00000-0000"
-                        onChange={(e) => handlerChange('telefone', e.target.value)}
-                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                    </input>
+                    <label className={labelClasses}>Telefone:</label>
+                    <input name="telefone" value={cliente.telefone} required placeholder="(00) 00000-0000" onChange={(e) => handlerChange('telefone', e.target.value)} className={inputClasses} />
                 </div>
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        CEP:
-                    </label>
-                    <input
-                        name="cep"
-                        value={cliente.cep ?? ""}
-                        required
-                        placeholder="00000-000"
-                        onChange={(e) => handlerChange('cep', e.target.value)}
-                        onBlur={handlerBuscarCep}
-                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                    </input>
+                    <label className={labelClasses}>CEP:</label>
+                    <input name="cep" value={cliente.cep ?? ""} required placeholder="00000-000" onChange={(e) => handlerChange('cep', e.target.value)} onBlur={handlerBuscarCep} className={inputClasses} />
                 </div>
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        Logradouro:
-                    </label>
-                    <input
-                        name="logradouro"
-                        value={cliente.logradouro ?? ""}
-                        readOnly
-                        placeholder="Preenchido pelo CEP"
-                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                    </input>
+                    <label className={labelClasses}>Logradouro:</label>
+                    <input name="logradouro" value={cliente.logradouro ?? ""} readOnly placeholder="Preenchido pelo CEP" className={inputClasses} />
                 </div>
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        Bairro:
-                    </label>
-                    <input
-                        name="bairro"
-                        value={cliente.bairro ?? ""}
-                        readOnly
-                        placeholder="Preenchido pelo CEP"
-                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                    </input>
+                    <label className={labelClasses}>Bairro:</label>
+                    <input name="bairro" value={cliente.bairro ?? ""} readOnly placeholder="Preenchido pelo CEP" className={inputClasses} />
                 </div>
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        Cidade:
-                    </label>
-                    <input
-                        name="cidade"
-                        value={cliente.cidade ?? ""}
-                        readOnly
-                        placeholder="Preenchido pelo CEP"
-                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                    </input>
+                    <label className={labelClasses}>Cidade:</label>
+                    <input name="cidade" value={cliente.cidade ?? ""} readOnly placeholder="Preenchido pelo CEP" className={inputClasses} />
                 </div>
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-slate-300">
-                        UF:
-                    </label>
-                    <input
-                        name="uf"
-                        value={cliente.uf ?? ""}
-                        readOnly
-                        placeholder="Preenchido pelo CEP"
-                        className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] focus:border-blue-400/60 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white/[0.05] transition-all duration-300 shadow-inner focus:shadow-[0_0_15px_rgba(59,130,246,0.25)]">
-                    </input>
+                    <label className={labelClasses}>UF:</label>
+                    <input name="uf" value={cliente.uf ?? ""} readOnly placeholder="Preenchido pelo CEP" className={inputClasses} />
                 </div>
             </div>
 

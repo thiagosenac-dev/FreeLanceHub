@@ -1,3 +1,4 @@
+// cliente (pessoa ou empresa) que publica projetos
 export class Cliente{
     constructor(
         public id: number | null,

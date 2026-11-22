@@ -7,6 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import CategoriaForm from "../../components/CategoriaForm";
 
+// página de editar categoria: busca a categoria pela URL e mostra o formulário
 export default function EditarCategoria(){
 
     // Pega o código da categoria que veio na URL
@@ -15,6 +16,7 @@ export default function EditarCategoria(){
 
     // Guarda a categoria carregada. Começa null até a busca terminar
     const [categoria, setCategoria] = useState<Categoria|null>(null)
+    // para trocar de página
     const router = useRouter();
 
     // Quando a página abre, busca os dados da categoria
@@ -50,15 +52,11 @@ export default function EditarCategoria(){
                 <div className="space-y-1">
                     <h1 className="text-2xl font-bold tracking-tight text-white flex items-center space-x-2">
                         <span className="w-2.5 h-2.5 bg-gradient-to-br from-blue-400 to-cyan-300 rounded-full inline-block shadow-[0_0_10px_rgba(34,211,238,0.8)]"></span>
-                        <span className="bg-gradient-to-r from-blue-300 via-sky-300 to-cyan-300 bg-clip-text text-transparent">
-                            {categoria && String(categoria.status).toUpperCase() === "EXCLUIDO" ? "Ver Categoria" : "Editar Categoria"} {codigo}
-                        </span>
+                        <span className="bg-gradient-to-r from-blue-300 via-sky-300 to-cyan-300 bg-clip-text text-transparent">{categoria && String(categoria.status).toUpperCase() === "EXCLUIDO" ? "Ver Categoria" : "Editar Categoria"} {codigo}</span>
                     </h1>
                     <p className="text-sm text-slate-400">{categoria && String(categoria.status).toUpperCase() === "EXCLUIDO" ? "Cadastro excluído, apenas visualização" : "Altere os dados para editar a categoria"}</p>
                 </div>
-                <Link href="/categorias" className="inline-flex items-center justify-center text-sm font-medium text-slate-300 hover:text-white bg-white/[0.03] hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-cyan-500/10 border border-white/[0.08] hover:border-blue-400/40 px-4 py-2.5 rounded-xl transition-all duration-300 hover:shadow-[0_0_18px_rgba(34,211,238,0.3)] hover:-translate-x-0.5 w-full sm:w-auto">
-                    &larr; Voltar para Listagem
-                </Link>
+                <Link href="/categorias" className="inline-flex items-center justify-center text-sm font-medium text-slate-300 hover:text-white bg-white/[0.03] hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-cyan-500/10 border border-white/[0.08] hover:border-blue-400/40 px-4 py-2.5 rounded-xl transition-all duration-300 hover:shadow-[0_0_18px_rgba(34,211,238,0.3)] hover:-translate-x-0.5 w-full sm:w-auto">&larr; Voltar para Listagem</Link>
             </div>
 
             {/* Card com o formulário preenchido com os dados buscados */}

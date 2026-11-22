@@ -23,6 +23,7 @@ const cards = [
     { href: "/propostas", sigla: "PR", titulo: "Propostas", texto: "Orçamentos, status e negociações ativas", cor: "blue", perfis: ["ROLE_ADMIN", "ROLE_CLIENTE", "ROLE_USUARIO"] },
 ];
 
+// página inicial do sistema: mostra só os cards que o perfil do usuário pode usar
 export default function Home(){
     // perfil do usuário logado (vem do Redux)
     const role = useSelector((state: RootState) => state.auth.usuario?.role) ?? "";
@@ -45,13 +46,9 @@ export default function Home(){
                         Painel de Controle Principal
                     </div>
 
-                    <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 bg-clip-text text-transparent">
-                        Bem-vindo ao Sistema
-                    </h1>
+                    <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 bg-clip-text text-transparent">Bem-vindo ao Sistema</h1>
 
-                    <p className="text-slate-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
-                        Sua plataforma completa de gestão integrada. Navegue pelos módulos abaixo para gerenciar seus projetos e propostas com máxima eficiência e controle.
-                    </p>
+                    <p className="text-slate-400 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">Sua plataforma completa de gestão integrada. Navegue pelos módulos abaixo para gerenciar seus projetos e propostas com máxima eficiência e controle.</p>
                 </div>
 
                 {/* Quick Links / Dashboard Grid with Enhanced Interactive States */}
@@ -61,9 +58,7 @@ export default function Home(){
                         return (
                             <Link key={card.href} href={card.href} className={`group relative bg-slate-950/70 hover:bg-slate-900/90 backdrop-blur-xl border border-slate-800/80 rounded-2xl p-6 shadow-xl transition-all duration-300 hover:-translate-y-1 ${cor.card}`}>
                                 <div className={`absolute top-0 right-0 w-24 h-24 rounded-bl-full pointer-events-none transition-colors ${cor.blob}`}></div>
-                                <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-4 group-hover:scale-110 transition-transform font-bold text-sm ${cor.icone}`}>
-                                    {card.sigla}
-                                </div>
+                                <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-4 group-hover:scale-110 transition-transform font-bold text-sm ${cor.icone}`}>{card.sigla}</div>
                                 <h2 className={`text-lg font-bold text-slate-100 transition-colors flex items-center justify-between ${cor.titulo}`}>
                                     {card.titulo}
                                     <span className={`text-xs text-slate-500 transition-colors ${cor.seta}`}>&rarr;</span>

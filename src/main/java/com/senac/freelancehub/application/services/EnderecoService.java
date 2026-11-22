@@ -6,6 +6,7 @@ import com.senac.freelancehub.domain.interfaces.IViaCepExternalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+// busca o endereço de um CEP usando o ViaCEP
 @Service
 public class EnderecoService implements EnderecoServicePort {
 

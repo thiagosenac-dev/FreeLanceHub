@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// endpoints REST das categorias (/categorias)
 @RestController
 @RequestMapping("/categorias")
 @Tag(name = "Categorias", description = "grupo de API responsável por controlar a estrutura de criação e consulta de categorias do sistema")
@@ -21,6 +22,7 @@ public class CategoriaController {
     @Autowired
     private CategoriaServicePort categoriaService;
 
+    // lista todas as categorias
     @GetMapping
     @Operation(summary = "Método de consulta de lista de categorias!", description = "Método responsável pela consulta de todas as categorias sem filtro")
     public ResponseEntity<List<CategoriaResponse>> listarTodas() {
@@ -28,6 +30,7 @@ public class CategoriaController {
         return ResponseEntity.ok(categoriaService.listarTodasCategoriasGrid());
     }
 
+    // busca a categoria pelo id (404 se não existir)
     @GetMapping("/{id}")
     @Operation(summary = "Método de consulta de categoria POR ID", description = "Método responsável pela consulta de categoria por ID")
     public ResponseEntity<CategoriaResponse> buscarPorId(@PathVariable Long id) {
@@ -39,6 +42,7 @@ public class CategoriaController {
         return ResponseEntity.notFound().build();
     }
 
+    // cria uma categoria
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Método criar novas categorias!", description = "Método responsável pela criação de novas categorias")
@@ -52,6 +56,7 @@ public class CategoriaController {
         }
     }
 
+    // altera só o status da categoria
     @PatchMapping("/{id}/status")
     @Operation(summary = "Método de alterar Status", description = "Método responsável pela alteração do status das categorias")
     public ResponseEntity<Void> atualizarStatus(@PathVariable Long id, @RequestBody AtualizarStatusRequest statusRequest) {
@@ -62,6 +67,7 @@ public class CategoriaController {
         return ResponseEntity.notFound().build();
     }
 
+    // atualiza os dados da categoria
     @PutMapping("/{id}")
     @Operation(summary = "Método de alterar informações da categoria", description = "Método responsável pela alteração de categorias")
     public ResponseEntity<?> atualizarCategoria(@PathVariable Long id, @RequestBody CategoriaRequest categoria) {
@@ -77,6 +83,7 @@ public class CategoriaController {
         }
     }
 
+    // exclusão lógica da categoria
     @DeleteMapping("/{id}/excluir")
     @Operation(summary = "Método de inativação de cadastro", description = "Método responsável pela inativação do cadastro da categoria")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {

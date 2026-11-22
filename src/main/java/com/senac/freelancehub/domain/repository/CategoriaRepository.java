@@ -8,9 +8,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+// acesso ao banco das categorias
 @Repository
 public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 
+    // busca as categorias por status
     Optional<List<Categoria>> findByStatus(EnumStatus status);
 
 }

@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+// menu do desktop: abre as telas de cadastro de usuário e de categoria
 public class MenuController {
 
     // abre a tela de cadastro de usuario
@@ -33,6 +34,7 @@ public class MenuController {
         stage.setScene(scene);
     }
 
+    // fecha o programa
     @FXML
     public void sair(){
         System.exit(0);

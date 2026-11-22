@@ -4,9 +4,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { logout } from "../redux/slices/authSlice";
 
+// cabeçalho: mostra o nome do usuário logado e o botão de sair
 export default function Header(){
     // usuário logado (vem do Redux)
     const usuario = useSelector((state: RootState) => state.auth.usuario);
+    // para enviar ações ao Redux
     const dispatch = useDispatch();
 
     // limpa o login no Redux; o layout do sistema volta sozinho para a tela de login

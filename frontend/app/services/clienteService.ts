@@ -1,6 +1,7 @@
 import { Cliente } from "../types/cliente";
 import api from "./api";
 
+// busca todos os clientes
 export async function buscarListaClientes(): Promise<Cliente[]> {
 
     const dados = await api.get<Cliente[]>("/clientes");
@@ -12,12 +13,14 @@ export async function buscarListaClientes(): Promise<Cliente[]> {
     return [];
 }
 
+// exclui (inativa) o cliente
 export async function deletarCliente(id: number): Promise<number> {
 
     var dados = await api.delete('/clientes/' + id + '/excluir');
     return dados.status;
 }
 
+// alterna o status do cliente entre ativo e bloqueado
 export async function atualizarStatusCliente(cliente: Cliente): Promise<void> {
 
     var novoStatus = {};
@@ -39,11 +42,13 @@ export async function atualizarStatusCliente(cliente: Cliente): Promise<void> {
     }
 }
 
+// busca o cliente pelo id
 export async function consultaClientePorId(id: number): Promise<Cliente> {
     const valorClienteBack = await api.get<Cliente>('/clientes/' + id);
     return valorClienteBack.data;
 }
 
+// atualiza os dados do cliente
 export async function atualizarCliente(cliente: Cliente): Promise<number> {
     var dadosRetorno = await
         api.put<number>('/clientes/' + cliente.id, cliente);
