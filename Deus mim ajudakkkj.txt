@@ -1,265 +1,359 @@
-
-DEUS MIM AJUDAKKKJ
-resumao do FreeLanceHub pra mim nao travar na apresentacao
-
-
-Calma, eu sei explicar tudo isso, então qualquer coisa eu olho aqui.
-Cada assunto ta separado pra eu achar rapido.
+FREELANCEHUB - ANOTACOES TECNICAS DO PROJETO
+=============================================
+Como achar rapido: Ctrl+F na palavra-chave do topico (linha "chaves:").
+Caminhos do back a partir de src/main/java/com/senac/freelancehub
+Caminhos do front a partir de frontend/app
 
 
------------------------------------------------------
-1) O QUE É O PROJETO (as role e como q ta separado)
------------------------------------------------------
-- FreeLanceHub = plataforma de freelance.
-- Tem 3 tipos de usuario:
-    * ADMIN (ROLE_ADMIN) -> gerencia tudo, mas nao cria mais cliente nem freelancer
-    * FREELANCER (ROLE_USUARIO) -> escolhe habilidades, ve vagas e manda proposta
-    * CLIENTE (ROLE_CLIENTE) -> pessoa ou empresa, cria projeto e aceita proposta
-- Entidades: Categoria, Usuario, Cliente, Projeto, Proposta (e o Token que fica no banco)
-- Regra central: freelancer so ve projeto da categoria que ele tem como habilidade
-  e so pode mandar UMA proposta por projeto.
-- Diferencial: quando o cliente ACEITA uma proposta, as outras do mesmo projeto
-  viram RECUSADA sozinhas.
-
-3) ARQUITETURA DO BACK (DDD / Clean Code)
------------------------------------------------------
-4 camadas, cada uma numa pasta:
-- presentation  -> controllers (so recebe a requisicao e devolve resposta)
-- application   -> services (regra de negocio), DTOs e as PORTAS (interfaces)
-- domain        -> entities, repository, value object (CPF e CNPJ)
-- infra         -> configuracao (Security, JwtFilter, Swagger, Cors) e o ViaCEP
-
-PORTAS (interfaces) -> Inversao de Dependencia
-- O controller NAO conhece a classe do service, so a interface (ex: UsuarioServicePort)
-- O service implementa a interface (UsuarioService implements UsuarioServicePort)
-- Vantagem: dava pra trocar o service sem mexer no controller
-- (o professor ainda nao usa porta, mas o enunciado pede, por isso eu fiz)
-
-DTOs
-- Nenhum controller devolve a entidade direto, sempre DTO (Request e Response)
-- Assim nao vaza senha nem dado que nao devia
-
-4) SEGURANÇA (Spring Security + JWT)
------------------------------------------------------
-LOGIN
-- POST /auth/login recebe email e senha
-- Se tiver certo, gera o token JWT, salva o token no BANCO e devolve token + role
-- Token expira em 20 minutos (spring.tempo_expiracao)
-
-COMO ELE VALIDA CADA REQUISICAO
-1. JwtFilter pega o header "Authorization: Bearer ..."
-2. TokenService.verificarToken confere assinatura, validade E se o token existe no banco
-3. Se ta ok, coloca o UsuarioLogado no SecurityContext
-4. Se nao, devolve 401 "Token invalido"
-
-UsuarioLogado (record) = id, email, cpf, cliente_id e authorities (a role)
-
-SecurityConfiguration
-- Rotas livres (permitAll): /auth/login, /auth/registrar, /auth/registrar-cliente,
-  /endereco/**, /usuarios/admin (so com secretKey), /publico/**, swagger
-- POST /categorias tambem ta livre POR CAUSA DO DESKTOP (ele nao tem login)
-- O resto: anyRequest().authenticated()
-- Permissao por perfil com hasRole / hasAnyRole (ex: so CLIENTE cria projeto,
-  so USUARIO manda proposta, so ADMIN mexe em /usuarios e /clientes)
-
-TOKEN NO BANCO (importante!)
-- Por isso reiniciar o back invalida todos os tokens
-- Eu coloquei um CommandLineRunner no FreeLanceHubApplication que apaga os tokens ao iniciar
-- Isso é pro teste do enunciado: "reiniciar o back pra simular token expirado"
+=====================================================
+1. VISAO GERAL
+chaves: projeto, roles, perfis, entidades, negocio
+=====================================================
+- Plataforma de freelance com 3 perfis:
+    ROLE_ADMIN    -> gerencia usuarios, clientes e categorias
+    ROLE_USUARIO  -> freelancer: escolhe habilidades, ve vagas, envia proposta
+    ROLE_CLIENTE  -> pessoa ou empresa: cria projeto, aceita/recusa proposta
+- Entidades: Usuario, Cliente, Projeto, Proposta, Categoria, Token
+- Entidade principal (CRUD): Projeto -> presentation/ProjetoController.java
+- Projeto nasce ABERTO; ao aceitar uma proposta vira CONCLUIDO e as outras
+  propostas pendentes do projeto viram RECUSADA.
+- Freelancer so ve e so propoe em projeto da categoria que e habilidade dele,
+  e so uma proposta por projeto.
 
 
-5) MULTILOCAÇÃO (cada um so ve o que é dele)
------------------------------------------------------
-- Projeto fica ligado a um Cliente (ManyToOne)
-- Proposta fica ligada a um Usuario (freelancer) e a um Projeto
-- O service pega o UsuarioLogado e filtra:
-    * ADMIN -> ve tudo
-    * CLIENTE -> so os projetos e propostas do cliente_id dele
-    * FREELANCER -> so as propostas que ele mandou e os projetos das habilidades dele
-- Se o cliente B tenta abrir projeto do cliente A pelo id, a API devolve 404 (bloqueia)
-- Foi testado: empresa 2 nao consegue editar nem aceitar proposta da empresa 1
+=====================================================
+2. CAMADAS DDD / CLEAN ARCHITECTURE
+chaves: ddd, camadas, pastas, domain, application, infra, presentation
+=====================================================
+presentation  = Camada de Apresentacao
+                controllers REST, recebem a requisicao e devolvem a resposta
+                ex: ProjetoController, AuthController
+application   = Camada de Aplicacao
+                services (orquestram: buscam no banco, chamam a regra da entidade, salvam)
+                ports (interfaces dos services) e DTOs (Request / Response)
+domain        = Camada de Dominio (o centro, nao depende das outras)
+                entities (dados + regras de negocio), valueobject (CPF, CNPJ),
+                repository (interfaces JPA), interfaces (IViaCepExternalRepository)
+infra         = Camada de Infraestrutura
+                configuration (SecurityConfiguration, JwtFilter, Swagger, Cors)
+                external (ViaCepExternalRepository) e dto (ViaCepResponse)
+
+Dependencias apontam para dentro: presentation -> application -> domain.
+A infra implementa as interfaces do domain.
+
+Frase: "4 camadas: apresentacao, aplicacao, dominio e infraestrutura. Regras no
+dominio, services orquestram, camadas conversam por interfaces (portas)."
 
 
-6) RELACIONAMENTOS JPA (pra explicar)
------------------------------------------------------
-- Usuario  -> Cliente        : @ManyToOne  (cliente_id, so quem tem ROLE_CLIENTE)
-- Cliente  -> Usuario        : @OneToMany  (mappedBy = "cliente")
-- Cliente  -> Projeto        : @OneToMany  (mappedBy = "cliente")
-- Projeto  -> Cliente        : @ManyToOne
-- Projeto  -> Categoria      : @ManyToOne
-- Proposta -> Usuario        : @ManyToOne
-- Proposta -> Projeto        : @ManyToOne
-- Usuario  -> Proposta       : @OneToMany  (mappedBy = "usuario")
-- Usuario  <-> Categoria     : @ManyToMany (tabela tb_habilidade) = habilidades do freelancer
-- Token    -> Usuario        : @ManyToOne
+=====================================================
+3. REGRAS DE NEGOCIO NAS ENTIDADES
+chaves: regra, regras, entidade, dominio, service
+=====================================================
+Regra fica na entidade; o service so busca, chama o metodo e salva.
 
-EXCLUSÃO LÓGICA
-- Nao apaga do banco, so troca o status (ATIVO, BLOQUEADO, EXCLUIDO)
-- Usuario/Cliente bloqueado nao entra (403 "contate o suporte"), excluido nao entra (401)
-- Projeto de empresa bloqueada ou excluida some das vagas e nao recebe proposta nova
+  var projeto = projetoRepository.findById(id).orElse(null);   // busca
+  projeto.cancelar();                                          // regra (entidade)
+  projetoRepository.save(projeto);                             // salva
 
+Projeto.java   abrir(), validarEdicao(), atualizarDados(), estaDisponivel(),
+               clienteAtivo(), pertenceAoCliente(), podeSerAcessadoPor(),
+               alterarStatus(), concluir(), cancelar()
+Proposta.java  enviar(), validarEdicao(), atualizarDados(), alterarStatus(),
+               aceitar(), recusar(), cancelar(), estaPendente(),
+               pertenceAoCliente(), pertenceAoFreelancer(), podeSerAcessadaPor()
+Usuario.java   validarAcesso(), atualizarDados(), atualizarEndereco(),
+               adicionarHabilidade(), removerHabilidade(), temHabilidade(),
+               categoriasQuePodeAtender(), tornarAdmin(), excluir(),
+               validarEmailDisponivel(), validarSenha(), validarChaveAdmin()
+Cliente.java   definirDocumento(), definirEmail(), validarTipo(), validarEmail(),
+               cadastrarEndereco(), ativar(), excluir(), alterarStatus()
+Categoria.java ativar(), atualizarDados(), alterarStatus(), excluir()
 
-7) CADASTROS (mudei isso por ultimo)
------------------------------------------------------
-- Antes: o admin criava a empresa e depois o usuario. Agora NÃO.
-- Agora o freelancer e o cliente se cadastram sozinhos (rotas publicas)
-- Fluxo da landing: botao -> /login -> embaixo tem "Cadastre-se como freelancer"
-  e "Cadastre-se como cliente"
-- Na tela de cadastro de cliente escolhe "Sou pessoa" ou "Sou empresa":
-    * Pessoa  -> CPF
-    * Empresa -> razao social + CNPJ (o campo "nome" é o nome fantasia)
-- Valida CPF e CNPJ pelos digitos verificadores (classes CPF e CNPJ em domain/valueobject)
-- Nao deixa CPF, CNPJ nem email repetido
-- O cadastro do cliente cria o Cliente E o Usuario dele (ROLE_CLIENTE) juntos
-- O admin so cria OUTRO admin (formulario simples: nome, cpf, email, senha)
+Exemplo (domain/entities/Proposta.java):
+  public void cancelar() {
+      if (!estaPendente()) throw new IllegalArgumentException("Só é possível cancelar uma proposta pendente!");
+      this.status = EnumStatusProposta.CANCELADA;
+  }
 
+Regra que depende do banco (ex: uma proposta por projeto): o service so consulta
+e passa a resposta; quem decide e a entidade.
+  boolean jaEnviou = propostaRepository.existsByUsuario_IdAndProjeto_Id(...);
+  proposta.enviar(freelancer, projeto, jaEnviou);
 
-8) INTEGRAÇÃO EXTERNA (ViaCEP)
------------------------------------------------------
-- Nos cadastros (freelancer e cliente) a pessoa digita o CEP
-- Quando sai do campo, o front chama GET /endereco/{cep} no meu back
-- O back (EnderecoService -> ViaCepExternalRepository) chama a API do ViaCEP
-- Devolve logradouro, bairro, cidade e uf e o front preenche sozinho
-- CEP invalido = 400, ViaCEP fora do ar = 502
-- O botao de cadastrar so deixa enviar com cidade e UF preenchidas
-  (pra nao salvar com endereco vazio se clicar muito rapido)
-
-9) BOOTSTRAPPING (iniciar do zero)
------------------------------------------------------
-- Banco vazio, sobe o back (o Hibernate cria as tabelas)
-- Abre o desktop JavaFX (pasta back): tela de login simples -> menu
-- Menu: cadastrar usuario (admin) e cadastrar categoria
-- O desktop manda POST /usuarios/admin com a secretKey (a mesma do application.properties)
-- Sem a chave certa o back recusa
-- Depois loga no React com esse admin
-
-10) FRONT-END
------------------------------------------------------
-ESTRUTURA
-- Next com layouts: layout.tsx (raiz, com o StoreProvider) e (sistema)/layout.tsx
-- (sistema)/layout: se nao tem usuario no Redux manda pro /login, senao mostra
-  Sidebar + Header + pagina + Footer
-- Paginas de cada entidade: listagem, /novo, /[codigo]/editar e um componente Form
-
-REDUX (store, slice, reducers)
-- store.ts = configureStore com 2 slices: auth e categorias
-- authSlice (estado: usuario e token)
-    * login  -> guarda token e usuario
-    * logout -> limpa tudo
-- categoriasSlice (a "mais uma funcionalidade") (estado: lista)
-    * setCategorias, limparCategorias
-    * tambem escuta o logout (extraReducers) e limpa a lista
-- Token e usuario ficam SO no Redux (em memoria), sem cookie e sem localStorage
-  -> por isso se der F5 desloga (é de proposito, o enunciado pede assim)
-
-SERVICES (api centralizada)
-- Nenhuma pagina chama axios direto, tudo passa por app/services
-- api.ts = axios com baseURL e 2 interceptors:
-    * REQUEST: pega o token da store do Redux e coloca no Authorization
-    * RESPONSE: se vier 401 (token expirado) faz dispatch(logout()) e a tela
-      volta pro login sozinha (o layout ve que nao tem usuario)
-- Um service por entidade (usuarioService é o modelo): buscarLista..., deletar...,
-  consulta...PorId, atualizar..., salvar...
-- URL sempre sem barra no final ('/usuarios') senao o Spring da 404 que aparece como 403
+Entidade x service: entidade = dados + regra do proprio objeto (nao conhece banco
+nem usuario logado). Service = coordena o caso de uso.
 
 
------------------------------------------------------
-11) ROTEIRO DOS TESTES DA APRESENTAÇÃO
------------------------------------------------------
-A) BOOTSTRAPPING
-   1. Limpar o banco
-   2. Mostrar a tela de login do React
-   3. Abrir o JavaFX e criar o admin
-   4. Logar no React com esse admin
-
-B) SEGURANÇA
-   1. Mostrar um endpoint protegido no Swagger usando o token (botao Authorize)
-   2. Teste chave: desligar a seguranca. CUIDADO: tem que mexer nos DOIS arquivos
-        - SecurityConfiguration -> colocar "/**" na lista do permitAll()
-        - JwtFilter -> colocar || uri.startsWith("/") no if das excecoes
-      (so um nao basta, o JwtFilter continua dando 401)
-   3. Testar com GET /categorias sem token (rotas que usam o usuario logado dao erro 500)
-   4. DEPOIS DESFAZER AS DUAS LINHAS
-
-C) MULTILOCAÇÃO
-   1. Logar como empresa A, criar um projeto
-   2. Sair e logar como empresa B
-   3. Na lista nao aparece o projeto da A
-   4. No Swagger tentar GET /projetos/{id da A} com o token da B -> 404
-
-D) REDUX + INTERCEPTOR
-   1. Logar
-   2. Reiniciar o back (apaga os tokens)
-   3. Recarregar uma lista (ex: categorias) -> 401 -> interceptor -> logout -> tela de login
-   4. Mostrar a funcionalidade no Redux (lista de categorias compartilhada entre as telas)
-
-E) INTEGRAÇÃO EXTERNA
-   1. Tela de cadastro, digitar CEP (ex: 88801000) e sair do campo
-   2. Mostrar o endereco preenchendo sozinho (ViaCEP)
+=====================================================
+4. VALUE OBJECT
+chaves: value object, valueobject, cpf, cnpj
+=====================================================
+- domain/valueobject/CPF.java e CNPJ.java
+- Objeto de valor: representa um valor e se valida no construtor; invalido nem e criado.
+  public CPF(String cpf) {
+      if (!isValidCpf(cpf)) throw new IllegalArgumentException("CPF Invalido!");
+  }
+- Validacao: so numeros, tamanho (11 / 14), todos iguais nao, digitos verificadores.
+- Usuario tem @Embedded CPF cpf (vira coluna da tabela usuario, sem tabela propria).
+- CPF.validarDisponivel() / CNPJ.validarDisponivel() = nao pode repetir.
+- Cliente guarda cpf e cnpj como String; empresa usa cnpj (cpf null), pessoa usa cpf
+  (cnpj null). Colunas aceitam nulo; quem garante o certo e Cliente.definirDocumento().
 
 
------------------------------------------------------
-12) POSSÍVEIS PERGUNTAS (e o que eu respondo)
------------------------------------------------------
-P: Pq o token fica no banco?
-R: Pra poder invalidar. Se nao esta na tabela o token é recusado, mesmo com assinatura certa.
-
-P: Pq voce usou portas (interfaces) se eu nao ensinei?
-R: O enunciado pede comunicacao entre as camadas via interface (Inversao de Dependencia).
-   O controller depende da interface, nao da classe.
-
-P: Pq nao usa cookie que nem a gente fez na aula?
-R: O enunciado pede o token e o usuario SO na store do Redux. Tirei os cookies.
-   O js-cookie continua no package.json mas nao é usado.
-
-P: O que o interceptor de resposta faz?
-R: Pega erro 401 de qualquer rota (menos o login), dispara o logout do Redux e a tela
-   volta pro login. Nao mostra alerta de erro.
-
-P: O que é o hasRole no SecurityConfiguration?
-R: É a permissao por perfil. A role fica no token/usuario (ROLE_ADMIN, ROLE_USUARIO,
-   ROLE_CLIENTE) e o Spring compara com o que a rota exige.
-
-P: Pq POST /categorias ta aberto?
-R: Por causa do desktop JavaFX, que nao tem login. Ele so serve pra carga inicial.
-
-P: Pq o /usuarios/admin é livre?
-R: Tambem é do desktop (bootstrapping). Ele se protege com a secretKey.
-
-P: Como garante que um cliente nao ve dado de outro?
-R: O service pega o UsuarioLogado do SecurityContext e filtra pelo cliente_id.
-   Se nao for dele devolve 404.
-
-P: O que o withJWTId(UUID) faz no token?
-R: Deixa cada token unico. Dois logins no mesmo segundo nao geram o mesmo token.
-
-P: O que é o CommandLineRunner no FreeLanceHubApplication?
-R: Roda uma vez quando o back inicia. Ele apaga os tokens do banco (por isso reiniciar derruba os logins).
-
-P: Pq o nome da empresa e o nome fantasia ficam no mesmo campo?
-R: Pra nao duplicar coluna. No cliente empresa o campo "nome" guarda o nome fantasia.
+=====================================================
+5. PORTAS / INVERSAO DE DEPENDENCIA / INVERSAO DE CONTROLE
+chaves: ports, portas, interface, inversao, dependencia, controle, autowired
+=====================================================
+- application/ports/*ServicePort.java = contratos dos services.
+- Contrato = interface que so promete os metodos; quem implementa e obrigado a ter.
+  public class PropostaService implements PropostaServicePort { ... }
+- Controller depende da interface, nao da classe:
+  @Autowired
+  private PropostaServicePort propostaService;
+- Inversao de DEPENDENCIA no domain: domain/interfaces/IViaCepExternalRepository
+  (dominio define) e infra/external/ViaCepExternalRepository (infra implementa).
+  domain/repository tambem sao interfaces.
+- Inversao de CONTROLE: o Spring cria os objetos (@Service, @Component) e entrega
+  onde pede com @Autowired; eu nao faco new.
 
 
------------------------------------------------------
-13) O QUE EU FIZ DIFERENTE DO PROFESSOR (nao esquecer)
------------------------------------------------------
-- Portas (interfaces) nos services (ele nao tem)
-- Redux sem cookies (ele grava token e usuario em cookie)
-- Interceptor de RESPOSTA com 401 (ele so tem o de requisicao)
-- Segundo slice no Redux (categorias)
-- hasRole na configuracao de seguranca (ele so usa autenticado)
-- withJWTId e limpeza dos tokens ao iniciar
-- Dominio proprio: Categoria, Cliente, Projeto, Proposta (ele tem Curso e Empresa)
-- Mesmas tecnologias, mesma ideia de camadas e de JWT salvo no banco
+=====================================================
+6. BANCO / JPA / RELACIONAMENTOS
+chaves: jpa, banco, tabela, hibernate, manytoone, onetomany, manytomany, foreign key, fk
+=====================================================
+- PostgreSQL, conexao no application.properties (url, username, password).
+- Tabelas criadas pelo Hibernate a partir das @Entity: spring.jpa.hibernate.ddl-auto=update
+  Cada atributo da classe vira coluna; o nome da classe vira a tabela.
+- Repository: interface que extends JpaRepository (save, findAll, findById prontos)
+  e consulta pelo nome do metodo: getProjetosByCliente_Id(Long cliente)
+
+Relacionamentos (domain/entities):
+  Projeto  -> Cliente   @ManyToOne  coluna cliente_id   (cada cliente ve os seus)
+  Projeto  -> Categoria @ManyToOne  coluna categoria_id
+  Proposta -> Projeto   @ManyToOne  coluna projeto_id   (aceitar recusa as outras do projeto)
+  Proposta -> Usuario   @ManyToOne  coluna usuario_id   (freelancer que enviou)
+  Usuario  -> Cliente   @ManyToOne  coluna cliente_id
+  Usuario  -> Proposta  @OneToMany(mappedBy = "usuario")
+  Cliente  -> Projeto   @OneToMany(mappedBy = "cliente")
+  Usuario <-> Categoria @ManyToMany tabela tb_habilidade (usuario_id, categoria_id)
+  Token    -> Usuario   @ManyToOne
+- mappedBy = o outro lado guarda a chave estrangeira.
+- ManyToMany igual ao Aluno/Curso (matricula) da aula.
+
+Exclusao logica: nao apaga, troca status (ATIVO, BLOQUEADO, EXCLUIDO / CANCELADO).
 
 
------------------------------------------------------
-14) AVISOS / COISAS PRA LEMBRAR
------------------------------------------------------
-- application.properties do GitHub tem a senha do banco do Render escrita. Se o repositorio
-  for publico, trocar a senha la no Render.
-- Botao "Excluir" abre um confirm() do navegador, so clicar OK.
-- Se der F5 no front desloga (é proposital, login so na memoria do Redux).
-- Se o back nao subir: ver se o banco do application.properties ta certo (local x Render).
+=====================================================
+7. DTO E SWAGGER
+chaves: dto, request, response, swagger, openapi, authorize
+=====================================================
+- application/DTOs: Request = o que chega do front; Response = o que volta.
+  ex: ProjetoRequest / ProjetoResponse. A entidade nunca sai direto.
+- Swagger: infra/configuration/SwaggerConfiguration.java registra o bearerAuth
+  (por isso aparece o botao Authorize). @Tag e @Operation nos controllers.
+- Link: http://localhost:8080/swagger-ui/index.html
 
-Boa sorte pra mim kkkk. Eu consigo. :)
+
+=====================================================
+8. SEGURANCA / JWT / TOKEN
+chaves: token, jwt, login, bearer, jwtfilter, security, hasrole, 401
+=====================================================
+Login (caminho):
+  AuthController @PostMapping("/login")
+   -> UsuarioService.validarUsuarioAutenticadoRetornaToken (confere email/senha,
+      usuario.validarAcesso() barra bloqueado/excluido)
+   -> TokenService.gerarToken: JWT.create() com emissor, email, UUID, expiracao,
+      assinado HMAC256 com spring.secretkey; salva o token no banco
+   -> devolve LoginResponse(token, role)
+- Banco guarda: token + usuario. Front recebe: token + role.
+
+Cada requisicao (infra/configuration/JwtFilter.java):
+  String token = authHeader.replace("Bearer ", "");
+  var usuarioLogado = tokenService.verificarToken(token);  // assinatura, validade, existe no banco
+  SecurityContextHolder.getContext().setAuthentication(user);
+  falhou -> 401 "Token invalido"
+- Bearer = palavra padrao antes do token no header Authorization.
+- Rotas livres: lista no JwtFilter + permitAll() no SecurityConfiguration
+  (/auth/login, /auth/registrar, /auth/registrar-cliente, /endereco, /publico,
+   /usuarios/admin, POST /categorias, swagger).
+- Permissao por perfil: hasRole / hasAnyRole no SecurityConfiguration.
+- Token no banco = da para invalidar.
+- @Bean CommandLineRunner limpaTokens (FreeLanceHubApplication.java): roda ao iniciar
+  o back e faz tokenRepository.deleteAll() -> reiniciar derruba os logins.
+- @Bean = o Spring roda o metodo e guarda o objeto (filterChain, customOpenAPI, limpaTokens).
+
+Desligar seguranca (teste 2) - mexer nos DOIS:
+  SecurityConfiguration -> colocar "/**" na lista do permitAll()
+  JwtFilter             -> colocar || uri.startsWith("/") no if das rotas livres
+  (JwtFilter e @Component, roda mesmo comentando o addFilterBefore)
+  Testar GET /usuarios ou GET /categorias sem token. Depois desfazer.
+
+
+=====================================================
+9. MULTIUSUARIO
+chaves: multiusuario, multilocacao, cliente_id, ehDoUsuario, 404, filtro
+=====================================================
+- UsuarioLogado (application/DTOs) vem do token: id, email, cpf, cliente_id, role.
+  O JwtFilter monta com usuario.getCliente().getId().
+- Listagem (ProjetoService.ListarTodosProjetosGrid):
+  admin -> findAll(); cliente -> getProjetosByCliente_Id(usuarioLogado.cliente_id())
+- Buscar/editar/excluir: ehDoUsuario -> projeto.podeSerAcessadoPor(ehAdmin, clienteId)
+  nao e dele -> null -> controller devolve 404.
+- Proposta: proposta.podeSerAcessadaPor(ehAdmin, clienteId, usuarioId)
+  (cliente ve as dos projetos dele, freelancer so as que enviou).
+
+
+=====================================================
+10. INTEGRACAO EXTERNA (VIACEP)
+chaves: viacep, cep, endereco, externa
+=====================================================
+Front: registrar/page.tsx e registrar-cliente/page.tsx
+  onBlur={handlerBuscarCep} -> services/enderecoService.ts buscarEnderecoPorCep
+  -> GET /endereco/{cep} no MEU back
+Back: EnderecoController -> EnderecoService -> IViaCepExternalRepository (domain)
+  -> ViaCepExternalRepository (infra) faz GET https://viacep.com.br/ws/{cep}/json/
+  CEP invalido = 400; ViaCEP fora = 502.
+
+
+=====================================================
+11. BOOTSTRAPPING / DESKTOP JAVAFX
+chaves: bootstrapping, desktop, javafx, admin, secretkey, fxml
+=====================================================
+- Tabelas: Hibernate (ddl-auto=update). Sem INSERT manual.
+- Desktop (pasta back) chama a API, nao o banco:
+  executaMetodoAPI("http://localhost:8080/usuarios/admin", jsonRequest, "POST");
+- Back: UsuarioController @PostMapping("/admin") -> UsuarioService.criarAdmin
+  Usuario.validarChaveAdmin(secretKey, secret) + usuario.tornarAdmin()
+- Rota livre sem token, protegida pela secretKey.
+- Tambem cadastra categoria (POST /categorias liberado).
+- .fxml = desenho da tela; fx:controller liga na classe; fx:id vira @FXML; onAction chama o metodo.
+
+
+=====================================================
+12. FLUXOS COMPLETOS (FRONT ATE O BANCO)
+chaves: fluxo, caminho, passo a passo, rota
+=====================================================
+Padrao: tela -> service do front -> api.ts (axios + token) -> JwtFilter ->
+        controller -> porta -> service -> entidade (regra) -> repository -> banco
+
+CRIAR USUARIO (admin)
+  (sistema)/usuarios/novo -> UsuarioForm.tsx salvarUsuario(usuario)
+  -> services/usuarioService.ts api.post('/usuarios', usuario)
+  -> UsuarioController @PostMapping criar -> UsuarioServicePort
+  -> UsuarioService.salvarUsuario(request, 0L) -> usuarioNovo.tornarAdmin()
+  -> usuarioRepository.save -> UsuarioResponse
+
+CADASTRO DE CLIENTE (publico)
+  registrar-cliente/page.tsx handlerRegistrar -> authService.registrarCliente
+  -> api.post('/auth/registrar-cliente', dados)  (sem token)
+  -> AuthController registrarCliente -> UsuarioServicePort -> UsuarioService.registrarCliente
+  -> Cliente.validarTipo, cliente.definirDocumento, cliente.cadastrarEndereco ...
+  -> clienteRepository.save(cliente) + usuarioRepository.save(usuarioCliente)
+  Pessoa/empresa no front: botoes "Sou pessoa"/"Sou empresa" -> setTipoCliente,
+  ehEmpresa troca os campos (razao social + CNPJ ou CPF).
+
+EXCLUIR PROJETO
+  (sistema)/projetos/page.tsx excluirProjeto -> projetoService.deletarProjeto
+  -> api.delete('/projetos/' + id + '/excluir')
+  -> ProjetoController @DeleteMapping("/{id}/excluir") -> ProjetoService.excluir
+  -> ehDoUsuario -> projeto.cancelar() -> projetoRepository.save (exclusao logica)
+
+ENVIAR PROPOSTA
+  (sistema)/propostas/components/PropostaForm.tsx salvarProposta(proposta, projetoId)
+  -> services/propostaService.ts api.post('/propostas', { ...proposta, projetoId })
+  -> PropostaController criar -> PropostaService.salvarProposta(request, 0L)
+  -> proposta.enviar(freelancer, projeto, jaEnviou) -> propostaRepository.save
+
+ACEITAR PROPOSTA
+  PATCH /propostas/{id}/status -> PropostaService.atualizarStatus
+  -> proposta.aceitar(outrasDoProjeto): aceita, recusa as pendentes, projeto.concluir()
+  -> saveAll das recusadas + save do projeto e da proposta
+
+
+=====================================================
+13. FRONT: ESTRUTURA, LAYOUTS, COMPONENTES
+chaves: next, spa, layout, multilayout, landing, componente, components, rotas
+=====================================================
+- Next + TypeScript, SPA (troca de tela sem recarregar, router.push / Link).
+- Rotas por pasta: pasta com page.tsx vira pagina. (pasta) nao entra na URL.
+  [codigo] = rota dinamica (id na URL, useParams).
+- Landing page: app/page.tsx (rota /), publica; usa components/ProjetosPublicos.tsx (/publico).
+- Multi layout:
+  app/layout.tsx           -> raiz, so envolve com <StoreProvider>
+  app/(sistema)/layout.tsx -> le usuario do Redux; null -> router.push("/login");
+                              com usuario -> Sidebar + Header + pagina + Footer
+- Componente = parte da tela reaproveitada (funcao que devolve JSX).
+  components/ (Header, Sidebar, Footer, ProjetosPublicos) usados no (sistema)/layout.tsx:
+    import Sidebar from "../components/Sidebar";   <Sidebar />
+  Forms: projetos/components/ProjetoForm.tsx usado em novo, editar e ver.
+- Sidebar por perfil: cada link tem perfis: ["ROLE_ADMIN", ...]
+    const role = useSelector((state: RootState) => state.auth.usuario?.role);
+    links.filter(link => link.perfis.includes(role))
+  role nasce no back (LoginResponse) -> login grava no Redux -> Sidebar le.
+- Hooks (funcoes use...): useState (dado da tela), useEffect (roda ao abrir),
+  useSelector (le Redux), useDispatch (grava Redux), useRouter (troca pagina),
+  useParams (id da URL).
+- Erros: so o 401 e global (api.ts). 403/400/404 caem no try/catch da pagina (alert).
+
+
+=====================================================
+14. REDUX
+chaves: redux, store, slice, reducer, dispatch, useselector, provider, categorias
+=====================================================
+Pasta: app/redux
+  store.ts           configureStore({ reducer: { auth: authReducer, categorias: categoriasReducer } })
+  slices/authSlice.ts       estado { usuario, token }; reducers login, logout
+  slices/categoriasSlice.ts estado { lista }; setCategorias, limparCategorias;
+                            extraReducers escuta o logout e limpa a lista
+  StoreProvider.tsx  <Provider store={store}> usado no app/layout.tsx
+- Store = junta tudo. Slice = uma parte (assunto + reducers). Reducer = funcao que muda o estado.
+- dispatch GRAVA, useSelector LE, useState = memoria so da tela.
+- Token e usuario SO no Redux (sem cookie): F5 limpa e volta para o login (pedido do PDF).
+
+Onde usa:
+  login/page.tsx              dispatch(login({ token, usuario: { ...usuarioLogado, role } }))
+  components/Sidebar.tsx      useSelector(state => state.auth.usuario?.role)
+  (sistema)/layout.tsx        useSelector(state => state.auth.usuario)
+  components/Header.tsx       handlerSair -> dispatch(logout())
+  services/api.ts             store.getState().auth.token / store.dispatch(logout())
+  (sistema)/projetos/page.tsx dispatch(setCategorias(await buscarListaCategorias()))
+  projetos/components/ProjetoForm.tsx useSelector(state => state.categorias.lista)
+
+
+=====================================================
+15. SERVICES DO FRONT E INTERCEPTORS
+chaves: axios, api.ts, interceptor, service front, 401, logout
+=====================================================
+- app/services: cada funcao chama um endpoint do back; a tela so chama a funcao.
+  export async function buscarListaProjetos() {
+      const dados = await api.get<Projeto[]>("/projetos");   // ProjetoController.ListarTodos
+- api.ts: axios com baseURL http://localhost:8080
+  Requisicao: coloca o token do Redux
+    const token = store.getState().auth.token;
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+  Resposta: 401 (menos /auth/login) -> store.dispatch(logout())
+    -> usuario null -> (sistema)/layout.tsx renderiza o login
+  Outros erros -> Promise.reject(erro) -> try/catch da pagina.
+
+
+=====================================================
+16. ROTEIRO DOS TESTES
+chaves: teste, apresentacao, roteiro
+=====================================================
+1 Bootstrapping: limpar banco, abrir login do React, criar admin no JavaFX, logar.
+2 Seguranca: Swagger com token (Authorize); desligar seguranca (item 8); GET sem token.
+3 Multiusuario: cliente A cria projeto; cliente B nao ve; Swagger GET /projetos/{id} com token B -> 404.
+4 Redux/interceptor: logar, reiniciar o back, clicar em um menu (NAO dar F5) -> 401 -> login.
+  Mostrar a lista de categorias no Redux.
+5 ViaCEP: cadastro, digitar CEP (ex: 88801000), sair do campo, endereco preenche.
+6 Codigo: camadas (item 2), JPA (item 6), Redux (item 14).
+
+
+=====================================================
+17. LEMBRETES
+chaves: lembrete, git, cuidado
+=====================================================
+- Atualizar o PC com o GitHub: git fetch origin  e  git reset --hard origin/main
+- Swagger: http://localhost:8080/swagger-ui/index.html
+- Excluir abre confirm() do navegador, clicar OK.
+- Back nao sobe: conferir o banco no application.properties (local x Render).
