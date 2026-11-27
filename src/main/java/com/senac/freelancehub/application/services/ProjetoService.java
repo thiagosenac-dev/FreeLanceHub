@@ -79,7 +79,7 @@ public class ProjetoService implements ProjetoServicePort {
 
         var usuarioLogado = usuarioService.getUsuarioLogado();
 
-        return usuarioLogado.ehAdmin() || projeto.pertenceAoCliente(usuarioLogado.cliente_id());
+        return projeto.podeSerAcessadoPor(usuarioLogado.ehAdmin(), usuarioLogado.cliente_id());
     }
 
     // MUDANÇA (novo): consulta pública por id, só projeto aberto (sem login)
@@ -98,17 +98,10 @@ public class ProjetoService implements ProjetoServicePort {
 
         Usuario freelancer = usuarioRepository.findById(usuarioService.getUsuarioLogado().id()).orElse(null);
 
-        List<Long> categorias = freelancer.getHabilidades()
-                .stream()
-                .map(c -> c.getId())
-                .toList();
+        // a entidade diz quais categorias o freelancer pode atender (sem habilidade, nenhuma)
+        List<Long> categorias = freelancer.categoriasQuePodeAtender();
 
-        // sem habilidade cadastrada não vê nenhum projeto
-        if (categorias.isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        return projetoRepository
+        return categorias.isEmpty() ? new ArrayList<>() : projetoRepository
                 .getProjetosByStatusAndCategoria_IdIn(EnumStatusProjeto.ABERTO, categorias)
                 .stream()
                 .filter(this::clienteAtivo)
@@ -152,8 +145,8 @@ public class ProjetoService implements ProjetoServicePort {
         // a categoria precisa existir (a entidade recusa categoria nula)
         var categoria = request.categoriaId() == null ? null : categoriaRepository.findById(request.categoriaId()).orElse(null);
         projeto.atualizarDados(request.nome(), request.descricao(), request.valor(), request.prazo(), categoria);
-        // o status só muda na edição, no cadastro o projeto sempre nasce ABERTO
-        if (id != 0L && request.status() != null) {
+        // no cadastro o projeto sempre nasce ABERTO; na edição a entidade troca o status se veio um novo
+        if (id != 0L) {
             projeto.alterarStatus(request.status());
         }
 

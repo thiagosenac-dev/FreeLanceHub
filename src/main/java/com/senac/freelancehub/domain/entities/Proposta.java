@@ -111,4 +111,15 @@ public class Proposta {
         this.projeto.concluir();
         return recusadas;
     }
+
+    // REGRA (multiusuário): admin acessa todas; o cliente as dos projetos dele; o freelancer só as que enviou
+    public boolean podeSerAcessadaPor(boolean ehAdmin, Long clienteId, Long usuarioId) {
+        if (ehAdmin) {
+            return true;
+        }
+        if (clienteId != null) {
+            return pertenceAoCliente(clienteId);
+        }
+        return pertenceAoFreelancer(usuarioId);
+    }
 }

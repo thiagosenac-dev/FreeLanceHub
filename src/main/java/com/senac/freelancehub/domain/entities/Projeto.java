@@ -72,8 +72,11 @@ public class Projeto {
         return this.cliente != null && this.cliente.getId().equals(clienteId);
     }
 
+    // REGRA: só troca o status se um novo status foi informado
     public void alterarStatus(EnumStatusProjeto novoStatus) {
-        this.status = novoStatus;
+        if (novoStatus != null) {
+            this.status = novoStatus;
+        }
     }
 
     // REGRA: ao aceitar uma proposta, o projeto sai da lista de abertos
@@ -84,5 +87,10 @@ public class Projeto {
     // REGRA: exclusão lógica
     public void cancelar() {
         this.status = EnumStatusProjeto.CANCELADO;
+    }
+
+    // REGRA (multiusuário): admin acessa todos; o cliente só os projetos dele
+    public boolean podeSerAcessadoPor(boolean ehAdmin, Long clienteId) {
+        return ehAdmin || pertenceAoCliente(clienteId);
     }
 }

@@ -67,9 +67,7 @@ public class ClienteService implements ClienteServicePort {
         cliente.setNome(request.nome());
         cliente.setTelefone(request.telefone());
         cliente.atualizarEndereco(request.cep(), request.logradouro(), request.bairro(), request.cidade(), request.uf());
-        if (request.status() != null) {
-            cliente.alterarStatus(request.status());
-        }
+        cliente.alterarStatus(request.status());
 
         clienteRepository.save(cliente);
 

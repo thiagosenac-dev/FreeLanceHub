@@ -246,4 +246,11 @@ public class Usuario implements UserDetails {
         this.role = "ROLE_ADMIN";
         this.status = EnumStatus.ATIVO;
     }
+
+    // REGRA: o freelancer só vê projetos das categorias que são habilidade dele (sem habilidade, lista vazia)
+    public List<Long> categoriasQuePodeAtender() {
+        return this.habilidades.stream()
+                .map(Categoria::getId)
+                .toList();
+    }
 }

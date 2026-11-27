@@ -71,9 +71,7 @@ public class CategoriaService implements CategoriaServicePort {
 
         // o nome é obrigatório (regra na entidade)
         categoria.atualizarDados(request.nome(), request.descricao());
-        if (request.status() != null) {
-            categoria.alterarStatus(request.status());
-        }
+        categoria.alterarStatus(request.status());
 
         categoriaRepository.save(categoria);
         return new CategoriaResponse(categoria);

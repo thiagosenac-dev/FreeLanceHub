@@ -72,9 +72,8 @@ public class PropostaService implements PropostaServicePort {
             return null;
         }
 
-        // empresa que não é dona do projeto não vê nada
-        boolean donoDoProjeto = projeto.pertenceAoCliente(usuarioLogado.cliente_id());
-        if (!usuarioLogado.ehAdmin() && !donoDoProjeto) {
+        // empresa que não é dona do projeto não vê nada (regra na entidade)
+        if (!projeto.podeSerAcessadoPor(usuarioLogado.ehAdmin(), usuarioLogado.cliente_id())) {
             return new ArrayList<>();
         }
 
@@ -90,17 +89,7 @@ public class PropostaService implements PropostaServicePort {
 
         var usuarioLogado = usuarioService.getUsuarioLogado();
 
-        if (usuarioLogado.ehAdmin()) {
-            return true;
-        }
-
-        // empresa (tem cliente_id)
-        if (usuarioLogado.cliente_id() != null) {
-            return proposta.pertenceAoCliente(usuarioLogado.cliente_id());
-        }
-
-        // freelancer
-        return proposta.pertenceAoFreelancer(usuarioLogado.id());
+        return proposta.podeSerAcessadaPor(usuarioLogado.ehAdmin(), usuarioLogado.cliente_id(), usuarioLogado.id());
     }
 
     // busca a proposta pelo id, devolve null se não existir

@@ -43,8 +43,11 @@ public class Categoria {
         this.descricao = descricao;
     }
 
+    // REGRA: só troca o status se um novo status foi informado
     public void alterarStatus(EnumStatus novoStatus) {
-        this.status = novoStatus;
+        if (novoStatus != null) {
+            this.status = novoStatus;
+        }
     }
 
     // REGRA: exclusão lógica
