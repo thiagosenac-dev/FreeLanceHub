@@ -3,7 +3,6 @@ package com.senac.freelancehub.application.services;
 import com.senac.freelancehub.application.DTOs.AtualizarStatusProjetoRequest;
 import com.senac.freelancehub.application.DTOs.ProjetoRequest;
 import com.senac.freelancehub.application.DTOs.ProjetoResponse;
-import com.senac.freelancehub.domain.entities.EnumStatus;
 import com.senac.freelancehub.domain.entities.EnumStatusProjeto;
 import com.senac.freelancehub.domain.entities.Projeto;
 import com.senac.freelancehub.domain.repository.ProjetoRepository;
@@ -72,9 +71,7 @@ public class ProjetoService implements ProjetoServicePort {
 
     // MUDANÇA (novo): projeto de cliente bloqueado ou excluído não aparece nas vagas (e não recebe proposta)
     public boolean clienteAtivo(Projeto projeto) {
-        return projeto.getCliente() == null
-                || projeto.getCliente().getStatus() == null
-                || projeto.getCliente().getStatus() == EnumStatus.ATIVO;
+        return projeto.clienteAtivo();
     }
 
     // MUDANÇA (novo): admin vê todos, a empresa só os projetos do cliente dela
@@ -82,16 +79,14 @@ public class ProjetoService implements ProjetoServicePort {
 
         var usuarioLogado = usuarioService.getUsuarioLogado();
 
-        return usuarioLogado.ehAdmin()
-                || (projeto.getCliente() != null
-                && projeto.getCliente().getId().equals(usuarioLogado.cliente_id()));
+        return usuarioLogado.ehAdmin() || projeto.pertenceAoCliente(usuarioLogado.cliente_id());
     }
 
     // MUDANÇA (novo): consulta pública por id, só projeto aberto (sem login)
     public ProjetoResponse buscarPublicoPorId(Long id) {
 
         var projeto = projetoRepository.findById(id).orElse(null);
-        if (projeto == null || projeto.getStatus() != EnumStatusProjeto.ABERTO || !clienteAtivo(projeto)) {
+        if (projeto == null || !projeto.estaDisponivel()) {
             return null;
         }
 
@@ -143,33 +138,23 @@ public class ProjetoService implements ProjetoServicePort {
             var usuarioLogado = usuarioService.getUsuarioLogado();
 
             projeto = new Projeto();
-            projeto.setStatus(EnumStatusProjeto.ABERTO);
-            projeto.setCliente(clienteRepository.findById(usuarioLogado.cliente_id()).orElse(null));
+            projeto.abrir(clienteRepository.findById(usuarioLogado.cliente_id()).orElse(null));
         } else {
             // projeto existente (MUDANÇA: só do cliente da empresa)
             projeto = projetoRepository.findById(id).orElse(null);
             if (projeto == null || !ehDoUsuario(projeto)) {
                 return null;
             }
-            // só dá para editar um projeto que ainda está aberto
-            if (projeto.getStatus() != EnumStatusProjeto.ABERTO) {
-                throw new IllegalArgumentException("Só é possível editar projetos abertos!");
-            }
+            // só dá para editar um projeto que ainda está aberto (regra na entidade)
+            projeto.validarEdicao();
         }
 
-        projeto.setNome(request.nome());
-        projeto.setDescricao(request.descricao());
-        projeto.setValor(request.valor());
-        projeto.setPrazo(request.prazo());
-        // a categoria precisa existir
+        // a categoria precisa existir (a entidade recusa categoria nula)
         var categoria = request.categoriaId() == null ? null : categoriaRepository.findById(request.categoriaId()).orElse(null);
-        if (categoria == null) {
-            throw new IllegalArgumentException("Categoria não encontrada!");
-        }
-        projeto.setCategoria(categoria);
-        // MUDANÇA: o status só muda na edição, no cadastro o projeto sempre nasce ABERTO
+        projeto.atualizarDados(request.nome(), request.descricao(), request.valor(), request.prazo(), categoria);
+        // o status só muda na edição, no cadastro o projeto sempre nasce ABERTO
         if (id != 0L && request.status() != null) {
-            projeto.setStatus(request.status());
+            projeto.alterarStatus(request.status());
         }
 
         projetoRepository.save(projeto);
@@ -183,7 +168,7 @@ public class ProjetoService implements ProjetoServicePort {
         if (projetoBanco == null || !ehDoUsuario(projetoBanco)) { // MUDANÇA: só do cliente da empresa
             return false;
         }
-        projetoBanco.setStatus(statusRequest.status());
+        projetoBanco.alterarStatus(statusRequest.status());
         projetoRepository.save(projetoBanco);
         return true;
     }
@@ -196,7 +181,7 @@ public class ProjetoService implements ProjetoServicePort {
             return false;
         }
 
-        projetoBanco.setStatus(EnumStatusProjeto.CANCELADO);
+        projetoBanco.cancelar();
         projetoRepository.save(projetoBanco);
         return true;
     }

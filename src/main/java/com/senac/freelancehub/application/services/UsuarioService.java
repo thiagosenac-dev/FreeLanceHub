@@ -3,7 +3,6 @@ package com.senac.freelancehub.application.services;
 import com.senac.freelancehub.application.DTOs.*;
 import com.senac.freelancehub.domain.entities.Cliente;
 import com.senac.freelancehub.domain.entities.EnumStatus;
-import com.senac.freelancehub.domain.entities.EnumTipoCliente;
 import com.senac.freelancehub.domain.entities.Usuario;
 import com.senac.freelancehub.application.DTOs.CategoriaResponse;
 import com.senac.freelancehub.application.DTOs.HabilidadeRequest;
@@ -49,22 +48,9 @@ public class UsuarioService implements UsuarioServicePort {
             var usuario = usuarioRepository.findAll()
                     .stream().filter(u -> u.getEmail().equals(request.email()))
                     .findFirst().orElse(null);
-            // usuário excluído não consegue entrar (para ele é como se não existisse)
-            if (usuario.getStatus() == EnumStatus.EXCLUIDO) {
+            // a regra de quem pode entrar agora fica na entidade
+            if (!usuario.validarAcesso()) {
                 return null;
-            }
-            // usuário bloqueado não entra, e recebe um aviso para falar com o suporte
-            if (usuario.getStatus() == EnumStatus.BLOQUEADO) {
-                throw new IllegalStateException("Usuário bloqueado, contate o suporte!");
-            }
-            // empresa (cliente) excluída não entra; empresa bloqueada também recebe o aviso
-            if (usuario.getCliente() != null) {
-                if (usuario.getCliente().getStatus() == EnumStatus.EXCLUIDO) {
-                    return null;
-                }
-                if (usuario.getCliente().getStatus() == EnumStatus.BLOQUEADO) {
-                    throw new IllegalStateException("Usuário bloqueado, contate o suporte!");
-                }
             }
             var token = tokenService.gerarToken(request);
             return new LoginResponse(token, usuario.getRole());
@@ -125,22 +111,7 @@ public class UsuarioService implements UsuarioServicePort {
             throw new IllegalArgumentException("E-mail já cadastrado!");
         }
 
-        usuarioBanco.setNome(request.nome());
-        // MUDANÇA: usuário do cliente empresa não tem cpf, então só troca o cpf de quem já tem
-        if (usuarioBanco.getCpf() != null) {
-            usuarioBanco.setCpf(new CPF(request.cpf()));
-        }
-        usuarioBanco.setEmail(request.email());
-        // MUDANÇA: o admin também edita o endereço do freelancer (admin e cliente não têm endereço aqui)
-        if ("ROLE_USUARIO".equals(usuarioBanco.getRole())) {
-            validarEndereco(request.cep(), request.cidade(), request.uf());
-            usuarioBanco.setCep(request.cep());
-            usuarioBanco.setLogradouro(request.logradouro());
-            usuarioBanco.setBairro(request.bairro());
-            usuarioBanco.setCidade(request.cidade());
-            usuarioBanco.setUf(request.uf());
-        }
-        usuarioBanco.setSenha(request.senha());
+        usuarioBanco.atualizarDados(request);
         usuarioRepository.save(usuarioBanco);
         return new UsuarioResponse(usuarioBanco);
     }
@@ -153,7 +124,7 @@ public class UsuarioService implements UsuarioServicePort {
             return false;
         }
 
-        usuarioBanco.setStatus(statusRequest.status());
+        usuarioBanco.alterarStatus(statusRequest.status());
         usuarioRepository.save(usuarioBanco);
         return true;
     }
@@ -166,7 +137,7 @@ public class UsuarioService implements UsuarioServicePort {
             return false;
         }
 
-        usuarioBanco.setStatus(EnumStatus.EXCLUIDO);
+        usuarioBanco.excluir();
         usuarioRepository.save(usuarioBanco);
         return true;
     }
@@ -207,16 +178,9 @@ public class UsuarioService implements UsuarioServicePort {
         Categoria categoriaBanco = categoriaRepository.findById(habilidadeRequest.categoria_id()).orElse(null);
         if (usuarioBanco != null && categoriaBanco != null) {
 
-            var habilidade = usuarioBanco.getHabilidades().stream()
-                    .anyMatch(c -> c.getId().equals(categoriaBanco.getId()));
-
-            if (habilidade) {
-                return true;
-            } else {
-                usuarioBanco.getHabilidades().add(categoriaBanco);
-                usuarioRepository.save(usuarioBanco);
-                return true;
-            }
+            usuarioBanco.adicionarHabilidade(categoriaBanco);
+            usuarioRepository.save(usuarioBanco);
+            return true;
         }
         return false;
     }
@@ -229,7 +193,7 @@ public class UsuarioService implements UsuarioServicePort {
             return false;
         }
 
-        usuarioBanco.getHabilidades().removeIf(c -> c.getId().equals(categoriaId));
+        usuarioBanco.removerHabilidade(categoriaId);
         usuarioRepository.save(usuarioBanco);
         return true;
     }
@@ -254,10 +218,10 @@ public class UsuarioService implements UsuarioServicePort {
             throw new IllegalArgumentException("E-mail já cadastrado!");
         }
 
-        validarEndereco(request.cep(), request.cidade(), request.uf());
         validarCpfDuplicado(request.cpf());
 
         Usuario freelancer = new Usuario(request);
+        freelancer.atualizarEndereco(request.cep(), request.logradouro(), request.bairro(), request.cidade(), request.uf());
         usuarioRepository.save(freelancer);
 
         return new UsuarioResponse(freelancer);
@@ -284,34 +248,19 @@ public class UsuarioService implements UsuarioServicePort {
         cliente.setTipo(request.tipo());
         cliente.setNome(request.nome());
 
-        if (request.tipo() == EnumTipoCliente.EMPRESA) {
-            // empresa: razão social e cnpj (sem cpf)
-            if (request.razaoSocial() == null || request.razaoSocial().isBlank()) {
-                throw new IllegalArgumentException("Informe a razão social!");
-            }
-            if (!CNPJ.isValidCnpj(request.cnpj())) {
-                throw new IllegalArgumentException("CNPJ Invalido!");
-            }
+        // a entidade valida a razão social e o cnpj (empresa) ou o cpf (pessoa)
+        cliente.definirDocumento(request.razaoSocial(), request.cpf(), request.cnpj());
+        // a duplicidade precisa do banco, então continua aqui no service
+        if (cliente.ehEmpresa()) {
             validarCnpjDuplicado(request.cnpj());
-            cliente.setRazaoSocial(request.razaoSocial());
-            cliente.setCnpj(request.cnpj());
         } else {
-            // pessoa: cpf
-            if (!CPF.isValidCpf(request.cpf())) {
-                throw new IllegalArgumentException("CPF Invalido!");
-            }
             validarCpfDuplicado(request.cpf());
-            cliente.setCpf(request.cpf());
         }
 
-        cliente.setEmail(request.email());
+        cliente.definirEmail(request.email());
         cliente.setTelefone(request.telefone());
-        cliente.setCep(request.cep());
-        cliente.setLogradouro(request.logradouro());
-        cliente.setBairro(request.bairro());
-        cliente.setCidade(request.cidade());
-        cliente.setUf(request.uf());
-        cliente.setStatus(EnumStatus.ATIVO);
+        cliente.atualizarEndereco(request.cep(), request.logradouro(), request.bairro(), request.cidade(), request.uf());
+        cliente.ativar();
 
         Usuario usuarioCliente = new Usuario(request, cliente);
 

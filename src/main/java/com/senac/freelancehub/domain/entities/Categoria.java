@@ -29,4 +29,26 @@ public class Categoria {
     @ManyToMany(mappedBy = "habilidades")
     public Set<Usuario> freelancers = new HashSet<>();
 
+    // REGRA: categoria nova nasce ATIVA
+    public void ativar() {
+        this.status = EnumStatus.ATIVO;
+    }
+
+    // REGRA: o nome é obrigatório
+    public void atualizarDados(String nome, String descricao) {
+        if (nome == null || nome.isBlank()) {
+            throw new IllegalArgumentException("Nome inválido!");
+        }
+        this.nome = nome;
+        this.descricao = descricao;
+    }
+
+    public void alterarStatus(EnumStatus novoStatus) {
+        this.status = novoStatus;
+    }
+
+    // REGRA: exclusão lógica
+    public void excluir() {
+        this.status = EnumStatus.EXCLUIDO;
+    }
 }

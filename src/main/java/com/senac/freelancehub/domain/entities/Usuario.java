@@ -117,6 +117,81 @@ public class Usuario implements UserDetails {
         this.setCliente(cliente);
     }
 
+    // REGRA (veio do UsuarioService): diz se o usuário pode fazer login
+    // excluído = false (como se não existisse); bloqueado = erro com aviso para o suporte
+    public boolean validarAcesso() {
+        if (this.status == EnumStatus.EXCLUIDO) {
+            return false;
+        }
+        if (this.status == EnumStatus.BLOQUEADO) {
+            throw new IllegalStateException("Usuário bloqueado, contate o suporte!");
+        }
+        if (this.cliente != null) {
+            if (this.cliente.getStatus() == EnumStatus.EXCLUIDO) {
+                return false;
+            }
+            if (this.cliente.getStatus() == EnumStatus.BLOQUEADO) {
+                throw new IllegalStateException("Usuário bloqueado, contate o suporte!");
+            }
+        }
+        return true;
+    }
+
+    // REGRA (veio do UsuarioService): só o freelancer tem endereço no usuário
+    public boolean ehFreelancer() {
+        return "ROLE_USUARIO".equals(this.role);
+    }
+
+    // REGRA (veio do UsuarioService): o endereço vem do ViaCEP, cep, cidade e uf são obrigatórios
+    public void atualizarEndereco(String cep, String logradouro, String bairro, String cidade, String uf) {
+        if (cep == null || cep.isBlank() || cidade == null || cidade.isBlank() || uf == null || uf.isBlank()) {
+            throw new IllegalArgumentException("Informe um CEP válido e aguarde o endereço ser preenchido!");
+        }
+        this.cep = cep;
+        this.logradouro = logradouro;
+        this.bairro = bairro;
+        this.cidade = cidade;
+        this.uf = uf;
+    }
+
+    // REGRA (veio do UsuarioService): edição feita pelo admin
+    public void atualizarDados(UsuarioRequest request) {
+        this.setNome(request.nome());
+        // usuário de cliente empresa não tem cpf, então só troca o cpf de quem já tem
+        if (this.cpf != null) {
+            this.setCpf(new CPF(request.cpf()));
+        }
+        this.setEmail(request.email());
+        if (ehFreelancer()) {
+            atualizarEndereco(request.cep(), request.logradouro(), request.bairro(), request.cidade(), request.uf());
+        }
+        this.setSenha(request.senha());
+    }
+
+    // REGRA (veio do UsuarioService): troca o status (ativo, bloqueado...)
+    public void alterarStatus(EnumStatus novoStatus) {
+        this.status = novoStatus;
+    }
+
+    // REGRA (veio do UsuarioService): exclusão lógica
+    public void excluir() {
+        this.status = EnumStatus.EXCLUIDO;
+    }
+
+    // REGRA (veio do UsuarioService): adiciona a habilidade sem repetir (igual ao matricular do professor)
+    public void adicionarHabilidade(Categoria categoria) {
+        boolean jaTem = this.habilidades.stream()
+                .anyMatch(c -> c.getId().equals(categoria.getId()));
+        if (!jaTem) {
+            this.habilidades.add(categoria);
+        }
+    }
+
+    // REGRA (veio do UsuarioService): remove a habilidade
+    public void removerHabilidade(Long categoriaId) {
+        this.habilidades.removeIf(c -> c.getId().equals(categoriaId));
+    }
+
     // pega o usuário logado que o JwtFilter colocou no contexto
     public UsuarioLogado getUsuarioLogado(){
         return (UsuarioLogado) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -137,5 +212,11 @@ public class Usuario implements UserDetails {
     @Override
     public String getUsername() {
         return "";
+    }
+
+    // REGRA: o freelancer só atende projetos das categorias que são habilidade dele
+    public boolean temHabilidade(Categoria categoria) {
+        return categoria != null && this.habilidades.stream()
+                .anyMatch(c -> c.getId().equals(categoria.getId()));
     }
 }

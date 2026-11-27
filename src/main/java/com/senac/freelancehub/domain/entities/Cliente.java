@@ -1,4 +1,6 @@
 package com.senac.freelancehub.domain.entities;
+import com.senac.freelancehub.domain.valueobject.CNPJ;
+import com.senac.freelancehub.domain.valueobject.CPF;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -47,4 +49,56 @@ public class Cliente {
     @OneToMany(mappedBy = "cliente")
     public List<Projeto> projetos;
 
+    // REGRA: cliente novo nasce ATIVO
+    public void ativar() {
+        this.status = EnumStatus.ATIVO;
+    }
+
+    public boolean ehEmpresa() {
+        return this.tipo == EnumTipoCliente.EMPRESA;
+    }
+
+    // REGRA: empresa tem razão social e CNPJ válido; pessoa tem CPF válido
+    public void definirDocumento(String razaoSocial, String cpf, String cnpj) {
+        if (ehEmpresa()) {
+            if (razaoSocial == null || razaoSocial.isBlank()) {
+                throw new IllegalArgumentException("Informe a razão social!");
+            }
+            if (!CNPJ.isValidCnpj(cnpj)) {
+                throw new IllegalArgumentException("CNPJ Invalido!");
+            }
+            this.razaoSocial = razaoSocial;
+            this.cnpj = cnpj;
+        } else {
+            if (!CPF.isValidCpf(cpf)) {
+                throw new IllegalArgumentException("CPF Invalido!");
+            }
+            this.cpf = cpf;
+        }
+    }
+
+    // REGRA: e-mail precisa ter @
+    public void definirEmail(String email) {
+        if (email == null || !email.contains("@")) {
+            throw new IllegalArgumentException("Email Invalido!");
+        }
+        this.email = email;
+    }
+
+    public void atualizarEndereco(String cep, String logradouro, String bairro, String cidade, String uf) {
+        this.cep = cep;
+        this.logradouro = logradouro;
+        this.bairro = bairro;
+        this.cidade = cidade;
+        this.uf = uf;
+    }
+
+    public void alterarStatus(EnumStatus novoStatus) {
+        this.status = novoStatus;
+    }
+
+    // REGRA: exclusão lógica
+    public void excluir() {
+        this.status = EnumStatus.EXCLUIDO;
+    }
 }

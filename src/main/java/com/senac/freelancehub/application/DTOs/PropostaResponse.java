@@ -1,7 +1,5 @@
 package com.senac.freelancehub.application.DTOs;
 
-import com.senac.freelancehub.domain.entities.EnumStatus;
-import com.senac.freelancehub.domain.entities.EnumStatusProjeto;
 import com.senac.freelancehub.domain.entities.EnumStatusProposta;
 import com.senac.freelancehub.domain.entities.Proposta;
 
@@ -21,11 +19,7 @@ public record PropostaResponse (long id, String descricao, Double valor, String 
                 propostaIdentidade.getUsuario() != null ? propostaIdentidade.getUsuario().getNome() : null,
                 propostaIdentidade.getUsuario() != null ? propostaIdentidade.getUsuario().getEmail() : null,
                 propostaIdentidade.getProjeto() != null ? propostaIdentidade.getProjeto().getNome() : null,
-                propostaIdentidade.getProjeto() != null
-                        && propostaIdentidade.getProjeto().getStatus() == EnumStatusProjeto.ABERTO
-                        && (propostaIdentidade.getProjeto().getCliente() == null
-                            || propostaIdentidade.getProjeto().getCliente().getStatus() == null
-                            || propostaIdentidade.getProjeto().getCliente().getStatus() == EnumStatus.ATIVO)
+                propostaIdentidade.getProjeto() != null && propostaIdentidade.getProjeto().estaDisponivel()
         );
     }
 }

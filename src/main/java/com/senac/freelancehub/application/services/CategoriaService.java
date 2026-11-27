@@ -55,17 +55,12 @@ public class CategoriaService implements CategoriaServicePort {
     // id 0 cria uma categoria nova, qualquer outro id atualiza a existente (null se não achar)
     public CategoriaResponse salvarCategoria(CategoriaRequest request, Long id) {
 
-        // o nome é obrigatório
-        if (request.nome() == null || request.nome().isBlank()) {
-            throw new IllegalArgumentException("Nome inválido!");
-        }
-
         Categoria categoria;
 
         if (id == 0L) {
             // nova categoria
             categoria = new Categoria();
-            categoria.setStatus(EnumStatus.ATIVO);
+            categoria.ativar();
         } else {
             // categoria existente
             categoria = categoriaRepository.findById(id).orElse(null);
@@ -74,10 +69,10 @@ public class CategoriaService implements CategoriaServicePort {
             }
         }
 
-        categoria.setNome(request.nome());
-        categoria.setDescricao(request.descricao());
+        // o nome é obrigatório (regra na entidade)
+        categoria.atualizarDados(request.nome(), request.descricao());
         if (request.status() != null) {
-            categoria.setStatus(request.status());
+            categoria.alterarStatus(request.status());
         }
 
         categoriaRepository.save(categoria);
@@ -91,7 +86,7 @@ public class CategoriaService implements CategoriaServicePort {
         if (categoriaBanco == null) {
             return false;
         }
-        categoriaBanco.setStatus(statusRequest.status());
+        categoriaBanco.alterarStatus(statusRequest.status());
         categoriaRepository.save(categoriaBanco);
         return true;
     }
@@ -104,7 +99,7 @@ public class CategoriaService implements CategoriaServicePort {
             return false;
         }
 
-        categoriaBanco.setStatus(EnumStatus.EXCLUIDO);
+        categoriaBanco.excluir();
         categoriaRepository.save(categoriaBanco);
         return true;
     }

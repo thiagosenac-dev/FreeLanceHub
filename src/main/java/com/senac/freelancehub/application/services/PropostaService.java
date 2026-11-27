@@ -3,8 +3,6 @@ package com.senac.freelancehub.application.services;
 import com.senac.freelancehub.application.DTOs.AtualizarStatusPropostaRequest;
 import com.senac.freelancehub.application.DTOs.PropostaRequest;
 import com.senac.freelancehub.application.DTOs.PropostaResponse;
-import com.senac.freelancehub.domain.entities.EnumStatus;
-import com.senac.freelancehub.domain.entities.EnumStatusProjeto;
 import com.senac.freelancehub.domain.entities.EnumStatusProposta;
 import com.senac.freelancehub.domain.entities.Proposta;
 import com.senac.freelancehub.domain.repository.ProjetoRepository;
@@ -75,8 +73,7 @@ public class PropostaService implements PropostaServicePort {
         }
 
         // empresa que não é dona do projeto não vê nada
-        boolean donoDoProjeto = projeto.getCliente() != null
-                && projeto.getCliente().getId().equals(usuarioLogado.cliente_id());
+        boolean donoDoProjeto = projeto.pertenceAoCliente(usuarioLogado.cliente_id());
         if (!usuarioLogado.ehAdmin() && !donoDoProjeto) {
             return new ArrayList<>();
         }
@@ -99,14 +96,11 @@ public class PropostaService implements PropostaServicePort {
 
         // empresa (tem cliente_id)
         if (usuarioLogado.cliente_id() != null) {
-            return proposta.getProjeto() != null
-                    && proposta.getProjeto().getCliente() != null
-                    && proposta.getProjeto().getCliente().getId().equals(usuarioLogado.cliente_id());
+            return proposta.pertenceAoCliente(usuarioLogado.cliente_id());
         }
 
         // freelancer
-        return proposta.getUsuario() != null
-                && proposta.getUsuario().getId().equals(usuarioLogado.id());
+        return proposta.pertenceAoFreelancer(usuarioLogado.id());
     }
 
     // busca a proposta pelo id, devolve null se não existir
@@ -131,8 +125,7 @@ public class PropostaService implements PropostaServicePort {
             var usuarioLogado = usuarioService.getUsuarioLogado();
 
             proposta = new Proposta();
-            proposta.setStatus(EnumStatusProposta.PENDENTE);
-            proposta.setUsuario(usuarioRepository.findById(usuarioLogado.id()).orElse(null));
+            var freelancer = usuarioRepository.findById(usuarioLogado.id()).orElse(null);
 
             // MUDANÇA: a proposta fica ligada ao projeto escolhido
             var projeto = projetoRepository.findById(request.projetoId()).orElse(null);
@@ -144,32 +137,19 @@ public class PropostaService implements PropostaServicePort {
                 throw new IllegalArgumentException("Você já enviou uma proposta para este projeto!");
             }
 
-            // MUDANÇA: o projeto precisa estar aberto e combinar com as habilidades do freelancer
-            var freelancer = proposta.getUsuario();
-            boolean temHabilidade = freelancer.getHabilidades().stream()
-                    .anyMatch(c -> projeto.getCategoria() != null && c.getId().equals(projeto.getCategoria().getId()));
-            boolean clienteAtivo = projeto.getCliente() == null || projeto.getCliente().getStatus() == null
-                    || projeto.getCliente().getStatus() == EnumStatus.ATIVO;
-            if (projeto.getStatus() != EnumStatusProjeto.ABERTO || !temHabilidade || !clienteAtivo) {
-                throw new IllegalArgumentException("Projeto indisponível para as suas habilidades!");
-            }
-
-            proposta.setProjeto(projeto);
+            // o projeto precisa estar aberto e combinar com as habilidades do freelancer (regra na entidade)
+            proposta.enviar(freelancer, projeto);
         } else {
             // proposta existente (MUDANÇA: só quem pode ver a proposta)
             proposta = propostaRepository.findById(id).orElse(null);
             if (proposta == null || !ehDoUsuario(proposta)) {
                 return null;
             }
-            // só dá para alterar uma proposta que ainda está pendente
-            if (proposta.getStatus() != EnumStatusProposta.PENDENTE) {
-                throw new IllegalArgumentException("Só é possível alterar uma proposta pendente!");
-            }
+            // só dá para alterar uma proposta que ainda está pendente (regra na entidade)
+            proposta.validarEdicao();
         }
 
-        proposta.setDescricao(request.descricao());
-        proposta.setValor(request.valor());
-        proposta.setPrazo(request.prazo());
+        proposta.atualizarDados(request.descricao(), request.valor(), request.prazo());
         // MUDANÇA: o status não muda mais por aqui, só pelo PATCH (aceitar ou recusar é da empresa)
 
         propostaRepository.save(proposta);
@@ -184,34 +164,26 @@ public class PropostaService implements PropostaServicePort {
             return false;
         }
 
-        // MUDANÇA: não aceita nem recusa proposta de projeto que não está mais aberto ou de empresa bloqueada/excluída
-        if ((statusRequest.status() == EnumStatusProposta.ACEITA || statusRequest.status() == EnumStatusProposta.RECUSADA)
-                && !new PropostaResponse(propostaBanco).projetoAberto()) {
-            throw new IllegalArgumentException("Esse projeto não está mais aberto!");
-        }
+        // a entidade valida se o projeto ainda está aberto e troca o status
+        propostaBanco.alterarStatus(statusRequest.status());
 
-        // MUDANÇA: ao aceitar uma proposta, as outras pendentes do mesmo projeto são recusadas automaticamente
+        // ao aceitar uma proposta, as outras pendentes do mesmo projeto são recusadas automaticamente
         if (statusRequest.status() == EnumStatusProposta.ACEITA) {
 
             var projeto = propostaBanco.getProjeto();
-            if (projeto.getStatus() != EnumStatusProjeto.ABERTO) {
-                throw new IllegalArgumentException("Esse projeto já tem uma proposta aceita!");
-            }
 
             propostaRepository.getPropostasByProjeto_Id(projeto.getId()).stream()
-                    .filter(outra -> !outra.getId().equals(propostaBanco.getId())
-                            && outra.getStatus() == EnumStatusProposta.PENDENTE)
+                    .filter(outra -> !outra.getId().equals(propostaBanco.getId()) && outra.estaPendente())
                     .forEach(outra -> {
-                        outra.setStatus(EnumStatusProposta.RECUSADA);
+                        outra.recusar();
                         propostaRepository.save(outra);
                     });
 
             // o projeto sai da lista de abertos
-            projeto.setStatus(EnumStatusProjeto.CONCLUIDO);
+            projeto.concluir();
             projetoRepository.save(projeto);
         }
 
-        propostaBanco.setStatus(statusRequest.status());
         propostaRepository.save(propostaBanco);
         return true;
     }
@@ -224,12 +196,8 @@ public class PropostaService implements PropostaServicePort {
             return false;
         }
 
-        // só dá para cancelar uma proposta que ainda está pendente
-        if (propostaBanco.getStatus() != EnumStatusProposta.PENDENTE) {
-            throw new IllegalArgumentException("Só é possível cancelar uma proposta pendente!");
-        }
-
-        propostaBanco.setStatus(EnumStatusProposta.CANCELADA);
+        // só dá para cancelar uma proposta que ainda está pendente (regra na entidade)
+        propostaBanco.cancelar();
         propostaRepository.save(propostaBanco);
         return true;
     }

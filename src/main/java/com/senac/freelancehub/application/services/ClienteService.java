@@ -2,13 +2,9 @@ package com.senac.freelancehub.application.services;
 
 import com.senac.freelancehub.application.DTOs.*;
 import com.senac.freelancehub.domain.entities.Cliente;
-import com.senac.freelancehub.domain.entities.EnumStatus;
 import com.senac.freelancehub.domain.entities.Usuario;
 import com.senac.freelancehub.domain.repository.ClienteRepository;
 import com.senac.freelancehub.domain.repository.UsuarioRepository;
-import com.senac.freelancehub.domain.entities.EnumTipoCliente;
-import com.senac.freelancehub.domain.valueobject.CNPJ;
-import com.senac.freelancehub.domain.valueobject.CPF;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,7 +50,7 @@ public class ClienteService implements ClienteServicePort {
         if (id == 0L) {
             // novo cliente
             cliente = new Cliente();
-            cliente.setStatus(EnumStatus.ATIVO);
+            cliente.ativar();
         } else {
             // cliente existente
             cliente = clienteRepository.findById(id).orElse(null);
@@ -63,33 +59,16 @@ public class ClienteService implements ClienteServicePort {
             }
         }
 
-        // MUDANÇA: o tipo do cliente não muda, usa o que já está salvo (cliente antigo sem tipo é pessoa)
-        boolean empresa = cliente.getTipo() == EnumTipoCliente.EMPRESA;
-
-        // valida cpf (pessoa) ou cnpj (empresa) e email antes de salvar
-        if (empresa) {
-            if (!CNPJ.isValidCnpj(request.cnpj())) throw new IllegalArgumentException("CNPJ Invalido!");
-        } else {
-            if (!CPF.isValidCpf(request.cpf())) throw new IllegalArgumentException("CPF Invalido!");
-        }
-        if (request.email() == null || !request.email().contains("@")) throw new IllegalArgumentException("Email Invalido!");
+        // o tipo do cliente não muda, usa o que já está salvo (cliente antigo sem tipo é pessoa)
+        // a entidade valida o cpf (pessoa) ou o cnpj (empresa) e o email
+        cliente.definirDocumento(cliente.ehEmpresa() ? request.razaoSocial() : null, request.cpf(), request.cnpj());
+        cliente.definirEmail(request.email());
 
         cliente.setNome(request.nome());
-        if (empresa) {
-            cliente.setRazaoSocial(request.razaoSocial());
-            cliente.setCnpj(request.cnpj());
-        } else {
-            cliente.setCpf(request.cpf());
-        }
-        cliente.setEmail(request.email());
         cliente.setTelefone(request.telefone());
-        cliente.setCep(request.cep());
-        cliente.setLogradouro(request.logradouro());
-        cliente.setBairro(request.bairro());
-        cliente.setCidade(request.cidade());
-        cliente.setUf(request.uf());
+        cliente.atualizarEndereco(request.cep(), request.logradouro(), request.bairro(), request.cidade(), request.uf());
         if (request.status() != null) {
-            cliente.setStatus(request.status());
+            cliente.alterarStatus(request.status());
         }
 
         clienteRepository.save(cliente);
@@ -110,7 +89,7 @@ public class ClienteService implements ClienteServicePort {
         if (clienteBanco == null) {
             return false;
         }
-        clienteBanco.setStatus(statusRequest.status());
+        clienteBanco.alterarStatus(statusRequest.status());
         clienteRepository.save(clienteBanco);
         return true;
     }
@@ -124,7 +103,7 @@ public class ClienteService implements ClienteServicePort {
             return false;
         }
 
-        clienteBanco.setStatus(EnumStatus.EXCLUIDO);
+        clienteBanco.excluir();
         clienteRepository.save(clienteBanco);
         return true;
     }
