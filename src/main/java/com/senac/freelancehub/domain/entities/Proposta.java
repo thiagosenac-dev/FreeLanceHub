@@ -30,7 +30,14 @@ public class Proposta {
     public Projeto projeto;
 
     // REGRA: proposta nova nasce PENDENTE; o projeto precisa estar disponível e combinar com as habilidades do freelancer
-    public void enviar(Usuario freelancer, Projeto projeto) {
+    // REGRA: o projeto precisa existir e o freelancer só pode mandar uma proposta por projeto
+    public void enviar(Usuario freelancer, Projeto projeto, boolean jaEnviouParaEsteProjeto) {
+        if (projeto == null) {
+            throw new IllegalArgumentException("Projeto não encontrado!");
+        }
+        if (jaEnviouParaEsteProjeto) {
+            throw new IllegalArgumentException("Você já enviou uma proposta para este projeto!");
+        }
         if (!projeto.estaDisponivel() || !freelancer.temHabilidade(projeto.getCategoria())) {
             throw new IllegalArgumentException("Projeto indisponível para as suas habilidades!");
         }
@@ -89,5 +96,19 @@ public class Proposta {
     // REGRA: multiusuário, o cliente dono do projeto
     public boolean pertenceAoCliente(Long clienteId) {
         return this.projeto != null && this.projeto.pertenceAoCliente(clienteId);
+    }
+
+    // REGRA: ao aceitar, as outras propostas pendentes do mesmo projeto são recusadas e o projeto é concluído
+    // devolve as propostas recusadas para o service salvar
+    public java.util.List<Proposta> aceitar(java.util.List<Proposta> propostasDoProjeto) {
+        alterarStatus(EnumStatusProposta.ACEITA);
+
+        var recusadas = propostasDoProjeto.stream()
+                .filter(outra -> !outra.getId().equals(this.id) && outra.estaPendente())
+                .toList();
+        recusadas.forEach(Proposta::recusar);
+
+        this.projeto.concluir();
+        return recusadas;
     }
 }

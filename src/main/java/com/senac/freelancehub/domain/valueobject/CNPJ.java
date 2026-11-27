@@ -72,4 +72,10 @@ public class CNPJ {
                 .replaceAll("(\\d{2})(\\d{3})(\\d{3})(\\d{4})(\\d{2})","$1.$2.$3/$4-$5");
     }
 
+    // REGRA: CNPJ não pode repetir (o service só consulta o banco e informa se já existe)
+    public static void validarDisponivel(boolean cnpjJaCadastrado) {
+        if (cnpjJaCadastrado) {
+            throw new IllegalArgumentException("CNPJ já cadastrado!");
+        }
+    }
 }

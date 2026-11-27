@@ -78,11 +78,30 @@ public class Cliente {
     }
 
     // REGRA: e-mail precisa ter @
-    public void definirEmail(String email) {
+    public static void validarEmail(String email) {
         if (email == null || !email.contains("@")) {
             throw new IllegalArgumentException("Email Invalido!");
         }
+    }
+
+    public void definirEmail(String email) {
+        validarEmail(email);
         this.email = email;
+    }
+
+    // REGRA: no cadastro, o cliente precisa dizer se é pessoa ou empresa
+    public static void validarTipo(EnumTipoCliente tipo) {
+        if (tipo == null) {
+            throw new IllegalArgumentException("Informe se é pessoa ou empresa!");
+        }
+    }
+
+    // REGRA: no cadastro, o endereço vem do ViaCEP, então cep, cidade e uf são obrigatórios
+    public void cadastrarEndereco(String cep, String logradouro, String bairro, String cidade, String uf) {
+        if (cep == null || cep.isBlank() || cidade == null || cidade.isBlank() || uf == null || uf.isBlank()) {
+            throw new IllegalArgumentException("Informe um CEP válido e aguarde o endereço ser preenchido!");
+        }
+        atualizarEndereco(cep, logradouro, bairro, cidade, uf);
     }
 
     public void atualizarEndereco(String cep, String logradouro, String bairro, String cidade, String uf) {

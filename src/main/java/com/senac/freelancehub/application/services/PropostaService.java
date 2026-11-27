@@ -129,16 +129,12 @@ public class PropostaService implements PropostaServicePort {
 
             // MUDANÇA: a proposta fica ligada ao projeto escolhido
             var projeto = projetoRepository.findById(request.projetoId()).orElse(null);
-            if (projeto == null) {
-                throw new IllegalArgumentException("Projeto não encontrado!");
-            }
-            // MUDANÇA: só uma proposta por projeto para cada freelancer
-            if (propostaRepository.existsByUsuario_IdAndProjeto_Id(usuarioLogado.id(), projeto.getId())) {
-                throw new IllegalArgumentException("Você já enviou uma proposta para este projeto!");
-            }
+            // o service só consulta o banco; a regra (uma proposta por projeto) fica na entidade
+            boolean jaEnviou = projeto != null
+                    && propostaRepository.existsByUsuario_IdAndProjeto_Id(usuarioLogado.id(), projeto.getId());
 
-            // o projeto precisa estar aberto e combinar com as habilidades do freelancer (regra na entidade)
-            proposta.enviar(freelancer, projeto);
+            // projeto existe, uma proposta por projeto, projeto aberto e habilidade do freelancer (regras na entidade)
+            proposta.enviar(freelancer, projeto, jaEnviou);
         } else {
             // proposta existente (MUDANÇA: só quem pode ver a proposta)
             proposta = propostaRepository.findById(id).orElse(null);
@@ -164,24 +160,15 @@ public class PropostaService implements PropostaServicePort {
             return false;
         }
 
-        // a entidade valida se o projeto ainda está aberto e troca o status
-        propostaBanco.alterarStatus(statusRequest.status());
-
-        // ao aceitar uma proposta, as outras pendentes do mesmo projeto são recusadas automaticamente
         if (statusRequest.status() == EnumStatusProposta.ACEITA) {
-
+            // a entidade aceita, recusa as outras pendentes e conclui o projeto; o service só busca e salva
             var projeto = propostaBanco.getProjeto();
-
-            propostaRepository.getPropostasByProjeto_Id(projeto.getId()).stream()
-                    .filter(outra -> !outra.getId().equals(propostaBanco.getId()) && outra.estaPendente())
-                    .forEach(outra -> {
-                        outra.recusar();
-                        propostaRepository.save(outra);
-                    });
-
-            // o projeto sai da lista de abertos
-            projeto.concluir();
+            var outras = projeto == null ? java.util.List.<Proposta>of() : propostaRepository.getPropostasByProjeto_Id(projeto.getId());
+            propostaRepository.saveAll(propostaBanco.aceitar(outras));
             projetoRepository.save(projeto);
+        } else {
+            // a entidade valida se o projeto ainda está aberto e troca o status
+            propostaBanco.alterarStatus(statusRequest.status());
         }
 
         propostaRepository.save(propostaBanco);

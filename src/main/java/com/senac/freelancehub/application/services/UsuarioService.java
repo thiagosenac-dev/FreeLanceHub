@@ -2,7 +2,6 @@ package com.senac.freelancehub.application.services;
 
 import com.senac.freelancehub.application.DTOs.*;
 import com.senac.freelancehub.domain.entities.Cliente;
-import com.senac.freelancehub.domain.entities.EnumStatus;
 import com.senac.freelancehub.domain.entities.Usuario;
 import com.senac.freelancehub.application.DTOs.CategoriaResponse;
 import com.senac.freelancehub.application.DTOs.HabilidadeRequest;
@@ -91,12 +90,10 @@ public class UsuarioService implements UsuarioServicePort {
 
         // novo usuário (MUDANÇA: criado pelo admin, agora é sempre outro admin)
         if (id == 0L) {
-            if (usuarioRepository.existsByEmail(request.email())) {
-                throw new IllegalArgumentException("E-mail já cadastrado!");
-            }
-            validarCpfDuplicado(request.cpf());
+            Usuario.validarEmailDisponivel(usuarioRepository.existsByEmail(request.email()));
+            CPF.validarDisponivel(cpfJaCadastrado(request.cpf()));
             Usuario usuarioNovo = new Usuario(request);
-            usuarioNovo.setRole("ROLE_ADMIN");
+            usuarioNovo.tornarAdmin();
             usuarioRepository.save(usuarioNovo);
             return new UsuarioResponse(usuarioNovo);
         }
@@ -107,9 +104,8 @@ public class UsuarioService implements UsuarioServicePort {
             return null;
         }
 
-        if (!request.email().equals(usuarioBanco.getEmail()) && usuarioRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("E-mail já cadastrado!");
-        }
+        boolean trocouEmail = !request.email().equals(usuarioBanco.getEmail());
+        Usuario.validarEmailDisponivel(trocouEmail && usuarioRepository.existsByEmail(request.email()));
 
         usuarioBanco.atualizarDados(request);
         usuarioRepository.save(usuarioBanco);
@@ -145,16 +141,11 @@ public class UsuarioService implements UsuarioServicePort {
     // cria o admin só se a secretKey bater com a do application.properties
     public CriarAdminResponse criarAdmin(CriarAdminRequest criarAdminRequest) {
 
-        if (!criarAdminRequest.secretKey().equals(secret)) {
-            throw new IllegalArgumentException("Chave secreta inválida!");
-        }
-
-        if (usuarioRepository.existsByEmail(criarAdminRequest.email())) {
-            throw new IllegalArgumentException("E-mail já cadastrado!");
-        }
+        Usuario.validarChaveAdmin(criarAdminRequest.secretKey(), secret);
+        Usuario.validarEmailDisponivel(usuarioRepository.existsByEmail(criarAdminRequest.email()));
 
         Usuario usuarioAdminSalvar = new Usuario(criarAdminRequest);
-        usuarioAdminSalvar.setStatus(EnumStatus.ATIVO);
+        usuarioAdminSalvar.tornarAdmin();
         usuarioRepository.save(usuarioAdminSalvar);
 
         return new CriarAdminResponse(usuarioAdminSalvar.getId(), "Usuario Salvo com sucesso!");
@@ -214,11 +205,8 @@ public class UsuarioService implements UsuarioServicePort {
     // MUDANÇA (novo): cadastro público, cria um usuário freelancer
     public UsuarioResponse registrarFreelancer(UsuarioRequest request) {
 
-        if (usuarioRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("E-mail já cadastrado!");
-        }
-
-        validarCpfDuplicado(request.cpf());
+        Usuario.validarEmailDisponivel(usuarioRepository.existsByEmail(request.email()));
+        CPF.validarDisponivel(cpfJaCadastrado(request.cpf()));
 
         Usuario freelancer = new Usuario(request);
         freelancer.atualizarEndereco(request.cep(), request.logradouro(), request.bairro(), request.cidade(), request.uf());
@@ -230,19 +218,11 @@ public class UsuarioService implements UsuarioServicePort {
     // MUDANÇA (novo): cadastro público do cliente (pessoa ou empresa), salva o Cliente e o Usuario dele (ROLE_CLIENTE)
     public ClienteResponse registrarCliente(RegistrarClienteRequest request) {
 
-        if (request.tipo() == null) {
-            throw new IllegalArgumentException("Informe se é pessoa ou empresa!");
-        }
-        if (request.email() == null || !request.email().contains("@")) {
-            throw new IllegalArgumentException("Email Invalido!");
-        }
-        if (request.senha() == null || request.senha().isBlank()) {
-            throw new IllegalArgumentException("Informe a senha!");
-        }
-        if (usuarioRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("E-mail já cadastrado!");
-        }
-        validarEndereco(request.cep(), request.cidade(), request.uf());
+        // as regras ficam nas entidades; o service só consulta o banco e informa
+        Cliente.validarTipo(request.tipo());
+        Cliente.validarEmail(request.email());
+        Usuario.validarSenha(request.senha());
+        Usuario.validarEmailDisponivel(usuarioRepository.existsByEmail(request.email()));
 
         Cliente cliente = new Cliente();
         cliente.setTipo(request.tipo());
@@ -250,16 +230,16 @@ public class UsuarioService implements UsuarioServicePort {
 
         // a entidade valida a razão social e o cnpj (empresa) ou o cpf (pessoa)
         cliente.definirDocumento(request.razaoSocial(), request.cpf(), request.cnpj());
-        // a duplicidade precisa do banco, então continua aqui no service
+        // o service consulta o banco e o value object decide se pode
         if (cliente.ehEmpresa()) {
-            validarCnpjDuplicado(request.cnpj());
+            CNPJ.validarDisponivel(cnpjJaCadastrado(request.cnpj()));
         } else {
-            validarCpfDuplicado(request.cpf());
+            CPF.validarDisponivel(cpfJaCadastrado(request.cpf()));
         }
 
         cliente.definirEmail(request.email());
         cliente.setTelefone(request.telefone());
-        cliente.atualizarEndereco(request.cep(), request.logradouro(), request.bairro(), request.cidade(), request.uf());
+        cliente.cadastrarEndereco(request.cep(), request.logradouro(), request.bairro(), request.cidade(), request.uf());
         cliente.ativar();
 
         Usuario usuarioCliente = new Usuario(request, cliente);
@@ -270,17 +250,8 @@ public class UsuarioService implements UsuarioServicePort {
         return new ClienteResponse(cliente);
     }
 
-    // MUDANÇA (novo): o endereço vem do ViaCEP, então o cep, a cidade e a uf precisam estar preenchidos
-    // (logradouro e bairro podem vir vazios em CEP de cidade pequena)
-    private void validarEndereco(String cep, String cidade, String uf) {
-
-        if (cep == null || cep.isBlank() || cidade == null || cidade.isBlank() || uf == null || uf.isBlank()) {
-            throw new IllegalArgumentException("Informe um CEP válido e aguarde o endereço ser preenchido!");
-        }
-    }
-
-    // MUDANÇA (novo): impede cpf repetido (compara só os números, em usuários e clientes)
-    private void validarCpfDuplicado(String cpf) {
+    // consulta no banco se o cpf já existe (compara só os números, em usuários e clientes)
+    private boolean cpfJaCadastrado(String cpf) {
 
         String numeros = cpf == null ? "" : cpf.replaceAll("\\D", "");
 
@@ -289,21 +260,17 @@ public class UsuarioService implements UsuarioServicePort {
         boolean repetidoCliente = clienteRepository.findAll().stream()
                 .anyMatch(c -> c.getCpf() != null && c.getCpf().replaceAll("\\D", "").equals(numeros));
 
-        if (repetidoUsuario || repetidoCliente) {
-            throw new IllegalArgumentException("CPF já cadastrado!");
-        }
+        return repetidoUsuario || repetidoCliente;
     }
 
-    // MUDANÇA (novo): impede cnpj repetido (compara só os números)
-    private void validarCnpjDuplicado(String cnpj) {
+    // consulta no banco se o cnpj já existe (compara só os números)
+    private boolean cnpjJaCadastrado(String cnpj) {
 
         String numeros = cnpj == null ? "" : cnpj.replaceAll("\\D", "");
 
         boolean repetido = clienteRepository.findAll().stream()
                 .anyMatch(c -> c.getCnpj() != null && c.getCnpj().replaceAll("\\D", "").equals(numeros));
 
-        if (repetido) {
-            throw new IllegalArgumentException("CNPJ já cadastrado!");
-        }
+        return repetido;
     }
 }

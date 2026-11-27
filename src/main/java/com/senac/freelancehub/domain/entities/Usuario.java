@@ -219,4 +219,31 @@ public class Usuario implements UserDetails {
         return categoria != null && this.habilidades.stream()
                 .anyMatch(c -> c.getId().equals(categoria.getId()));
     }
+
+    // REGRA: e-mail não pode repetir (o service só consulta o banco e informa se já existe)
+    public static void validarEmailDisponivel(boolean emailJaCadastrado) {
+        if (emailJaCadastrado) {
+            throw new IllegalArgumentException("E-mail já cadastrado!");
+        }
+    }
+
+    // REGRA: senha é obrigatória
+    public static void validarSenha(String senha) {
+        if (senha == null || senha.isBlank()) {
+            throw new IllegalArgumentException("Informe a senha!");
+        }
+    }
+
+    // REGRA: o admin só é criado (pelo desktop) com a chave secreta certa
+    public static void validarChaveAdmin(String chaveInformada, String chaveCorreta) {
+        if (chaveInformada == null || !chaveInformada.equals(chaveCorreta)) {
+            throw new IllegalArgumentException("Chave secreta inválida!");
+        }
+    }
+
+    // REGRA: usuário criado pelo admin (ou pelo desktop) é admin e nasce ativo
+    public void tornarAdmin() {
+        this.role = "ROLE_ADMIN";
+        this.status = EnumStatus.ATIVO;
+    }
 }

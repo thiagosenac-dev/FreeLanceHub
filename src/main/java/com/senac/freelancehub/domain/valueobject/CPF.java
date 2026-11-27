@@ -81,4 +81,10 @@ public class CPF {
                 .replaceAll("(\\d{3})(\\d{3})(\\d{3})(\\d{2})","$1.$2.$3-$4");
     }
 
+    // REGRA: CPF não pode repetir (o service só consulta o banco e informa se já existe)
+    public static void validarDisponivel(boolean cpfJaCadastrado) {
+        if (cpfJaCadastrado) {
+            throw new IllegalArgumentException("CPF já cadastrado!");
+        }
+    }
 }
